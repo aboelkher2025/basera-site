@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basera — Corporate training and learning platform, Saudi Arabia</title>
+<meta name="description" content="Corporate training programmes, OD consulting and a learning platform for companies in Saudi Arabia.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens ---------- */
+  :root{
+    --petrol:#10373C;
+    --petrol-2:#0B2A2E;
+    --mint:#E4EDE8;
+    --mint-2:#D3E2DA;
+    --saffron:#E9A23B;
+    --saffron-2:#C8862A;
+    --ink:#16262A;
+    --ink-2:#4A5E62;
+    --white:#FBFAF6;
+    --line:rgba(16,55,60,.14);
+    --line-light:rgba(251,250,246,.18);
+    --radius:6px;
+    --max:1180px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
+    color:var(--ink);background:var(--white);
+    line-height:1.55;font-weight:400;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  img,svg{display:block;max-width:100%}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  :focus-visible{outline:3px solid var(--saffron);outline-offset:3px}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  h1,h2,h3{line-height:1.15;font-weight:600;letter-spacing:-.01em}
+  h1{font-size:clamp(2.2rem,5.2vw,4.1rem);font-weight:500}
+  h2{font-size:clamp(1.7rem,3.4vw,2.6rem)}
+  h3{font-size:1.15rem;font-weight:600}
+  p{max-width:62ch}
+  [dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3{letter-spacing:0}
+  [dir="rtl"] body,[dir="rtl"]{line-height:1.7}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    padding:14px 22px;border-radius:var(--radius);
+    font-weight:500;font-size:.98rem;
+    transition:transform .25s var(--ease),background .25s,color .25s,box-shadow .25s;
+  }
+  .btn-primary{background:var(--saffron);color:var(--ink)}
+  .btn-primary:hover{background:var(--saffron-2);transform:translateY(-2px)}
+  .btn-ghost{border:1.5px solid var(--line-light);color:var(--white)}
+  .btn-ghost:hover{background:rgba(251,250,246,.08)}
+  .btn-dark{background:var(--petrol);color:var(--white)}
+  .btn-dark:hover{background:var(--petrol-2);transform:translateY(-2px)}
+  .btn svg{width:18px;height:18px}
+  [dir="rtl"] .btn svg{transform:scaleX(-1)}
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(16,55,60,.82);backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line-light);color:var(--white);
+  }
+  .nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:20px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:1.15rem}
+  .logo-mark{width:30px;height:30px}
+  .nav-links{display:flex;gap:28px;font-size:.95rem}
+  .nav-links a{opacity:.85;position:relative;padding:6px 0}
+  .nav-links a::after{
+    content:"";position:absolute;left:0;bottom:0;height:2px;width:100%;
+    background:var(--saffron);transform:scaleX(0);transform-origin:left;
+    transition:transform .3s var(--ease);
+  }
+  [dir="rtl"] .nav-links a::after{transform-origin:right}
+  .nav-links a:hover{opacity:1}
+  .nav-links a:hover::after{transform:scaleX(1)}
+  .nav-actions{display:flex;align-items:center;gap:12px}
+  .lang{
+    display:flex;border:1.5px solid var(--line-light);border-radius:var(--radius);overflow:hidden;
+    font-size:.85rem;font-weight:500;
+  }
+  .lang button{padding:8px 12px;opacity:.7;transition:background .2s,opacity .2s}
+  .lang button.active{background:var(--white);color:var(--petrol);opacity:1}
+  .nav .btn{padding:10px 16px;font-size:.9rem}
+  .menu-btn{display:none;width:40px;height:40px;align-items:center;justify-content:center}
+  .menu-btn span{display:block;width:22px;height:2px;background:var(--white);position:relative}
+  .menu-btn span::before,.menu-btn span::after{content:"";position:absolute;left:0;width:22px;height:2px;background:var(--white)}
+  .menu-btn span::before{top:-7px}.menu-btn span::after{top:7px}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    background:var(--petrol);color:var(--white);
+    position:relative;overflow:hidden;
+    padding:80px 0 0;
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(60% 50% at 85% 20%,rgba(233,162,59,.18),transparent 70%),
+      radial-gradient(40% 40% at 10% 90%,rgba(228,237,232,.08),transparent 70%);
+    pointer-events:none;
+  }
+  .hero .wrap{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding-bottom:80px}
+  .hero-copy{opacity:0;transform:translateY(14px);animation:rise .9s var(--ease) .15s forwards}
+  .hero-kicker{font-size:.95rem;color:var(--mint);opacity:.85;margin-bottom:22px;display:flex;align-items:center;gap:12px}
+  .hero-kicker::before{content:"";width:28px;height:2px;background:var(--saffron)}
+  .hero h1{margin-bottom:22px;max-width:14ch}
+  .hero p{font-size:1.15rem;color:var(--mint);opacity:.9;margin-bottom:34px;max-width:46ch;font-weight:300}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+  .hero-note{margin-top:34px;font-size:.88rem;color:var(--mint);opacity:.65}
+
+  /* Journey diagram */
+  .journey{position:relative;width:100%;aspect-ratio:1/1;max-width:520px;margin-inline:auto}
+  .journey svg{width:100%;height:100%;overflow:visible}
+  .j-path{fill:none;stroke:var(--saffron);stroke-width:2.5;stroke-linecap:round;
+    stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 2.6s var(--ease) .6s forwards}
+  .j-path-ghost{fill:none;stroke:rgba(251,250,246,.14);stroke-width:2.5;stroke-dasharray:6 8}
+  .j-node{opacity:0;transform-origin:center;animation:pop .6s var(--ease) forwards}
+  .j-node circle.dot{fill:var(--petrol);stroke:var(--saffron);stroke-width:2.5}
+  .j-node circle.halo{fill:var(--saffron);opacity:.14}
+  .j-node text{font-family:inherit;font-size:14px;fill:var(--white);font-weight:500}
+  .j-node text.sub{font-size:11.5px;fill:var(--mint);opacity:.75;font-weight:300}
+  .j-node:nth-of-type(1){animation-delay:.9s}
+  .j-node:nth-of-type(2){animation-delay:1.5s}
+  .j-node:nth-of-type(3){animation-delay:2.1s}
+  .j-node:nth-of-type(4){animation-delay:2.8s}
+  [dir="rtl"] .j-node text{text-anchor:end}
+  .j-pulse{fill:var(--saffron);opacity:0;animation:pulse 2.4s ease-out 3.4s infinite}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes pop{0%{opacity:0;transform:scale(.6)}70%{transform:scale(1.08)}100%{opacity:1;transform:scale(1)}}
+  @keyframes rise{to{opacity:1;transform:none}}
+  @keyframes pulse{0%{opacity:.5;r:10}100%{opacity:0;r:34}}
+
+  /* ---------- Marquee strip ---------- */
+  .strip{background:var(--petrol-2);color:var(--mint);border-top:1px solid var(--line-light);overflow:hidden;padding:16px 0}
+  .strip-track{display:flex;gap:56px;white-space:nowrap;width:max-content;animation:scroll 40s linear infinite;font-size:.92rem;font-weight:300}
+  .strip-track span{display:flex;align-items:center;gap:56px}
+  .strip-track i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--saffron)}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+  [dir="rtl"] .strip-track{animation-name:scrollRtl}
+  @keyframes scrollRtl{to{transform:translateX(50%)}}
+
+  /* ---------- Sections ---------- */
+  section{padding:96px 0}
+  .section-head{margin-bottom:52px;max-width:60ch}
+  .section-head h2{margin-bottom:14px}
+  .section-head p{color:var(--ink-2);font-size:1.08rem}
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* Offers */
+  .offers{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .offer{padding:40px 32px;border-inline-end:1px solid var(--line);position:relative;transition:background .3s}
+  .offer:last-child{border-inline-end:0}
+  .offer:hover{background:var(--mint)}
+  .offer-icon{width:44px;height:44px;color:var(--petrol);margin-bottom:22px}
+  .offer h3{margin-bottom:12px}
+  .offer p{color:var(--ink-2);font-size:.98rem;margin-bottom:22px}
+  .offer ul{list-style:none;display:grid;gap:8px;font-size:.93rem}
+  .offer li{display:flex;gap:10px;align-items:flex-start}
+  .offer li::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--saffron);margin-top:.55em}
+
+  /* Domains */
+  .domains-sec{background:var(--mint)}
+  .domains{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .domain{
+    background:var(--white);padding:26px 24px;border-radius:var(--radius);
+    display:flex;flex-direction:column;justify-content:space-between;min-height:160px;
+    border:1px solid transparent;transition:border-color .3s,transform .3s var(--ease);
+  }
+  .domain:hover{border-color:var(--petrol);transform:translateY(-3px)}
+  .domain h3{font-size:1.05rem;font-weight:500}
+  .domain small{color:var(--ink-2);font-size:.88rem;margin-top:14px}
+
+
+  /* Courses search */
+  .search-bar{display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:18px}
+  .search-bar input{font:inherit;padding:16px 18px;border:1.5px solid var(--line);border-radius:var(--radius);background:var(--white);font-size:1.05rem}
+  .search-bar input:focus{border-color:var(--petrol);outline:none}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:34px}
+  .chip{padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);font-size:.88rem;transition:all .2s}
+  .chip.active,.chip:hover{background:var(--petrol);color:var(--white);border-color:var(--petrol)}
+  .courses{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .course{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;gap:12px;transition:border-color .3s,transform .3s var(--ease)}
+  .course:hover{border-color:var(--petrol);transform:translateY(-3px)}
+  .course .meta{font-size:.82rem;color:var(--ink-2);display:flex;gap:10px;flex-wrap:wrap}
+  .course .meta span::after{content:"·";margin-inline-start:10px;opacity:.5}
+  .course .meta span:last-child::after{content:""}
+  .course h3{font-size:1.05rem;font-weight:600}
+  .course p{font-size:.92rem;color:var(--ink-2);flex:1}
+  .course .foot{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+  .course .price{font-weight:600}
+  .course .cert{font-size:.8rem;color:var(--petrol);display:flex;align-items:center;gap:6px}
+  .course .cert svg{width:14px;height:14px}
+  .course .btn{padding:9px 14px;font-size:.88rem}
+  .empty{padding:40px;text-align:center;color:var(--ink-2);grid-column:1/-1}
+  .results-count{font-size:.9rem;color:var(--ink-2);margin-bottom:16px}
+
+  /* Verify */
+  .verify{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .verify p{color:var(--ink-2);font-size:1.05rem}
+  .verify-box{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:30px}
+  .verify-box .row2{display:flex;gap:10px}
+  .verify-box input{flex:1;font:inherit;padding:13px 16px;border:1.5px solid var(--line);border-radius:var(--radius);letter-spacing:.06em;text-transform:uppercase}
+  .verify-box input:focus{border-color:var(--petrol);outline:none}
+  .verify-result{margin-top:16px;padding:14px 16px;border-radius:var(--radius);font-size:.93rem;display:none}
+  .verify-result.ok{display:block;background:var(--mint)}
+  .verify-result.no{display:block;background:#F6E3D4}
+  .verify-result b{display:block}
+
+  /* Coach */
+  .coach{background:var(--petrol);color:var(--white)}
+  .coach .section-head p{color:var(--mint);opacity:.85}
+  .coach-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:start}
+  .coach-side p{color:var(--mint);opacity:.85;margin-bottom:20px}
+  .prompts{display:grid;gap:8px}
+  .prompts button{text-align:start;padding:12px 16px;border:1.5px solid var(--line-light);border-radius:var(--radius);color:var(--white);font-size:.92rem;transition:background .2s,border-color .2s}
+  .prompts button:hover{background:rgba(251,250,246,.08);border-color:var(--saffron)}
+  .chat{background:var(--white);color:var(--ink);border-radius:10px;display:flex;flex-direction:column;height:520px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.45)}
+  .chat-log{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:14px}
+  .msg{max-width:88%;padding:12px 16px;border-radius:12px;font-size:.95rem;line-height:1.5}
+  .msg.user{align-self:flex-end;background:var(--petrol);color:var(--white);border-end-end-radius:3px}
+  .msg.bot{align-self:flex-start;background:var(--mint);border-end-start-radius:3px}
+  .msg.bot.thinking{color:var(--ink-2)}
+  .msg.bot.thinking::after{content:"…";animation:dots 1.2s steps(3,end) infinite}
+  @keyframes dots{0%{content:"."}33%{content:".."}66%{content:"..."}}
+  .recs{align-self:stretch;display:grid;gap:8px}
+  .rec{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--radius);font-size:.9rem;transition:border-color .2s}
+  .rec:hover{border-color:var(--petrol)}
+  .rec small{display:block;color:var(--ink-2);font-size:.8rem}
+  .rec svg{flex:none;width:16px;height:16px;color:var(--petrol)}
+  [dir="rtl"] .rec svg{transform:scaleX(-1)}
+  .chat-input{display:flex;gap:10px;padding:14px;border-top:1px solid var(--line)}
+  .chat-input input{flex:1;font:inherit;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--radius)}
+  .chat-input input:focus{border-color:var(--petrol);outline:none}
+  .chat-input .btn{padding:12px 18px}
+  .chat-note{font-size:.78rem;color:var(--ink-2);padding:0 14px 12px}
+  @media (max-width:980px){.courses{grid-template-columns:1fr 1fr}.verify,.coach-grid{grid-template-columns:1fr;gap:32px}}
+  @media (max-width:720px){.courses{grid-template-columns:1fr}.search-bar{grid-template-columns:1fr}.chat{height:460px}}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+  .step-list{counter-reset:step;display:grid;gap:0}
+  .step{
+    counter-increment:step;display:grid;grid-template-columns:52px 1fr;gap:22px;
+    padding:28px 0;border-top:1px solid var(--line);
+  }
+  .step:last-child{border-bottom:1px solid var(--line)}
+  .step::before{
+    content:counter(step);width:44px;height:44px;border-radius:50%;
+    border:1.5px solid var(--petrol);display:flex;align-items:center;justify-content:center;
+    font-weight:600;color:var(--petrol);
+  }
+  .step h3{margin-bottom:6px}
+  .step p{color:var(--ink-2);font-size:.97rem}
+  .steps-aside{position:sticky;top:100px}
+  .steps-aside h2{margin-bottom:16px}
+  .steps-aside p{color:var(--ink-2);margin-bottom:28px}
+
+  /* Platform */
+  .platform{background:var(--petrol);color:var(--white)}
+  .platform .section-head p{color:var(--mint);opacity:.85}
+  .platform-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center}
+  .features{display:grid;gap:0}
+  .feature{padding:22px 0;border-top:1px solid var(--line-light);display:grid;grid-template-columns:36px 1fr;gap:18px}
+  .feature:last-child{border-bottom:1px solid var(--line-light)}
+  .feature svg{width:28px;height:28px;color:var(--saffron)}
+  .feature h3{margin-bottom:4px;font-size:1.05rem}
+  .feature p{color:var(--mint);opacity:.8;font-size:.95rem}
+
+  /* Dashboard mock */
+  .mock{
+    background:var(--white);color:var(--ink);border-radius:10px;padding:22px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.45);
+  }
+  .mock-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;font-size:.85rem;color:var(--ink-2)}
+  .mock-top b{color:var(--ink);font-weight:600;font-size:.95rem}
+  .bars{display:grid;gap:12px}
+  .bar{display:grid;grid-template-columns:110px 1fr 44px;gap:12px;align-items:center;font-size:.85rem}
+  .bar .track{height:10px;background:var(--mint);border-radius:5px;overflow:hidden}
+  .bar .fill{height:100%;background:var(--petrol);border-radius:5px;width:0;transition:width 1.2s var(--ease)}
+  .bar .fill.s{background:var(--saffron)}
+  .bar em{font-style:normal;color:var(--ink-2);text-align:end}
+  .mock-foot{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:22px;font-size:.82rem;color:var(--ink-2)}
+  .mock-foot b{display:block;color:var(--ink);font-size:1.15rem;font-weight:600}
+
+  /* Partners */
+  .partners{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .partners p{color:var(--ink-2);font-size:1.05rem;margin-bottom:22px}
+  .partner-points{display:grid;gap:14px;margin-bottom:30px}
+  .partner-points div{display:flex;gap:14px;align-items:flex-start}
+  .partner-points svg{flex:none;width:22px;height:22px;color:var(--petrol);margin-top:2px}
+  .partner-card{background:var(--mint);border-radius:10px;padding:36px;position:relative;overflow:hidden}
+  .partner-card::after{
+    content:"";position:absolute;inset-inline-end:-40px;bottom:-40px;width:180px;height:180px;
+    border-radius:50%;border:24px solid var(--mint-2);
+  }
+  .partner-card > *{position:relative;z-index:1}
+  .partner-card h3{font-size:1.35rem;margin-bottom:12px;font-weight:600}
+  .partner-card p{font-size:.98rem;margin-bottom:0}
+  .partner-card .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px;position:relative}
+  .tag{padding:6px 12px;border-radius:999px;background:var(--white);font-size:.85rem;color:var(--petrol)}
+
+  /* Contact */
+  .contact-sec{background:var(--mint)}
+  .contact{display:grid;grid-template-columns:1fr 1fr;gap:56px}
+  .contact p{color:var(--ink-2);font-size:1.05rem;margin-bottom:22px}
+  .contact-meta{display:grid;gap:10px;font-size:.95rem}
+  .contact-meta a{color:var(--petrol);font-weight:500;border-bottom:1px solid transparent}
+  .contact-meta a:hover{border-color:var(--petrol)}
+  form{background:var(--white);padding:34px;border-radius:10px;display:grid;gap:16px}
+  .field{display:grid;gap:6px}
+  .field label{font-size:.9rem;font-weight:500}
+  .field input,.field select,.field textarea{
+    font:inherit;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--radius);
+    background:var(--white);color:var(--ink);transition:border-color .2s;
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--petrol);outline:none}
+  .field textarea{min-height:110px;resize:vertical}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .form-ok{display:none;padding:14px;border-radius:var(--radius);background:var(--mint);font-size:.95rem}
+  .form-ok.show{display:block}
+
+  /* Footer */
+  footer{background:var(--petrol-2);color:var(--mint);padding:56px 0 32px;font-size:.92rem}
+  .foot{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px}
+  .foot p{opacity:.75;max-width:40ch;margin-top:12px;font-weight:300}
+  .foot h4{color:var(--white);font-weight:600;margin-bottom:14px;font-size:.95rem}
+  .foot ul{list-style:none;display:grid;gap:8px}
+  .foot a{opacity:.75}.foot a:hover{opacity:1}
+  .foot-bottom{border-top:1px solid var(--line-light);padding-top:22px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;opacity:.6;font-size:.85rem}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:980px){
+    .hero .wrap{grid-template-columns:1fr;gap:36px}
+    .journey{max-width:420px}
+    .offers{grid-template-columns:1fr}
+    .offer{border-inline-end:0;border-bottom:1px solid var(--line)}
+    .offer:last-child{border-bottom:0}
+    .domains{grid-template-columns:1fr 1fr}
+    .steps,.platform-grid,.partners,.contact{grid-template-columns:1fr;gap:40px}
+    .steps-aside{position:static}
+    .foot{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:720px){
+    section{padding:64px 0}
+    .hero{padding-top:56px}
+    .nav-links{display:none;position:absolute;top:68px;inset-inline:0;background:var(--petrol);flex-direction:column;padding:20px 24px;gap:18px;border-bottom:1px solid var(--line-light)}
+    .nav-links.open{display:flex}
+    .menu-btn{display:flex}
+    .nav .btn{display:none}
+    .row{grid-template-columns:1fr}
+    .foot{grid-template-columns:1fr}
+    .domains{grid-template-columns:1fr}
+    .bar{grid-template-columns:90px 1fr 40px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}
+    .hero-copy,.j-node{opacity:1;transform:none}
+    .j-path{stroke-dashoffset:0}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top">
+      <svg class="logo-mark" viewBox="0 0 30 30" fill="none" aria-hidden="true">
+        <path d="M15 3 L27 10 V20 L15 27 L3 20 V10 Z" stroke="#E9A23B" stroke-width="2"/>
+        <path d="M9 19 L15 9 L21 19" stroke="#FBFAF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span data-i18n="brand">Basera</span>
+    </a>
+    <nav class="nav-links" id="navLinks">
+      <a href="#offers" data-i18n="nav_offers">What we do</a>
+      <a href="#domains" data-i18n="nav_domains">Programmes</a>
+      <a href="#courses" data-i18n="nav_courses">Courses</a>
+      <a href="#coach" data-i18n="nav_coach">Career coach</a>
+      <a href="#platform" data-i18n="nav_platform">Platform</a>
+      <a href="#partners" data-i18n="nav_partners">Trainers</a>
+      <a href="#contact" data-i18n="nav_contact">Contact</a>
+    </nav>
+    <div class="nav-actions">
+      <div class="lang" role="group" aria-label="Language">
+        <button class="active" data-lang="en" type="button">EN</button>
+        <button data-lang="ar" type="button">عربي</button>
+      </div>
+      <a class="btn btn-primary" href="#contact" data-i18n="cta_proposal">Request a proposal</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu" type="button"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-copy">
+      <div class="hero-kicker" data-i18n="hero_kicker">Corporate training and learning platform — Saudi Arabia</div>
+      <h1 data-i18n="hero_h1">Train your people. See the results.</h1>
+      <p data-i18n="hero_p">Practical programmes for HR, leadership and operations teams, delivered in Arabic and English, with a platform that shows you who learned what — and what changed.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#contact">
+          <span data-i18n="cta_proposal">Request a proposal</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="#courses" data-i18n="cta_catalogue">Find a course</a>
+      </div>
+      <div class="hero-note" data-i18n="hero_note">Delivered on site, live online, or self-paced on your own branded learning portal.</div>
+    </div>
+
+    <div class="journey" aria-hidden="true">
+      <svg viewBox="0 0 520 520">
+        <path class="j-path-ghost" d="M70 420 C 70 300, 180 300, 200 230 S 330 120, 320 110 S 420 60, 450 100"/>
+        <path class="j-path" d="M70 420 C 70 300, 180 300, 200 230 S 330 120, 320 110 S 420 60, 450 100"/>
+
+        <g class="j-node">
+          <circle class="halo" cx="70" cy="420" r="30"/>
+          <circle class="dot" cx="70" cy="420" r="11"/>
+          <text x="110" y="416" data-i18n="j1">Enrol</text>
+          <text class="sub" x="110" y="436" data-i18n="j1s">Your teams, your cohorts</text>
+        </g>
+        <g class="j-node">
+          <circle class="halo" cx="200" cy="230" r="30"/>
+          <circle class="dot" cx="200" cy="230" r="11"/>
+          <text x="240" y="226" data-i18n="j2">Learn</text>
+          <text class="sub" x="240" y="246" data-i18n="j2s">Live, on site or self-paced</text>
+        </g>
+        <g class="j-node">
+          <circle class="halo" cx="320" cy="110" r="30"/>
+          <circle class="dot" cx="320" cy="110" r="11"/>
+          <text x="170" y="72" data-i18n="j3">Certify</text>
+          <text class="sub" x="170" y="92" data-i18n="j3s">Verified, shareable</text>
+        </g>
+        <g class="j-node">
+          <circle class="halo" cx="450" cy="100" r="30"/>
+          <circle class="dot" cx="450" cy="100" r="11"/>
+          <circle class="j-pulse" cx="450" cy="100" r="10"/>
+          <text x="330" y="150" data-i18n="j4">Report</text>
+          <text class="sub" x="330" y="170" data-i18n="j4s">Completion, scores, impact</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<div class="strip" aria-hidden="true">
+  <div class="strip-track">
+    <span data-i18n="strip">Organization development <i></i> Compensation and benefits <i></i> Change management <i></i> Leadership <i></i> HR analytics <i></i> Customer experience <i></i> Sales and aftersales <i></i> Process automation</span>
+    <span data-i18n="strip">Organization development <i></i> Compensation and benefits <i></i> Change management <i></i> Leadership <i></i> HR analytics <i></i> Customer experience <i></i> Sales and aftersales <i></i> Process automation</span>
+  </div>
+</div>
+
+<!-- ================= OFFERS ================= -->
+<section id="offers">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 data-i18n="offers_h2">Three ways we work with companies</h2>
+      <p data-i18n="offers_p">Whether you need a single workshop or a full learning function, the same team and the same platform sit behind it.</p>
+    </div>
+    <div class="offers reveal">
+      <article class="offer">
+        <svg class="offer-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="10" width="32" height="24" rx="3"/><path d="M6 18h32M14 26h8"/></svg>
+        <h3 data-i18n="o1_h">Training programmes</h3>
+        <p data-i18n="o1_p">Curriculum built for how Saudi companies actually operate, delivered by practitioners who have done the work.</p>
+        <ul>
+          <li data-i18n="o1_l1">Public and in-house cohorts</li>
+          <li data-i18n="o1_l2">Arabic and English delivery</li>
+          <li data-i18n="o1_l3">Assessment and certification</li>
+        </ul>
+      </article>
+      <article class="offer">
+        <svg class="offer-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="22" cy="22" r="14"/><path d="M22 12v10l7 4"/></svg>
+        <h3 data-i18n="o2_h">Organization development consulting</h3>
+        <p data-i18n="o2_p">Structure, grading, pay frameworks, workforce planning and change roadmaps — with the training to make them stick.</p>
+        <ul>
+          <li data-i18n="o2_l1">Org design and operating models</li>
+          <li data-i18n="o2_l2">Compensation and benefits frameworks</li>
+          <li data-i18n="o2_l3">HR process automation</li>
+        </ul>
+      </article>
+      <article class="offer">
+        <svg class="offer-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="8" width="32" height="22" rx="3"/><path d="M16 36h12M22 30v6"/></svg>
+        <h3 data-i18n="o3_h">A learning platform for your company</h3>
+        <p data-i18n="o3_p">Your own branded portal for onboarding, compliance and internal courses, with completion reports your leadership can read.</p>
+        <ul>
+          <li data-i18n="o3_l1">Your logo, your domain</li>
+          <li data-i18n="o3_l2">Upload your own content</li>
+          <li data-i18n="o3_l3">Reports by department and manager</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DOMAINS ================= -->
+<section class="domains-sec" id="domains">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 data-i18n="dom_h2">Programme areas</h2>
+      <p data-i18n="dom_p">Each area has beginner-to-advanced tracks. Ask for the full catalogue or a track built for your team.</p>
+    </div>
+    <div class="domains reveal">
+      <a class="domain" href="#contact"><h3 data-i18n="d1">Human resources and OD</h3><small data-i18n="d1s">Job evaluation, grading, performance, workforce planning</small></a>
+      <a class="domain" href="#contact"><h3 data-i18n="d2">Leadership and management</h3><small data-i18n="d2s">First-time managers to senior leaders</small></a>
+      <a class="domain" href="#contact"><h3 data-i18n="d3">Sales and customer experience</h3><small data-i18n="d3s">Showroom, aftersales and service desk teams</small></a>
+      <a class="domain" href="#contact"><h3 data-i18n="d4">Data and HR analytics</h3><small data-i18n="d4s">Excel, Power BI and people dashboards</small></a>
+      <a class="domain" href="#contact"><h3 data-i18n="d5">Change management</h3><small data-i18n="d5s">Restructures, system rollouts, culture programmes</small></a>
+      <a class="domain" href="#contact"><h3 data-i18n="d6">Process automation and AI</h3><small data-i18n="d6s">Workflow tools and practical AI for business teams</small></a>
+      <a class="domain" href="#contact"><h3 data-i18n="d7">Finance for non-finance</h3><small data-i18n="d7s">Budgets, cost centres and business cases</small></a>
+      <a class="domain" href="#contact"><h3 data-i18n="d8">Compliance and onboarding</h3><small data-i18n="d8s">Policy, safety and new-joiner programmes</small></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COURSES ================= -->
+<section id="courses">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 data-i18n="cs_h2">Find a course for yourself</h2>
+      <p data-i18n="cs_p">Open cohorts and self-paced courses for individuals. Search by skill, role or certificate.</p>
+    </div>
+    <div class="reveal">
+      <div class="search-bar">
+        <input id="courseSearch" type="search" placeholder="Search e.g. Power BI, job evaluation, first-time manager" data-i18n-ph="cs_ph">
+        <button class="btn btn-dark" id="clearSearch" type="button" data-i18n="cs_clear">Clear</button>
+      </div>
+      <div class="filters" id="filters"></div>
+      <div class="results-count" id="resultsCount"></div>
+      <div class="courses" id="courseGrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VERIFY ================= -->
+<section class="domains-sec" id="verify">
+  <div class="wrap verify">
+    <div class="reveal">
+      <h2 data-i18n="v_h2" style="margin-bottom:16px">Verify a certificate</h2>
+      <p data-i18n="v_p">Every Basera certificate carries a code. Employers and recruiters can check it here in seconds — no account needed.</p>
+    </div>
+    <div class="verify-box reveal">
+      <div class="row2">
+        <input id="certCode" placeholder="BSR-2026-XXXXX" aria-label="Certificate code">
+        <button class="btn btn-dark" id="certBtn" type="button" data-i18n="v_btn">Check</button>
+      </div>
+      <div class="verify-result" id="certResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COACH ================= -->
+<section class="coach" id="coach">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 data-i18n="co_h2">Ask the career coach</h2>
+      <p data-i18n="co_p">Tell it where you are and where you want to go. It answers from our course catalogue and points you to the right track — in Arabic or English.</p>
+    </div>
+    <div class="coach-grid reveal">
+      <div class="coach-side">
+        <p data-i18n="co_side">Try one of these, or type your own:</p>
+        <div class="prompts" id="prompts">
+          <button type="button" data-i18n="q1">I'm an HR coordinator and want to move into OD</button>
+          <button type="button" data-i18n="q2">I manage a showroom team and struggle with performance conversations</button>
+          <button type="button" data-i18n="q3">Which certificate helps me become an HR analyst?</button>
+          <button type="button" data-i18n="q4">أنا محاسب وأريد فهم تحليلات البيانات في Power BI</button>
+        </div>
+      </div>
+      <div class="chat">
+        <div class="chat-log" id="chatLog">
+          <div class="msg bot" data-i18n="co_hello">Hi. What's your current role, and what do you want to be able to do in the next year?</div>
+        </div>
+        <div class="chat-input">
+          <input id="chatInput" placeholder="Type your message" data-i18n-ph="co_ph" aria-label="Message">
+          <button class="btn btn-primary" id="chatSend" type="button" data-i18n="co_send">Send</button>
+        </div>
+        <div class="chat-note" data-i18n="co_note">The coach recommends only from Basera's catalogue. It does not give legal or financial advice.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STEPS ================= -->
+<section id="how">
+  <div class="wrap steps">
+    <div class="steps-aside reveal">
+      <h2 data-i18n="how_h2">How an engagement runs</h2>
+      <p data-i18n="how_p">No long discovery phases. We scope in a week, deliver in weeks, and hand you a report that shows what changed.</p>
+      <a class="btn btn-dark" href="#contact" data-i18n="cta_talk">Talk to us</a>
+    </div>
+    <div class="step-list reveal">
+      <div class="step"><div><h3 data-i18n="s1_h">Scope the need</h3><p data-i18n="s1_p">A short call with HR and the business owner to agree audience, outcomes and format.</p></div></div>
+      <div class="step"><div><h3 data-i18n="s2_h">Build the track</h3><p data-i18n="s2_p">We adapt the curriculum to your policies, systems and vocabulary, then set up your cohorts on the platform.</p></div></div>
+      <div class="step"><div><h3 data-i18n="s3_h">Deliver</h3><p data-i18n="s3_p">On site, live online or self-paced. Attendance, quizzes and feedback are captured automatically.</p></div></div>
+      <div class="step"><div><h3 data-i18n="s4_h">Report and follow up</h3><p data-i18n="s4_p">Completion, scores and manager feedback in one report, with a follow-up plan for the next quarter.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATFORM ================= -->
+<section class="platform" id="platform">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <h2 data-i18n="pl_h2">The platform behind every programme</h2>
+      <p data-i18n="pl_p">Built for companies that need to prove training happened — to auditors, to leadership, and to the employees themselves.</p>
+    </div>
+    <div class="platform-grid reveal">
+      <div class="features">
+        <div class="feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+          <div><h3 data-i18n="f1_h">Your branding, your domain</h3><p data-i18n="f1_p">Each company gets its own portal. Learners see your name, not ours.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16M8 15v-4M12 15V8M16 15v-6"/></svg>
+          <div><h3 data-i18n="f2_h">Reports managers can read</h3><p data-i18n="f2_p">Completion by department, quiz scores, time spent, exported to Excel or sent monthly by email.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+          <div><h3 data-i18n="f3_h">Verified certificates</h3><p data-i18n="f3_p">Every certificate carries a code anyone can check. Bilingual, with your logo alongside ours.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg>
+          <div><h3 data-i18n="f4_h">Arabic first</h3><p data-i18n="f4_p">Right-to-left from the ground up. Switch language per learner, not per company.</p></div>
+        </div>
+        <div class="feature">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16v10H4zM8 21h8M12 17v4"/></svg>
+          <div><h3 data-i18n="f5_h">Bring your own content</h3><p data-i18n="f5_p">Upload videos, PDFs and SCORM packages next to our programmes. One catalogue, one report.</p></div>
+        </div>
+      </div>
+
+      <div class="mock" id="mock">
+        <div class="mock-top"><b data-i18n="m_title">Completion by department</b><span data-i18n="m_period">Q3 2026</span></div>
+        <div class="bars">
+          <div class="bar"><span data-i18n="m_b1">Sales</span><div class="track"><div class="fill" data-w="92"></div></div><em>92%</em></div>
+          <div class="bar"><span data-i18n="m_b2">Aftersales</span><div class="track"><div class="fill" data-w="78"></div></div><em>78%</em></div>
+          <div class="bar"><span data-i18n="m_b3">Finance</span><div class="track"><div class="fill" data-w="85"></div></div><em>85%</em></div>
+          <div class="bar"><span data-i18n="m_b4">HR</span><div class="track"><div class="fill" data-w="100"></div></div><em>100%</em></div>
+          <div class="bar"><span data-i18n="m_b5">Operations</span><div class="track"><div class="fill s" data-w="61"></div></div><em>61%</em></div>
+        </div>
+        <div class="mock-foot">
+          <div><b>412</b><span data-i18n="m_f1">learners</span></div>
+          <div><b>86%</b><span data-i18n="m_f2">average score</span></div>
+          <div><b>3.4h</b><span data-i18n="m_f3">avg. time per course</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PARTNERS ================= -->
+<section id="partners">
+  <div class="wrap partners">
+    <div class="reveal">
+      <h2 data-i18n="pa_h2" style="margin-bottom:16px">For independent trainers and agencies</h2>
+      <p data-i18n="pa_p">Bring your programme. We handle the client, the classroom, the platform and the paperwork. You deliver and get paid.</p>
+      <div class="partner-points">
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4L19 6"/></svg><span data-i18n="pa_1">List your course under our catalogue with your name on it</span></div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4L19 6"/></svg><span data-i18n="pa_2">Transparent revenue share, paid per cohort</span></div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l4 4L19 6"/></svg><span data-i18n="pa_3">Your own page, certificates and learner reports</span></div>
+      </div>
+      <a class="btn btn-dark" href="#contact" data-i18n="cta_partner">Apply as a trainer</a>
+    </div>
+    <div class="partner-card reveal">
+      <h3 data-i18n="pc_h">What we look for</h3>
+      <p data-i18n="pc_p">Practitioners with real operating experience in the Gulf, who can teach in Arabic or English and want a partner for the commercial side.</p>
+      <div class="tags">
+        <span class="tag" data-i18n="t1">HR and OD</span>
+        <span class="tag" data-i18n="t2">Leadership</span>
+        <span class="tag" data-i18n="t3">Sales</span>
+        <span class="tag" data-i18n="t4">Finance</span>
+        <span class="tag" data-i18n="t5">Data</span>
+        <span class="tag" data-i18n="t6">Automation</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section class="contact-sec" id="contact">
+  <div class="wrap contact">
+    <div class="reveal">
+      <h2 data-i18n="c_h2" style="margin-bottom:16px">Tell us what your team needs</h2>
+      <p data-i18n="c_p">Send a few lines and we'll come back within two working days with a proposal, or a call if it's quicker.</p>
+      <div class="contact-meta">
+        <a href="mailto:hello@basera.sa">hello@basera.sa</a>
+        <a href="tel:+966500000000">+966 50 000 0000</a>
+        <span data-i18n="c_loc">Riyadh, Saudi Arabia</span>
+      </div>
+    </div>
+    <form class="reveal" id="leadForm" novalidate>
+      <div class="row">
+        <div class="field"><label for="name" data-i18n="l_name">Your name</label><input id="name" name="name" required></div>
+        <div class="field"><label for="company" data-i18n="l_company">Company</label><input id="company" name="company" required></div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="email" data-i18n="l_email">Work email</label><input id="email" name="email" type="email" required></div>
+        <div class="field"><label for="need" data-i18n="l_need">I'm interested in</label>
+          <select id="need" name="need">
+            <option data-i18n="opt1">Training programmes</option>
+            <option data-i18n="opt2">OD consulting</option>
+            <option data-i18n="opt3">A learning platform for my company</option>
+            <option data-i18n="opt4">Becoming a trainer partner</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label for="msg" data-i18n="l_msg">What do you need?</label><textarea id="msg" name="msg"></textarea></div>
+      <button class="btn btn-primary" type="submit" data-i18n="l_send">Send request</button>
+      <div class="form-ok" id="formOk" data-i18n="l_ok">Request sent. We'll reply within two working days.</div>
+    </form>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div>
+        <div class="logo" style="color:var(--white)">
+          <svg class="logo-mark" viewBox="0 0 30 30" fill="none" aria-hidden="true"><path d="M15 3 L27 10 V20 L15 27 L3 20 V10 Z" stroke="#E9A23B" stroke-width="2"/><path d="M9 19 L15 9 L21 19" stroke="#FBFAF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span data-i18n="brand">Basera</span>
+        </div>
+        <p data-i18n="ft_p">Corporate training, organization development and a learning platform for companies in Saudi Arabia.</p>
+      </div>
+      <div>
+        <h4 data-i18n="ft_h1">Company</h4>
+        <ul>
+          <li><a href="#offers" data-i18n="nav_offers">What we do</a></li>
+          <li><a href="#domains" data-i18n="nav_domains">Programmes</a></li>
+          <li><a href="#courses" data-i18n="nav_courses">Courses</a></li>
+          <li><a href="#coach" data-i18n="nav_coach">Career coach</a></li>
+          <li><a href="#partners" data-i18n="nav_partners">Trainers</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 data-i18n="ft_h2">Platform</h4>
+        <ul>
+          <li><a href="#platform" data-i18n="ft_l1">Features</a></li>
+          <li><a href="#" data-i18n="ft_l2">Learner sign in</a></li>
+          <li><a href="#verify" data-i18n="ft_l3">Verify a certificate</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span data-i18n="ft_c">© 2026 Basera. All rights reserved.</span>
+      <span><a href="#" data-i18n="ft_pr">Privacy</a> &nbsp;&nbsp; <a href="#" data-i18n="ft_tm">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+<div hidden id="i18n-defaults">
+  <span data-i18n="fl_all">All</span><span data-i18n="fl_hr">HR and OD</span><span data-i18n="fl_lead">Leadership</span><span data-i18n="fl_sales">Sales and customers</span><span data-i18n="fl_data">Data</span><span data-i18n="fl_auto">Automation and AI</span><span data-i18n="fl_fin">Finance</span>
+  <span data-i18n="lv_b">Beginner</span><span data-i18n="lv_i">Intermediate</span><span data-i18n="lv_a">Advanced</span><span data-i18n="fm_live">Live online</span><span data-i18n="fm_self">Self-paced</span><span data-i18n="fm_site">On site</span><span data-i18n="cert">Certificate</span><span data-i18n="hrs">hrs</span><span data-i18n="sar">SAR</span><span data-i18n="enrol">Enrol</span>
+  <span data-i18n="rc_one">1 course</span><span data-i18n="rc_many">courses</span><span data-i18n="rc_none">No matching courses. Try another word, or ask the career coach.</span>
+  <span data-i18n="v_ok">Certificate is valid</span><span data-i18n="v_no">No certificate found with that code. Check it and try again.</span><span data-i18n="v_empty">Enter a certificate code first.</span>
+  <span data-i18n="co_err">The coach is unavailable right now. Here are the closest courses to what you wrote:</span><span data-i18n="co_view">View course</span>
+</div>
+<script>
+  // ---------- Translations ----------
+  const T = {
+    ar: {
+      brand:"بصيرة",
+      nav_offers:"ماذا نقدم", nav_domains:"البرامج", nav_platform:"المنصة", nav_partners:"المدربون", nav_contact:"تواصل معنا",
+      cta_proposal:"اطلب عرضاً", cta_catalogue:"تصفح البرامج", cta_talk:"تحدث معنا", cta_partner:"قدّم كمدرب",
+      hero_kicker:"تدريب الشركات ومنصة تعلّم — المملكة العربية السعودية",
+      hero_h1:"درّب فريقك. وشاهد النتائج.",
+      hero_p:"برامج عملية لفرق الموارد البشرية والقيادة والعمليات، بالعربية والإنجليزية، مع منصة تُظهر لك من تعلّم ماذا — وما الذي تغيّر.",
+      hero_note:"تُقدَّم حضورياً، أو مباشرة عن بُعد، أو ذاتياً عبر بوابة تعلّم تحمل علامتك.",
+      j1:"التسجيل", j1s:"فرقك ومجموعاتك", j2:"التعلّم", j2s:"مباشر أو حضوري أو ذاتي", j3:"الشهادة", j3s:"موثّقة وقابلة للمشاركة", j4:"التقرير", j4s:"الإتمام والدرجات والأثر",
+      strip:"التطوير التنظيمي • التعويضات والمزايا • إدارة التغيير • القيادة • تحليلات الموارد البشرية • تجربة العملاء • المبيعات وما بعد البيع • أتمتة العمليات",
+      offers_h2:"ثلاث طرق نعمل بها مع الشركات",
+      offers_p:"سواء احتجت ورشة واحدة أو وظيفة تعلّم كاملة، نفس الفريق ونفس المنصة خلفها.",
+      o1_h:"البرامج التدريبية", o1_p:"مناهج مبنية على كيفية عمل الشركات السعودية فعلياً، يقدّمها ممارسون خاضوا التجربة.",
+      o1_l1:"مجموعات عامة وداخلية", o1_l2:"تقديم بالعربية والإنجليزية", o1_l3:"تقييم وشهادات",
+      o2_h:"استشارات التطوير التنظيمي", o2_p:"الهيكلة والتدرج الوظيفي وأطر الأجور وتخطيط القوى العاملة وخرائط التغيير — مع التدريب الذي يثبّتها.",
+      o2_l1:"التصميم التنظيمي ونماذج التشغيل", o2_l2:"أطر التعويضات والمزايا", o2_l3:"أتمتة عمليات الموارد البشرية",
+      o3_h:"منصة تعلّم لشركتك", o3_p:"بوابتك الخاصة بعلامتك للتهيئة والامتثال والدورات الداخلية، مع تقارير إتمام تقرؤها قيادتك.",
+      o3_l1:"شعارك ونطاقك", o3_l2:"ارفع محتواك الخاص", o3_l3:"تقارير حسب الإدارة والمدير",
+      dom_h2:"مجالات البرامج", dom_p:"كل مجال يضم مسارات من المبتدئ إلى المتقدم. اطلب الكتالوج الكامل أو مساراً مبنياً لفريقك.",
+      d1:"الموارد البشرية والتطوير التنظيمي", d1s:"تقييم الوظائف والتدرج والأداء وتخطيط القوى العاملة",
+      d2:"القيادة والإدارة", d2s:"من المدير الجديد إلى القيادات العليا",
+      d3:"المبيعات وتجربة العملاء", d3s:"فرق المعارض وما بعد البيع ومكاتب الخدمة",
+      d4:"البيانات وتحليلات الموارد البشرية", d4s:"Excel وPower BI ولوحات الأفراد",
+      d5:"إدارة التغيير", d5s:"إعادة الهيكلة وإطلاق الأنظمة وبرامج الثقافة",
+      d6:"أتمتة العمليات والذكاء الاصطناعي", d6s:"أدوات سير العمل وذكاء اصطناعي عملي لفرق الأعمال",
+      d7:"المالية لغير الماليين", d7s:"الميزانيات ومراكز التكلفة ودراسات الجدوى",
+      d8:"الامتثال والتهيئة", d8s:"السياسات والسلامة وبرامج الموظف الجديد",
+      how_h2:"كيف يسير التعاقد", how_p:"بلا مراحل استكشاف طويلة. نحدد النطاق في أسبوع، وننفذ في أسابيع، ونسلّمك تقريراً يُظهر ما تغيّر.",
+      s1_h:"تحديد الاحتياج", s1_p:"مكالمة قصيرة مع الموارد البشرية وصاحب العمل للاتفاق على الجمهور والنتائج والصيغة.",
+      s2_h:"بناء المسار", s2_p:"نكيّف المنهج مع سياساتك وأنظمتك ومصطلحاتك، ثم نجهّز مجموعاتك على المنصة.",
+      s3_h:"التنفيذ", s3_p:"حضورياً أو مباشرة عن بُعد أو ذاتياً. يُسجَّل الحضور والاختبارات والتغذية الراجعة تلقائياً.",
+      s4_h:"التقرير والمتابعة", s4_p:"الإتمام والدرجات وملاحظات المديرين في تقرير واحد، مع خطة متابعة للربع القادم.",
+      pl_h2:"المنصة خلف كل برنامج", pl_p:"مبنية للشركات التي تحتاج إثبات أن التدريب حدث — للمدققين، وللقيادة، وللموظفين أنفسهم.",
+      f1_h:"علامتك ونطاقك", f1_p:"لكل شركة بوابتها الخاصة. يرى المتعلمون اسمك لا اسمنا.",
+      f2_h:"تقارير يقرؤها المديرون", f2_p:"الإتمام حسب الإدارة، ودرجات الاختبارات، والوقت المستغرق، تُصدَّر إلى Excel أو تُرسل شهرياً بالبريد.",
+      f3_h:"شهادات موثّقة", f3_p:"كل شهادة تحمل رمزاً يمكن لأي شخص التحقق منه. ثنائية اللغة وبشعارك إلى جانب شعارنا.",
+      f4_h:"العربية أولاً", f4_p:"من اليمين إلى اليسار من الأساس. بدّل اللغة لكل متعلم، لا لكل شركة.",
+      f5_h:"أحضر محتواك", f5_p:"ارفع الفيديو وPDF وحزم SCORM إلى جانب برامجنا. كتالوج واحد وتقرير واحد.",
+      m_title:"الإتمام حسب الإدارة", m_period:"الربع الثالث 2026",
+      m_b1:"المبيعات", m_b2:"ما بعد البيع", m_b3:"المالية", m_b4:"الموارد البشرية", m_b5:"العمليات",
+      m_f1:"متعلم", m_f2:"متوسط الدرجات", m_f3:"متوسط الوقت لكل دورة",
+      pa_h2:"للمدربين المستقلين والوكالات", pa_p:"أحضر برنامجك. نتولى العميل والقاعة والمنصة والأوراق. أنت تقدّم وتتقاضى.",
+      pa_1:"أدرج دورتك ضمن كتالوجنا باسمك", pa_2:"حصة إيرادات شفافة تُدفع لكل مجموعة", pa_3:"صفحتك الخاصة وشهاداتك وتقارير متعلميك",
+      pc_h:"ما نبحث عنه", pc_p:"ممارسون بخبرة تشغيلية حقيقية في الخليج، يستطيعون التدريس بالعربية أو الإنجليزية ويريدون شريكاً للجانب التجاري.",
+      t1:"الموارد البشرية", t2:"القيادة", t3:"المبيعات", t4:"المالية", t5:"البيانات", t6:"الأتمتة",
+      c_h2:"أخبرنا ماذا يحتاج فريقك", c_p:"أرسل بضعة أسطر وسنعود إليك خلال يومي عمل بعرض، أو بمكالمة إن كانت أسرع.",
+      c_loc:"الرياض، المملكة العربية السعودية",
+      l_name:"اسمك", l_company:"الشركة", l_email:"البريد الإلكتروني للعمل", l_need:"أنا مهتم بـ", l_msg:"ماذا تحتاج؟", l_send:"أرسل الطلب",
+      l_ok:"تم إرسال الطلب. سنرد خلال يومي عمل.",
+      opt1:"برامج تدريبية", opt2:"استشارات التطوير التنظيمي", opt3:"منصة تعلّم لشركتي", opt4:"أن أصبح مدرباً شريكاً",
+      ft_p:"تدريب الشركات والتطوير التنظيمي ومنصة تعلّم للشركات في المملكة العربية السعودية.",
+      ft_h1:"الشركة", ft_h2:"المنصة", ft_l1:"المزايا", ft_l2:"دخول المتعلم", ft_l3:"تحقق من شهادة",
+
+      nav_courses:"الدورات", nav_coach:"المرشد المهني",
+      cs_h2:"ابحث عن دورة لنفسك", cs_p:"مجموعات مفتوحة ودورات ذاتية للأفراد. ابحث بالمهارة أو الوظيفة أو الشهادة.",
+      cs_ph:"ابحث مثلاً: Power BI، تقييم الوظائف، المدير الجديد", cs_clear:"مسح",
+      fl_all:"الكل", fl_hr:"الموارد البشرية والتطوير التنظيمي", fl_lead:"القيادة", fl_sales:"المبيعات والعملاء", fl_data:"البيانات", fl_auto:"الأتمتة والذكاء الاصطناعي", fl_fin:"المالية",
+      lv_b:"مبتدئ", lv_i:"متوسط", lv_a:"متقدم", fm_live:"مباشر عن بُعد", fm_self:"ذاتي", fm_site:"حضوري", cert:"شهادة", hrs:"ساعة", sar:"ر.س", enrol:"سجّل",
+      rc_one:"دورة واحدة", rc_many:"دورة", rc_none:"لا توجد دورات مطابقة. جرّب كلمة أخرى أو اسأل المرشد المهني.",
+      v_h2:"تحقق من شهادة", v_p:"كل شهادة من بصيرة تحمل رمزاً. يمكن لأصحاب العمل والمسؤولين عن التوظيف التحقق منه هنا في ثوانٍ — بلا حساب.",
+      v_btn:"تحقق", v_ok:"الشهادة صالحة", v_no:"لم يُعثر على هذه الشهادة. تأكد من الرمز وحاول مجدداً.", v_empty:"أدخل رمز الشهادة أولاً.",
+      co_h2:"اسأل المرشد المهني", co_p:"أخبره أين أنت وإلى أين تريد الوصول. يجيب من كتالوج دوراتنا ويوجهك للمسار المناسب — بالعربية أو الإنجليزية.",
+      co_side:"جرّب أحد هذه الأسئلة أو اكتب سؤالك:",
+      q1:"أنا منسق موارد بشرية وأريد الانتقال إلى التطوير التنظيمي", q2:"أدير فريق معرض وأجد صعوبة في محادثات الأداء", q3:"أي شهادة تساعدني لأصبح محلل موارد بشرية؟", q4:"أنا محاسب وأريد فهم تحليلات البيانات في Power BI",
+      co_hello:"أهلاً. ما وظيفتك الحالية، وماذا تريد أن تتمكن من فعله خلال السنة القادمة؟",
+      co_ph:"اكتب رسالتك", co_send:"أرسل", co_note:"يوصي المرشد من كتالوج بصيرة فقط. لا يقدم نصائح قانونية أو مالية.",
+      co_err:"تعذر الاتصال بالمرشد الآن. إليك أقرب الدورات لما كتبته:",
+      co_view:"عرض الدورة",
+      ft_c:"© 2026 بصيرة. جميع الحقوق محفوظة.", ft_pr:"الخصوصية", ft_tm:"الشروط"
+    }
+  };
+  // Capture English defaults from the DOM
+  T.en = {};
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    if (!(k in T.en)) T.en[k] = el.innerHTML;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { T.en[el.dataset.i18nPh] = el.placeholder; });
+  let CUR = 'en';
+  const t = k => (T[CUR][k] ?? T.en[k] ?? k);
+
+  function setLang(lang){
+    const dict = T[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const v = dict[el.dataset.i18n];
+      if (v !== undefined) el.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => { const v = dict[el.dataset.i18nPh]; if (v !== undefined) el.placeholder = v; });
+    CUR = lang; renderCourses();
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.querySelectorAll('.lang button').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  }
+  document.querySelectorAll('.lang button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+
+  // ---------- Supabase ----------
+  const SB_URL = "https://brlhihishoilxyslwubj.supabase.co";
+  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybGhpaGlzaG9pbHh5c2x3dWJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDYyNzEsImV4cCI6MjEwNDg4MjI3MX0.xOcmd_ANs4wN7S5Cy7tTl5-St-iX73q_Ro5wRydaH4I"; // public anon key; RLS protects the data
+  const SB_H = {"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"};
+  const sb = {
+    async get(path){ const r = await fetch(`${SB_URL}/rest/v1/${path}`,{headers:SB_H}); if(!r.ok) throw new Error(r.status); return r.json(); },
+    async post(path, body, extra={}){ const r = await fetch(`${SB_URL}/rest/v1/${path}`,{method:"POST",headers:{...SB_H,...extra},body:JSON.stringify(body)}); if(!r.ok) throw new Error(r.status); return r.status===201&&!extra.Prefer?null:r.json().catch(()=>null); },
+    async fn(name, body){ const r = await fetch(`${SB_URL}/functions/v1/${name}`,{method:"POST",headers:SB_H,body:JSON.stringify(body)}); if(!r.ok) throw new Error(r.status); return r.json(); }
+  };
+
+  // ---------- Course dataset (fallback copy; live data loads from Supabase) ----------
+  let COURSES = [
+    {id:"hr-101", d:"hr",   lv:"b", fm:"live", h:16, p:1900, c:true,  en:["HR Fundamentals for Coordinators","Recruitment, onboarding, records and the Saudi labor law basics every HR coordinator needs."], ar:["أساسيات الموارد البشرية للمنسقين","التوظيف والتهيئة والسجلات وأساسيات نظام العمل السعودي لكل منسق موارد بشرية."], k:"hr coordinator labor law onboarding recruitment"},
+    {id:"hr-201", d:"hr",   lv:"i", fm:"live", h:24, p:3400, c:true,  en:["Job Evaluation and Grading","Point-factor evaluation, grade structures and salary bands, with a full worked case."], ar:["تقييم الوظائف والتدرج الوظيفي","التقييم بالنقاط وهياكل الدرجات ونطاقات الرواتب مع حالة عملية كاملة."], k:"job evaluation grading grades salary bands compensation C&B"},
+    {id:"hr-301", d:"hr",   lv:"a", fm:"site", h:32, p:5900, c:true,  en:["Organization Development Practitioner","Diagnosis, org design, operating models and change roadmaps for HR professionals moving into OD."], ar:["ممارس التطوير التنظيمي","التشخيص والتصميم التنظيمي ونماذج التشغيل وخرائط التغيير لمن ينتقل من الموارد البشرية إلى التطوير التنظيمي."], k:"OD organization development org design operating model transition career"},
+    {id:"hr-210", d:"hr",   lv:"i", fm:"self", h:10, p:900,  c:true,  en:["Performance Management that Works","Goal setting, calibration and mid-year reviews without the paperwork."], ar:["إدارة أداء فعّالة","وضع الأهداف والمعايرة والمراجعات نصف السنوية بلا بيروقراطية."], k:"performance management KPI appraisal goals"},
+    {id:"hr-220", d:"hr",   lv:"i", fm:"live", h:12, p:2200, c:true,  en:["Compensation and Benefits Essentials","Pay policy, allowances, incentives and market benchmarking in the GCC."], ar:["أساسيات التعويضات والمزايا","سياسة الأجور والبدلات والحوافز والمقارنة السوقية في الخليج."], k:"compensation benefits pay incentives allowances benchmarking"},
+    {id:"ld-101", d:"lead", lv:"b", fm:"live", h:16, p:2400, c:true,  en:["First-Time Manager","Delegation, one-to-ones, feedback and the first 90 days leading a team."], ar:["المدير لأول مرة","التفويض والاجتماعات الفردية والتغذية الراجعة وأول 90 يوماً في قيادة فريق."], k:"new manager supervisor team leader first time delegation"},
+    {id:"ld-201", d:"lead", lv:"i", fm:"site", h:16, p:2900, c:true,  en:["Difficult Conversations and Performance Coaching","How to raise underperformance, give hard feedback and coach frontline teams."], ar:["المحادثات الصعبة والتدريب على الأداء","كيف تطرح ضعف الأداء وتقدم ملاحظات صعبة وتدرّب فرق الخط الأمامي."], k:"difficult conversations feedback coaching underperformance showroom team performance"},
+    {id:"ld-301", d:"lead", lv:"a", fm:"site", h:24, p:6500, c:true,  en:["Leading Change","Sponsoring restructures, system rollouts and culture programmes as a senior leader."], ar:["قيادة التغيير","رعاية إعادة الهيكلة وإطلاق الأنظمة وبرامج الثقافة كقائد أول."], k:"change management leadership senior restructure"},
+    {id:"sl-101", d:"sales",lv:"b", fm:"site", h:12, p:1700, c:true,  en:["Showroom Sales Essentials","Needs discovery, handling objections and closing for vehicle and retail showrooms."], ar:["أساسيات البيع في المعارض","اكتشاف الاحتياج والتعامل مع الاعتراضات والإغلاق في معارض السيارات والتجزئة."], k:"sales showroom retail closing objections"},
+    {id:"sl-201", d:"sales",lv:"i", fm:"live", h:12, p:1900, c:true,  en:["Aftersales Customer Experience","Service advisor communication, complaint recovery and CSI improvement."], ar:["تجربة عملاء ما بعد البيع","تواصل مستشار الخدمة ومعالجة الشكاوى وتحسين مؤشر رضا العملاء."], k:"aftersales service advisor customer experience CSI complaints"},
+    {id:"dt-101", d:"data", lv:"b", fm:"self", h:12, p:1100, c:true,  en:["Excel for HR and Finance Teams","Lookups, pivots and clean data habits for people who live in spreadsheets."], ar:["Excel لفرق الموارد البشرية والمالية","دوال البحث والجداول المحورية وعادات البيانات النظيفة لمن يعمل بالجداول يومياً."], k:"excel pivot vlookup xlookup spreadsheets accountant"},
+    {id:"dt-201", d:"data", lv:"i", fm:"live", h:20, p:3200, c:true,  en:["Power BI for Business Teams","Power Query, data models and DAX to build dashboards from your own company data."], ar:["Power BI لفرق الأعمال","Power Query ونماذج البيانات وDAX لبناء لوحات من بيانات شركتك."], k:"power bi dashboards DAX power query analytics accountant data"},
+    {id:"dt-301", d:"data", lv:"a", fm:"live", h:24, p:4200, c:true,  en:["HR Analytics Professional","Headcount, attrition, cost-of-workforce and the metrics leadership asks for. Capstone dashboard included."], ar:["محترف تحليلات الموارد البشرية","الأعداد والتسرب وتكلفة القوى العاملة والمقاييس التي تطلبها القيادة، مع مشروع لوحة ختامي."], k:"hr analytics analyst attrition headcount metrics people analytics certificate"},
+    {id:"au-101", d:"auto", lv:"b", fm:"self", h:8,  p:800,  c:false, en:["Practical AI for Office Work","Using AI assistants safely for drafting, summarising and analysis — with company data rules."], ar:["الذكاء الاصطناعي العملي للعمل المكتبي","استخدام المساعدات الذكية بأمان للصياغة والتلخيص والتحليل، مع قواعد بيانات الشركة."], k:"AI chatgpt claude office productivity"},
+    {id:"au-201", d:"auto", lv:"i", fm:"live", h:16, p:2800, c:true,  en:["Workflow Automation with n8n","Automate approvals, reports and notifications without a developer."], ar:["أتمتة سير العمل بـ n8n","أتمتة الموافقات والتقارير والإشعارات بدون مطور."], k:"automation n8n workflow approvals no-code"},
+    {id:"fn-101", d:"fin",  lv:"b", fm:"live", h:12, p:1900, c:true,  en:["Finance for Non-Finance Managers","Read a P&L, own a budget and build a simple business case."], ar:["المالية لغير الماليين","اقرأ قائمة الدخل وامتلك ميزانية وابنِ دراسة جدوى بسيطة."], k:"finance budget P&L business case non-finance"},
+  ];
+  const FILTERS = [["all","fl_all"],["hr","fl_hr"],["lead","fl_lead"],["sales","fl_sales"],["data","fl_data"],["auto","fl_auto"],["fin","fl_fin"]];
+  let activeFilter = "all";
+  const q = document.getElementById('courseSearch'), grid = document.getElementById('courseGrid'), fBox = document.getElementById('filters');
+
+  function courseCard(c){
+    const [title, desc] = c[CUR];
+    return `<article class="course">
+      <div class="meta"><span>${t('lv_'+c.lv)}</span><span>${t('fm_'+c.fm)}</span><span>${c.h} ${t('hrs')}</span></div>
+      <h3>${title}</h3><p>${desc}</p>
+      <div class="foot">
+        <div><span class="price">${c.p.toLocaleString()} ${t('sar')}</span>${c.c?`<span class="cert"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7z"/><path d="M9 12l2 2 4-4"/></svg>${t('cert')}</span>`:''}</div>
+        <a class="btn btn-dark" href="#contact">${t('enrol')}</a>
+      </div></article>`;
+  }
+  function renderCourses(){
+    if (!grid) return;
+    fBox.innerHTML = FILTERS.map(([id,k]) => `<button type="button" class="chip${activeFilter===id?' active':''}" data-f="${id}">${t(k)}</button>`).join('');
+    fBox.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => { activeFilter = b.dataset.f; renderCourses(); }));
+    const term = (q.value||'').trim().toLowerCase();
+    const list = COURSES.filter(c => (activeFilter==='all'||c.d===activeFilter) && (!term || (c.en.join(' ')+' '+c.ar.join(' ')+' '+c.k).toLowerCase().includes(term)));
+    document.getElementById('resultsCount').textContent = list.length===1 ? t('rc_one') : `${list.length} ${t('rc_many')}`;
+    grid.innerHTML = list.length ? list.map(courseCard).join('') : `<div class="empty">${t('rc_none')}</div>`;
+  }
+  q.addEventListener('input', renderCourses);
+  document.getElementById('clearSearch').addEventListener('click', () => { q.value=''; activeFilter='all'; renderCourses(); });
+  renderCourses();
+  sb.get("courses?select=*&is_published=eq.true&order=sort_order").then(rows => {
+    if (!rows.length) return;
+    COURSES = rows.map(r => ({id:r.id, d:r.domain, lv:r.level, fm:r.format, h:r.hours, p:r.price_sar, c:r.has_certificate, en:[r.title_en,r.summary_en], ar:[r.title_ar,r.summary_ar], k:r.keywords||''}));
+    renderCourses();
+  }).catch(()=>{});
+
+  // ---------- Certificate check (Supabase RPC verify_certificate) ----------
+  document.getElementById('certBtn').addEventListener('click', async () => {
+    const code = document.getElementById('certCode').value.trim().toUpperCase(), box = document.getElementById('certResult');
+    box.className = 'verify-result';
+    if (!code){ box.textContent = t('v_empty'); box.classList.add('no'); return; }
+    try{
+      const rows = await sb.post("rpc/verify_certificate", {p_code: code});
+      const c = rows && rows[0];
+      if (c && c.is_valid){ box.innerHTML = `<b>${t('v_ok')}</b>${c.holder_name} — ${CUR==='ar'?c.course_title_ar:c.course_title_en} — ${c.issued_on}`; box.classList.add('ok'); }
+      else { box.textContent = t('v_no'); box.classList.add('no'); }
+    }catch(e){ box.textContent = t('v_no'); box.classList.add('no'); }
+  });
+
+  // ---------- Career coach ----------
+  const log = document.getElementById('chatLog'), input = document.getElementById('chatInput');
+  const history = [];
+  function addMsg(text, who, cls=''){ const d=document.createElement('div'); d.className=`msg ${who} ${cls}`; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
+  function addRecs(ids){
+    const cs = ids.map(id => COURSES.find(c=>c.id===id)).filter(Boolean); if (!cs.length) return;
+    const w=document.createElement('div'); w.className='recs';
+    w.innerHTML = cs.map(c=>`<a class="rec" href="#courses" data-id="${c.id}"><span>${c[CUR][0]}<small>${t('lv_'+c.lv)} · ${c.h} ${t('hrs')} · ${c.p.toLocaleString()} ${t('sar')}</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`).join('');
+    w.querySelectorAll('.rec').forEach(a => a.addEventListener('click', () => { const c=COURSES.find(x=>x.id===a.dataset.id); q.value=c.en[0]; activeFilter='all'; renderCourses(); }));
+    log.appendChild(w); log.scrollTop=log.scrollHeight;
+  }
+  function localMatch(text){
+    const words = text.toLowerCase().split(/[^a-z\u0600-\u06ff0-9]+/).filter(w=>w.length>2);
+    return COURSES.map(c => ({c, s: words.reduce((n,w)=> n + ((c.k+' '+c.en.join(' ')+' '+c.ar.join(' ')).toLowerCase().includes(w)?1:0),0)}))
+      .filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,3).map(x=>x.c.id);
+  }
+  async function askCoach(text){
+    if (!text.trim()) return;
+    addMsg(text,'user'); input.value='';
+    history.push({role:'user', content:text});
+    const th = addMsg(CUR==='ar'?'يفكر':'Thinking','bot','thinking');
+    try{
+      const j = await sb.fn("career-coach", {messages: history, lang: CUR});
+      if (j.error) throw new Error(j.error);
+      th.classList.remove('thinking'); th.textContent = j.reply;
+      history.push({role:'assistant', content: JSON.stringify(j)});
+      addRecs(j.course_ids||[]);
+    }catch(e){
+      // Offline / no API: fall back to keyword matching over the dataset
+      th.classList.remove('thinking'); th.textContent = t('co_err');
+      history.pop();
+      addRecs(localMatch(text));
+    }
+  }
+  document.getElementById('chatSend').addEventListener('click', () => askCoach(input.value));
+  input.addEventListener('keydown', e => { if (e.key==='Enter') askCoach(input.value); });
+  document.querySelectorAll('#prompts button').forEach(b => b.addEventListener('click', () => askCoach(b.textContent)));
+
+  // ---------- Mobile menu ----------
+  const menuBtn = document.getElementById('menuBtn'), navLinks = document.getElementById('navLinks');
+  menuBtn.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+  // ---------- Scroll reveal (sections only) ----------
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting){
+        e.target.classList.add('in');
+        if (e.target.id === 'mock' || e.target.querySelector('#mock')) {
+          document.querySelectorAll('#mock .fill').forEach(f => f.style.width = f.dataset.w + '%');
+        }
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:.15});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ---------- Form ----------
+  document.getElementById('leadForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const f = e.target;
+    if (!f.name.value || !f.company.value || !f.email.value){ f.reportValidity(); return; }
+    const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+    sb.post("leads", {name:f.name.value, company:f.company.value, email:f.email.value, interest:f.need.value, message:f.msg.value})
+      .catch(()=>{})
+      .finally(()=>{ btn.disabled=false; document.getElementById('formOk').classList.add('show'); f.reset(); });
+  });
+</script>
+</body>
+</html>
