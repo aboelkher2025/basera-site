@@ -5,6 +5,7 @@ Corporate training, OD consulting and learning platform for companies in Saudi A
 ## What's here
 - `index.html` — the marketing site (EN/AR, course search, certificate check, AI career coach). No build step.
 - `learn.html` — the learning portal (sign in, enrol, lessons, quizzes, progress, certificates). No build step.
+- `admin.html` — the staff control panel (everything on the platform, read plus a few safe writes). No build step.
 - `.github/workflows/deploy.yml` — publishes to GitHub Pages on every push to `main`.
 
 ## Run locally
@@ -33,6 +34,24 @@ REST with the user's own access token, so every row it sees is the one RLS allow
   writes one `lesson_progress` row; the `recompute_progress` trigger updates
   `enrollments.progress_pct`, flips status to `completed` at 100%, and issues the
   certificate. The portal only reads the result.
+
+## Control panel (`admin.html`)
+Staff only. Needs a signed-in account whose `profiles.role` is `admin`; anything else gets
+a "not an administrator" screen. Shares the session key with `learn.html`, so signing in on
+one signs you in on the other.
+
+Eight views — overview, learners, enrolments, certificates, courses, organizations, leads,
+career-coach logs — each searchable, sortable, and exportable to CSV.
+
+It writes through RLS rather than a service key: every request carries the admin's own
+token, so the `*_admin` policies are what actually permit the change. From the tables you can
+
+- change a user's role (you cannot remove your own admin role),
+- publish or hide a course,
+- revoke or restore a certificate,
+- move a lead through new → contacted → qualified → won/lost.
+
+Not linked from the public site; the URL is `/admin.html`.
 
 ## Backend (Supabase project `basera`, eu-central-1)
 - Tables: `courses` (public read), `certificates` (lookup only via `verify_certificate(code)` RPC), `leads` (public insert), `coach_logs`.

@@ -1,0 +1,1072 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Basera — Control panel</title>
+<style>
+  :root{
+    --petrol:#10373C;
+    --petrol-2:#0B2A2E;
+    --mint:#E4EDE8;
+    --mint-2:#D3E2DA;
+    --saffron:#E9A23B;
+    --saffron-2:#C8862A;
+    --ink:#16262A;
+    --ink-2:#4A5E62;
+    --white:#FBFAF6;
+    --line:rgba(16,55,60,.14);
+    --line-light:rgba(251,250,246,.18);
+    --ok:#2E7D57;
+    --bad:#B4462F;
+    --radius:6px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--white); color:var(--ink);
+    font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  button{font:inherit;cursor:pointer}
+  input,select,textarea{font:inherit;color:inherit}
+
+  /* ---------- chrome ---------- */
+  .top{
+    background:var(--petrol); color:var(--white);
+    display:flex; align-items:center; gap:14px;
+    padding:0 18px; height:56px; position:sticky; top:0; z-index:20;
+  }
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600;letter-spacing:.01em}
+  .brand .mark{
+    width:26px;height:26px;border-radius:50%;
+    border:1.5px solid var(--saffron); display:grid;place-items:center;
+    font-size:12px;color:var(--saffron)
+  }
+  .brand small{
+    font-weight:500;opacity:.62;letter-spacing:.06em;
+    text-transform:uppercase;font-size:10px;padding-left:8px;
+    border-left:1px solid var(--line-light);margin-left:2px
+  }
+  .top .spacer{flex:1}
+  .top .who{font-size:12px;opacity:.75;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ghost{
+    background:transparent;color:var(--white);
+    border:1px solid var(--line-light);border-radius:var(--radius);
+    padding:6px 11px;font-size:12px;transition:background .15s var(--ease)
+  }
+  .ghost:hover{background:rgba(251,250,246,.10)}
+  .ghost.on{background:var(--saffron);border-color:var(--saffron);color:var(--petrol-2);font-weight:600}
+
+  .shell{display:grid;grid-template-columns:208px 1fr;min-height:calc(100vh - 56px)}
+  .side{border-right:1px solid var(--line);padding:16px 10px;background:#fff}
+  .side a{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:8px 11px;border-radius:var(--radius);text-decoration:none;
+    color:var(--ink-2);font-size:13.5px;margin-bottom:2px;
+    transition:background .15s var(--ease),color .15s var(--ease)
+  }
+  .side a:hover{background:var(--mint)}
+  .side a.sel{background:var(--petrol);color:var(--white);font-weight:600}
+  .side a .n{
+    font-size:11px;font-variant-numeric:tabular-nums;
+    opacity:.72;background:rgba(16,55,60,.08);border-radius:20px;padding:1px 7px
+  }
+  .side a.sel .n{background:rgba(251,250,246,.16);opacity:.9}
+  .side h6{
+    margin:16px 0 6px;padding:0 11px;font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-2);opacity:.6
+  }
+  main{padding:22px 24px 60px;min-width:0}
+  @media (max-width:820px){
+    .shell{grid-template-columns:1fr}
+    .side{
+      border-right:0;border-bottom:1px solid var(--line);
+      display:flex;gap:6px;overflow-x:auto;padding:10px
+    }
+    .side a{white-space:nowrap;margin:0}
+    .side h6{display:none}
+    main{padding:16px 14px 50px}
+  }
+
+  /* ---------- page furniture ---------- */
+  h1{font-size:21px;margin:0 0 3px;letter-spacing:-.01em;font-weight:650}
+  .sub{color:var(--ink-2);font-size:13px;margin:0 0 18px}
+  .bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 14px}
+  .bar input[type=search], .bar select{
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:7px 10px;background:#fff;min-width:150px
+  }
+  .bar input[type=search]{min-width:230px}
+  .bar .spacer{flex:1}
+  .btn{
+    background:var(--petrol);color:var(--white);border:1px solid var(--petrol);
+    border-radius:var(--radius);padding:7px 13px;font-size:13px;
+    transition:background .15s var(--ease)
+  }
+  .btn:hover{background:var(--petrol-2)}
+  .btn.light{background:#fff;color:var(--ink);border-color:var(--line)}
+  .btn.light:hover{background:var(--mint)}
+
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(142px,1fr));gap:11px;margin-bottom:24px}
+  .tile{border:1px solid var(--line);border-radius:var(--radius);padding:13px 15px;background:#fff}
+  .tile b{display:block;font-size:25px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15}
+  .tile span{display:block;color:var(--ink-2);font-size:11.5px;margin-top:3px}
+  .tile.accent{background:var(--petrol);border-color:var(--petrol);color:var(--white)}
+  .tile.accent span{color:rgba(251,250,246,.72)}
+
+  .panel{border:1px solid var(--line);border-radius:var(--radius);background:#fff;overflow:hidden}
+  .panel h3{
+    margin:0;padding:11px 14px;font-size:12px;font-weight:600;
+    letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);
+    border-bottom:1px solid var(--line);background:#fff
+  }
+  .scroll{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-size:13px}
+  th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{
+    font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--ink-2);font-weight:600;white-space:nowrap;
+    background:var(--mint);position:sticky;top:0
+  }
+  th[data-sort]{cursor:pointer;user-select:none}
+  th[data-sort]:hover{color:var(--ink)}
+  th .arr{opacity:.45;font-size:9px}
+  tbody tr:hover{background:#FCFDFC}
+  tbody tr:last-child td{border-bottom:0}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;white-space:nowrap}
+  .muted{color:var(--ink-2)}
+  .wrap{max-width:420px;white-space:normal}
+
+  .pill{
+    display:inline-block;padding:2px 8px;border-radius:20px;
+    font-size:11px;font-weight:600;white-space:nowrap;
+    background:var(--mint);color:var(--petrol)
+  }
+  .pill.ok{background:rgba(46,125,87,.13);color:var(--ok)}
+  .pill.bad{background:rgba(180,70,47,.12);color:var(--bad)}
+  .pill.warn{background:rgba(233,162,59,.18);color:var(--saffron-2)}
+  .pill.mute{background:rgba(74,94,98,.11);color:var(--ink-2)}
+
+  .prog{display:flex;align-items:center;gap:7px;min-width:104px}
+  .prog .track{flex:1;height:5px;border-radius:3px;background:var(--mint-2);overflow:hidden}
+  .prog .fill{height:100%;background:var(--saffron);border-radius:3px}
+  .prog .fill.done{background:var(--ok)}
+  .prog b{font-size:11.5px;font-weight:600;font-variant-numeric:tabular-nums;min-width:30px;text-align:right}
+
+  select.mini{
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:3px 6px;font-size:12px;background:#fff;max-width:132px
+  }
+  .empty{padding:34px 18px;text-align:center;color:var(--ink-2);font-size:13px}
+  .loading{padding:46px;text-align:center}
+  .spin{
+    display:inline-block;width:19px;height:19px;border-radius:50%;
+    border:2px solid var(--mint-2);border-top-color:var(--petrol);
+    animation:sp .7s linear infinite
+  }
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .err{
+    border:1px solid rgba(180,70,47,.35);background:rgba(180,70,47,.06);
+    color:var(--bad);border-radius:var(--radius);padding:11px 13px;
+    font-size:13px;margin-bottom:14px;white-space:pre-wrap
+  }
+  .toast{
+    position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+    background:var(--petrol);color:var(--white);padding:9px 16px;
+    border-radius:var(--radius);font-size:13px;z-index:60;
+    box-shadow:0 6px 22px rgba(11,42,46,.26)
+  }
+  .toast.bad{background:var(--bad)}
+
+  /* ---------- gate ---------- */
+  .gate{max-width:352px;margin:64px auto;padding:0 18px}
+  .gate .card{border:1px solid var(--line);border-radius:var(--radius);background:#fff;padding:24px}
+  .gate h2{margin:0 0 5px;font-size:18px;font-weight:650}
+  .gate p{margin:0 0 18px;color:var(--ink-2);font-size:13px}
+  .gate label{display:block;font-size:12px;font-weight:600;margin:0 0 4px;color:var(--ink-2)}
+  .gate input{
+    width:100%;border:1px solid var(--line);border-radius:var(--radius);
+    padding:9px 11px;margin-bottom:13px;background:#fff
+  }
+  .gate .btn{width:100%;padding:10px}
+  .gate .note{margin-top:14px;font-size:12px;color:var(--ink-2);text-align:center}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand">
+    <span class="mark">&#9679;</span>
+    <span>Basera</span>
+    <small>Control panel</small>
+  </div>
+  <div class="spacer"></div>
+  <button class="ghost" id="langBtn" title="Language used for course and lesson titles">EN</button>
+  <span class="who" id="who"></span>
+  <button class="ghost" id="outBtn" hidden>Sign out</button>
+</div>
+
+<div id="root"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Same project and public anon key as index.html / learn.html.
+  // Every query below runs with the signed-in admin's own token, so
+  // row-level security is what actually decides what comes back.
+  var SB_URL = "https://brlhihishoilxyslwubj.supabase.co";
+  var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybGhpaGlzaG9pbHh5c2x3dWJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDYyNzEsImV4cCI6MjEwNDg4MjI3MX0.xOcmd_ANs4wN7S5Cy7tTl5-St-iX73q_Ro5wRydaH4I";
+
+  var SESSION_KEY = "basera_session";   // shared with learn.html
+  var LANG_KEY    = "basera_admin_lang";
+  var LOG_LIMIT   = 300;
+
+  var shellHost = document.getElementById("root");
+  var who     = document.getElementById("who");
+  var outBtn  = document.getElementById("outBtn");
+  var langBtn = document.getElementById("langBtn");
+
+  var session = null;
+  try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch(e){ session = null; }
+  var CLANG = localStorage.getItem(LANG_KEY) || "en";   // language for bilingual columns
+  var me = null;
+  var D = {};          // loaded tables
+  var sortState = {};  // per-view sort
+  var out = shellHost; // where the current view writes
+
+  // ============================================================
+  // Small helpers
+  // ============================================================
+  function el(id){ return document.getElementById(id); }
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function L(row, base){
+    if (!row) return "";
+    var v = row[base + "_" + CLANG];
+    return v || row[base + "_en"] || row[base + "_ar"] || "";
+  }
+  function date(s){
+    if (!s) return "—";
+    var d = new Date(s);
+    if (isNaN(d.getTime())) return "—";
+    return d.toISOString().slice(0,10);
+  }
+  function when(s){
+    if (!s) return "—";
+    var d = new Date(s);
+    if (isNaN(d.getTime())) return "—";
+    return d.toISOString().slice(0,16).replace("T"," ");
+  }
+  function clip(s, n){
+    s = String(s == null ? "" : s);
+    return s.length > n ? s.slice(0, n - 1) + "…" : s;
+  }
+  function toast(msg, bad){
+    var t = document.createElement("div");
+    t.className = "toast" + (bad ? " bad" : "");
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function(){ t.remove(); }, bad ? 4200 : 2100);
+  }
+
+  // ============================================================
+  // Session / REST — mirrors learn.html so a sign-in carries across
+  // ============================================================
+  function saveSession(s){
+    session = s;
+    if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+    else localStorage.removeItem(SESSION_KEY);
+  }
+  function signedIn(){ return !!(session && session.access_token); }
+  function authHeaders(){
+    return {
+      "apikey": SB_KEY,
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + (signedIn() ? session.access_token : SB_KEY)
+    };
+  }
+  async function refreshSession(){
+    if (!session || !session.refresh_token) return false;
+    var r = await fetch(SB_URL + "/auth/v1/token?grant_type=refresh_token", {
+      method:"POST",
+      headers:{ "apikey":SB_KEY, "Content-Type":"application/json" },
+      body: JSON.stringify({ refresh_token: session.refresh_token })
+    });
+    if (!r.ok) { saveSession(null); return false; }
+    saveSession(await r.json());
+    return true;
+  }
+  async function rest(path, opts, retried){
+    opts = opts || {};
+    var r = await fetch(SB_URL + "/rest/v1/" + path, {
+      method: opts.method || "GET",
+      headers: Object.assign(authHeaders(), opts.headers || {}),
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    });
+    if (r.status === 401 && !retried && session) {
+      if (await refreshSession()) return rest(path, opts, true);
+      saveSession(null);
+      render();
+      throw new Error("signed out");
+    }
+    if (!r.ok) {
+      var detail = await r.text().catch(function(){ return ""; });
+      throw new Error("REST " + r.status + " " + detail);
+    }
+    if (r.status === 204) return null;
+    return r.json().catch(function(){ return null; });
+  }
+  async function authCall(endpoint, body){
+    var r = await fetch(SB_URL + "/auth/v1/" + endpoint, {
+      method:"POST",
+      headers:{ "apikey":SB_KEY, "Content-Type":"application/json" },
+      body: JSON.stringify(body)
+    });
+    var data = await r.json().catch(function(){ return {}; });
+    if (!r.ok) throw new Error(data.error_description || data.msg || data.message || "Sign-in failed");
+    return data;
+  }
+  function patch(table, filter, body){
+    return rest(table + "?" + filter, {
+      method:"PATCH",
+      headers:{ "Prefer":"return=representation" },
+      body: body
+    });
+  }
+
+  // ============================================================
+  // Gate — signed in AND role = admin
+  // ============================================================
+  function viewSignIn(msg){
+    shellHost.innerHTML =
+      '<div class="gate"><div class="card">' +
+        "<h2>Control panel</h2>" +
+        "<p>Sign in with an administrator account.</p>" +
+        (msg ? '<div class="err">' + esc(msg) + "</div>" : "") +
+        '<form id="f">' +
+          '<label for="e">Email</label>' +
+          '<input id="e" type="email" autocomplete="username" required>' +
+          '<label for="p">Password</label>' +
+          '<input id="p" type="password" autocomplete="current-password" required>' +
+          '<button class="btn" type="submit" id="go">Sign in</button>' +
+        "</form>" +
+        '<div class="note">This panel is for staff. Learners use ' +
+          '<a href="learn.html">the portal</a>.</div>' +
+      "</div></div>";
+    el("f").addEventListener("submit", async function(ev){
+      ev.preventDefault();
+      var go = el("go");
+      go.disabled = true; go.textContent = "Signing in…";
+      try {
+        var s = await authCall("token?grant_type=password", {
+          email: el("e").value.trim(),
+          password: el("p").value
+        });
+        saveSession(s);
+        me = null; D = {};
+        await render();
+      } catch(err){
+        viewSignIn(err.message || "Sign-in failed");
+      }
+    });
+  }
+
+  function viewDenied(role){
+    shellHost.innerHTML =
+      '<div class="gate"><div class="card">' +
+        "<h2>Not an administrator</h2>" +
+        "<p>This account is signed in, but its role is <b>" + esc(role || "unknown") + "</b>. " +
+        "The control panel needs <b>admin</b>.</p>" +
+        '<button class="btn" id="so">Sign out</button>' +
+        '<div class="note"><a href="learn.html">Go to the learning portal</a></div>' +
+      "</div></div>";
+    el("so").addEventListener("click", signOut);
+  }
+
+  function signOut(){
+    saveSession(null);
+    me = null; D = {};
+    render();
+  }
+
+  // ============================================================
+  // Data loading — tables fetched flat and joined here.
+  // Avoids relying on PostgREST embedding, which needs declared FKs
+  // between every pair of these tables.
+  // ============================================================
+  async function loadAll(force){
+    if (D.loaded && !force) return;
+    var r = await Promise.all([
+      rest("profiles?select=*&order=created_at.desc"),
+      rest("organizations?select=*&order=created_at.desc"),
+      rest("courses?select=*&order=sort_order.asc"),
+      rest("lessons?select=id,course_id,kind,duration_min"),
+      rest("enrollments?select=*&order=enrolled_at.desc"),
+      rest("certificates?select=*&order=created_at.desc"),
+      rest("leads?select=*&order=created_at.desc"),
+      rest("coach_logs?select=*&order=created_at.desc&limit=" + LOG_LIMIT)
+    ]);
+    D.profiles = r[0] || [];
+    D.orgs     = r[1] || [];
+    D.courses  = r[2] || [];
+    D.lessons  = r[3] || [];
+    D.enrols   = r[4] || [];
+    D.certs    = r[5] || [];
+    D.leads    = r[6] || [];
+    D.logs     = r[7] || [];
+
+    D.orgById    = index(D.orgs, "id");
+    D.courseById = index(D.courses, "id");
+    D.profById   = index(D.profiles, "id");
+
+    D.lessonsPerCourse = countBy(D.lessons, "course_id");
+    D.enrolsPerCourse  = countBy(D.enrols, "course_id");
+    D.enrolsPerUser    = countBy(D.enrols, "user_id");
+    D.membersPerOrg    = countBy(D.profiles, "org_id");
+    D.loaded = true;
+  }
+  function index(rows, key){
+    var m = {};
+    (rows || []).forEach(function(r){ m[r[key]] = r; });
+    return m;
+  }
+  function countBy(rows, key){
+    var m = {};
+    (rows || []).forEach(function(r){
+      var k = r[key];
+      if (k == null) return;
+      m[k] = (m[k] || 0) + 1;
+    });
+    return m;
+  }
+  function personName(id){
+    var p = D.profById[id];
+    if (!p) return "—";
+    return p.full_name || p.email || String(id).slice(0,8);
+  }
+  function courseTitle(id){
+    var c = D.courseById[id];
+    return c ? L(c, "title") : (id || "—");
+  }
+
+  // ============================================================
+  // Table rendering, sorting, CSV
+  // ============================================================
+  // cols: [{ k, label, cls, val(row), cell(row) }]
+  function table(view, cols, rows, emptyMsg){
+    var st = sortState[view];
+    if (st) {
+      var col = cols.filter(function(c){ return c.k === st.k; })[0];
+      if (col) {
+        rows = rows.slice().sort(function(a,b){
+          var x = col.val ? col.val(a) : a[col.k];
+          var y = col.val ? col.val(b) : b[col.k];
+          if (x == null) x = "";
+          if (y == null) y = "";
+          if (typeof x === "number" && typeof y === "number") return st.dir * (x - y);
+          return st.dir * String(x).localeCompare(String(y), undefined, {numeric:true});
+        });
+      }
+    }
+    if (!rows.length) return '<div class="empty">' + esc(emptyMsg || "Nothing here yet.") + "</div>";
+
+    var head = cols.map(function(c){
+      var arr = (st && st.k === c.k) ? (st.dir > 0 ? " ▲" : " ▼") : "";
+      return '<th data-sort="' + esc(c.k) + '">' + esc(c.label) +
+             '<span class="arr">' + arr + "</span></th>";
+    }).join("");
+
+    var body = rows.map(function(r){
+      return "<tr>" + cols.map(function(c){
+        return '<td class="' + (c.cls || "") + '">' + (c.cell ? c.cell(r) : esc(r[c.k])) + "</td>";
+      }).join("") + "</tr>";
+    }).join("");
+
+    return '<div class="scroll"><table><thead><tr>' + head +
+           "</tr></thead><tbody>" + body + "</tbody></table></div>";
+  }
+
+  function wireSort(view, rerender){
+    Array.prototype.forEach.call(out.querySelectorAll("th[data-sort]"), function(th){
+      th.addEventListener("click", function(){
+        var k = th.getAttribute("data-sort");
+        var st = sortState[view];
+        sortState[view] = (st && st.k === k) ? { k:k, dir:-st.dir } : { k:k, dir:1 };
+        rerender();
+      });
+    });
+  }
+
+  function csv(cols, rows){
+    function cell(v){
+      v = v == null ? "" : String(v);
+      return /[",\n]/.test(v) ? '"' + v.replace(/"/g,'""') + '"' : v;
+    }
+    var lines = [cols.map(function(c){ return cell(c.label); }).join(",")];
+    rows.forEach(function(r){
+      lines.push(cols.map(function(c){
+        return cell(c.val ? c.val(r) : r[c.k]);
+      }).join(","));
+    });
+    return lines.join("\r\n");
+  }
+  function download(name, text){
+    var blob = new Blob(["﻿" + text], { type:"text/csv;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+  }
+  function wireCsv(name, cols, rowsFn){
+    var b = el("csv");
+    if (b) b.addEventListener("click", function(){ download(name, csv(cols, rowsFn())); });
+  }
+
+  function progressCell(pct){
+    var p = Math.max(0, Math.min(100, Number(pct) || 0));
+    return '<div class="prog"><div class="track"><div class="fill' +
+           (p >= 100 ? " done" : "") + '" style="width:' + p + '%"></div></div><b>' +
+           p + "%</b></div>";
+  }
+  function statusPill(s){
+    var cls = s === "completed" ? "ok" : s === "active" ? "" : "mute";
+    return '<span class="pill ' + cls + '">' + esc(s || "—") + "</span>";
+  }
+  function rolePill(r){
+    var cls = r === "admin" ? "warn" : r === "client_admin" ? "" : "mute";
+    return '<span class="pill ' + cls + '">' + esc(r) + "</span>";
+  }
+  function filterRows(rows, q, fields){
+    q = (q || "").trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter(function(r){
+      return fields.some(function(f){
+        var v = typeof f === "function" ? f(r) : r[f];
+        return String(v == null ? "" : v).toLowerCase().indexOf(q) !== -1;
+      });
+    });
+  }
+  function pageHead(title, sub){
+    return "<h1>" + esc(title) + '</h1><p class="sub">' + esc(sub) + "</p>";
+  }
+  function searchBar(placeholder, withCsv, extraHtml){
+    return '<div class="bar">' +
+      '<input type="search" id="q" placeholder="' + esc(placeholder) + '">' +
+      (extraHtml || "") +
+      '<div class="spacer"></div>' +
+      (withCsv ? '<button class="btn light" id="csv">Export CSV</button>' : "") +
+      '<button class="btn light" id="reload">Refresh</button>' +
+    "</div>";
+  }
+  function wireCommon(rerender){
+    var q = el("q");
+    if (q) {
+      q.addEventListener("input", function(){
+        var v = q.value, pos = q.selectionStart;
+        rerender();
+        var q2 = el("q");
+        if (q2) { q2.value = v; q2.focus(); try { q2.setSelectionRange(pos,pos); } catch(e){} }
+      });
+    }
+    var rl = el("reload");
+    if (rl) rl.addEventListener("click", async function(){
+      rl.disabled = true; rl.textContent = "Refreshing…";
+      try { await loadAll(true); render(); toast("Refreshed"); }
+      catch(e){ toast(e.message, true); rl.disabled = false; rl.textContent = "Refresh"; }
+    });
+  }
+
+  // ============================================================
+  // Views
+  // ============================================================
+  function tile(n, label, accent){
+    return '<div class="tile' + (accent ? " accent" : "") + '"><b>' + esc(n) + "</b><span>" + esc(label) + "</span></div>";
+  }
+
+  function viewOverview(){
+    var completed = D.enrols.filter(function(e){ return e.status === "completed"; }).length;
+    var active    = D.enrols.filter(function(e){ return e.status === "active"; }).length;
+    var avg = D.enrols.length
+      ? Math.round(D.enrols.reduce(function(s,e){ return s + (Number(e.progress_pct)||0); },0) / D.enrols.length)
+      : 0;
+    var newLeads = D.leads.filter(function(l){ return l.status === "new"; }).length;
+    var validCerts = D.certs.filter(function(c){ return c.is_valid; }).length;
+
+    var html = pageHead("Overview", "Everything on the platform, as of right now.");
+    html += '<div class="tiles">' +
+      tile(D.profiles.length, "Learners", true) +
+      tile(D.orgs.length, "Organizations") +
+      tile(D.enrols.length, "Enrolments") +
+      tile(active, "In progress") +
+      tile(completed, "Completed") +
+      tile(avg + "%", "Avg progress") +
+      tile(validCerts, "Certificates") +
+      tile(D.leads.length, "Leads") +
+      tile(newLeads, "New leads") +
+      tile(D.courses.length, "Courses") +
+      tile(D.lessons.length, "Lessons") +
+      tile(D.logs.length, "Coach chats") +
+    "</div>";
+
+    var recent = D.profiles.slice(0, 8);
+    html += '<div class="panel" style="margin-bottom:18px"><h3>Newest learners</h3>' +
+      (recent.length
+        ? '<div class="scroll"><table><tbody>' + recent.map(function(p){
+            var o = p.org_id && D.orgById[p.org_id];
+            return "<tr><td>" + esc(p.full_name || "—") + "</td>" +
+                   '<td class="muted">' + esc(p.email || "") + "</td>" +
+                   "<td>" + rolePill(p.role) + "</td>" +
+                   '<td class="muted">' + esc(o ? o.name : "—") + "</td>" +
+                   '<td class="num muted">' + date(p.created_at) + "</td></tr>";
+          }).join("") + "</tbody></table></div>"
+        : '<div class="empty">No one has signed up yet.</div>') +
+      "</div>";
+
+    var done = D.enrols.filter(function(e){ return e.completed_at; }).slice(0, 8);
+    html += '<div class="panel"><h3>Recent completions</h3>' +
+      (done.length
+        ? '<div class="scroll"><table><tbody>' + done.map(function(e){
+            return "<tr><td>" + esc(personName(e.user_id)) + "</td>" +
+                   "<td>" + esc(courseTitle(e.course_id)) + "</td>" +
+                   '<td class="num">' + (e.score == null ? "—" : e.score + "%") + "</td>" +
+                   '<td class="num muted">' + date(e.completed_at) + "</td></tr>";
+          }).join("") + "</tbody></table></div>"
+        : '<div class="empty">No completions yet. They appear here as learners finish courses.</div>') +
+      "</div>";
+
+    out.innerHTML = html;
+  }
+
+  function viewLearners(){
+    var cols = [
+      { k:"full_name", label:"Name", val:function(r){ return r.full_name || ""; },
+        cell:function(r){ return esc(r.full_name || "—"); } },
+      { k:"email", label:"Email", cls:"muted", cell:function(r){ return esc(r.email || "—"); } },
+      { k:"role", label:"Role", cell:function(r){
+          var opts = ["learner","client_admin","admin"].map(function(o){
+            return '<option value="' + o + '"' + (r.role === o ? " selected" : "") + ">" + o + "</option>";
+          }).join("");
+          return '<select class="mini" data-role-for="' + esc(r.id) + '">' + opts + "</select>";
+        } },
+      { k:"org", label:"Organization",
+        val:function(r){ var o = r.org_id && D.orgById[r.org_id]; return o ? o.name : ""; },
+        cell:function(r){
+          var o = r.org_id && D.orgById[r.org_id];
+          return o ? esc(o.name) : '<span class="muted">—</span>';
+        } },
+      { k:"department", label:"Department", cls:"muted",
+        cell:function(r){ return esc(r.department || "—"); } },
+      { k:"enrols", label:"Enrolments", cls:"num",
+        val:function(r){ return D.enrolsPerUser[r.id] || 0; },
+        cell:function(r){ return String(D.enrolsPerUser[r.id] || 0); } },
+      { k:"created_at", label:"Joined", cls:"num muted",
+        cell:function(r){ return date(r.created_at); } }
+    ];
+    function rows(){
+      return filterRows(D.profiles, el("q") ? el("q").value : "",
+        ["full_name","email","role","department",
+         function(r){ var o = r.org_id && D.orgById[r.org_id]; return o ? o.name : ""; }]);
+    }
+    out.innerHTML =
+      pageHead("Learners", D.profiles.length + " account" + (D.profiles.length === 1 ? "" : "s") +
+           " — change a role from the dropdown.") +
+      searchBar("Search name, email, department, organization…", true) +
+      '<div class="panel">' + table("learners", cols, rows(), "No accounts yet.") + "</div>";
+    wireCommon(viewLearners);
+    wireSort("learners", viewLearners);
+    wireCsv("basera-learners.csv", cols, rows);
+    Array.prototype.forEach.call(out.querySelectorAll("select[data-role-for]"), function(sel){
+      sel.addEventListener("change", async function(){
+        var id = sel.getAttribute("data-role-for");
+        var next = sel.value;
+        var row = D.profById[id];
+        var prev = row ? row.role : "learner";
+        if (me && id === me.id && next !== "admin") {
+          sel.value = prev;
+          toast("You cannot remove your own admin role here.", true);
+          return;
+        }
+        sel.disabled = true;
+        try {
+          await patch("profiles", "id=eq." + encodeURIComponent(id), { role: next });
+          if (row) row.role = next;
+          toast("Role updated to " + next);
+        } catch(e){
+          sel.value = prev;
+          toast(e.message, true);
+        }
+        sel.disabled = false;
+      });
+    });
+  }
+
+  function viewEnrolments(){
+    var cols = [
+      { k:"learner", label:"Learner", val:function(r){ return personName(r.user_id); },
+        cell:function(r){ return esc(personName(r.user_id)); } },
+      { k:"course", label:"Course", val:function(r){ return courseTitle(r.course_id); },
+        cell:function(r){ return esc(courseTitle(r.course_id)); } },
+      { k:"status", label:"Status", cell:function(r){ return statusPill(r.status); } },
+      { k:"progress_pct", label:"Progress",
+        val:function(r){ return Number(r.progress_pct) || 0; },
+        cell:function(r){ return progressCell(r.progress_pct); } },
+      { k:"score", label:"Score", cls:"num",
+        val:function(r){ return r.score == null ? -1 : r.score; },
+        cell:function(r){ return r.score == null ? '<span class="muted">—</span>' : r.score + "%"; } },
+      { k:"org", label:"Organization", cls:"muted",
+        val:function(r){ var o = r.org_id && D.orgById[r.org_id]; return o ? o.name : ""; },
+        cell:function(r){ var o = r.org_id && D.orgById[r.org_id]; return o ? esc(o.name) : "—"; } },
+      { k:"enrolled_at", label:"Enrolled", cls:"num muted", cell:function(r){ return date(r.enrolled_at); } },
+      { k:"completed_at", label:"Completed", cls:"num muted", cell:function(r){ return date(r.completed_at); } }
+    ];
+    var statusSel =
+      '<select id="st">' +
+        '<option value="">All statuses</option>' +
+        '<option value="active">Active</option>' +
+        '<option value="completed">Completed</option>' +
+      "</select>";
+    function rows(){
+      var list = D.enrols;
+      var st = el("st") ? el("st").value : "";
+      if (st) list = list.filter(function(e){ return e.status === st; });
+      return filterRows(list, el("q") ? el("q").value : "",
+        [function(r){ return personName(r.user_id); },
+         function(r){ return courseTitle(r.course_id); },
+         "status"]);
+    }
+    out.innerHTML =
+      pageHead("Enrolments", "Progress and completion are written by the database triggers, not by the front-end.") +
+      searchBar("Search learner or course…", true, statusSel) +
+      '<div class="panel">' + table("enrols", cols, rows(), "No enrolments yet.") + "</div>";
+    wireCommon(viewEnrolments);
+    wireSort("enrols", viewEnrolments);
+    wireCsv("basera-enrolments.csv", cols, rows);
+    var st = el("st");
+    if (st) st.addEventListener("change", function(){
+      var v = st.value;
+      viewEnrolments();
+      if (el("st")) el("st").value = v;
+    });
+  }
+
+  function viewCourses(){
+    var cols = [
+      { k:"title", label:"Course", val:function(r){ return L(r,"title"); },
+        cell:function(r){ return esc(L(r,"title")); } },
+      { k:"domain", label:"Domain", cls:"muted" },
+      { k:"level", label:"Level", cls:"muted" },
+      { k:"format", label:"Format", cls:"muted" },
+      { k:"hours", label:"Hours", cls:"num" },
+      { k:"price_sar", label:"Price (SAR)", cls:"num",
+        cell:function(r){ return Number(r.price_sar).toLocaleString("en-US"); } },
+      { k:"lessons", label:"Lessons", cls:"num",
+        val:function(r){ return D.lessonsPerCourse[r.id] || 0; },
+        cell:function(r){ return String(D.lessonsPerCourse[r.id] || 0); } },
+      { k:"enrols", label:"Enrolments", cls:"num",
+        val:function(r){ return D.enrolsPerCourse[r.id] || 0; },
+        cell:function(r){ return String(D.enrolsPerCourse[r.id] || 0); } },
+      { k:"has_certificate", label:"Cert", val:function(r){ return r.has_certificate ? 1 : 0; },
+        cell:function(r){ return r.has_certificate ? '<span class="pill ok">yes</span>' : '<span class="pill mute">no</span>'; } },
+      { k:"is_published", label:"Published", val:function(r){ return r.is_published ? 1 : 0; },
+        cell:function(r){
+          return '<select class="mini" data-pub-for="' + esc(r.id) + '">' +
+            '<option value="1"' + (r.is_published ? " selected" : "") + ">live</option>" +
+            '<option value="0"' + (!r.is_published ? " selected" : "") + ">hidden</option>" +
+          "</select>";
+        } }
+    ];
+    function rows(){
+      return filterRows(D.courses, el("q") ? el("q").value : "",
+        ["id","domain","level","format","keywords", function(r){ return L(r,"title"); }]);
+    }
+    out.innerHTML =
+      pageHead("Courses", "Unpublishing hides a course from the public site and the catalogue.") +
+      searchBar("Search title, domain, level, keywords…", true) +
+      '<div class="panel">' + table("courses", cols, rows(), "No courses.") + "</div>";
+    wireCommon(viewCourses);
+    wireSort("courses", viewCourses);
+    wireCsv("basera-courses.csv", cols, rows);
+    Array.prototype.forEach.call(out.querySelectorAll("select[data-pub-for]"), function(sel){
+      sel.addEventListener("change", async function(){
+        var id = sel.getAttribute("data-pub-for");
+        var next = sel.value === "1";
+        var row = D.courseById[id];
+        sel.disabled = true;
+        try {
+          await patch("courses", "id=eq." + encodeURIComponent(id), { is_published: next });
+          if (row) row.is_published = next;
+          toast(next ? "Course is live" : "Course hidden");
+        } catch(e){
+          sel.value = row && row.is_published ? "1" : "0";
+          toast(e.message, true);
+        }
+        sel.disabled = false;
+      });
+    });
+  }
+
+  function viewCertificates(){
+    var cols = [
+      { k:"code", label:"Code", cls:"mono" },
+      { k:"holder_name", label:"Holder" },
+      { k:"course", label:"Course", val:function(r){ return courseTitle(r.course_id); },
+        cell:function(r){ return esc(courseTitle(r.course_id)); } },
+      { k:"score", label:"Score", cls:"num",
+        val:function(r){ return r.score == null ? -1 : r.score; },
+        cell:function(r){ return r.score == null ? '<span class="muted">—</span>' : r.score + "%"; } },
+      { k:"issued_on", label:"Issued", cls:"num muted", cell:function(r){ return date(r.issued_on); } },
+      { k:"is_valid", label:"Valid", val:function(r){ return r.is_valid ? 1 : 0; },
+        cell:function(r){
+          return '<select class="mini" data-cert-for="' + esc(r.code) + '">' +
+            '<option value="1"' + (r.is_valid ? " selected" : "") + ">valid</option>" +
+            '<option value="0"' + (!r.is_valid ? " selected" : "") + ">revoked</option>" +
+          "</select>";
+        } }
+    ];
+    function rows(){
+      return filterRows(D.certs, el("q") ? el("q").value : "",
+        ["code","holder_name", function(r){ return courseTitle(r.course_id); }]);
+    }
+    out.innerHTML =
+      pageHead("Certificates", "Issued automatically by the recompute_progress trigger at 100% completion.") +
+      searchBar("Search code, holder, course…", true) +
+      '<div class="panel">' + table("certs", cols, rows(), "No certificates issued yet.") + "</div>";
+    wireCommon(viewCertificates);
+    wireSort("certs", viewCertificates);
+    wireCsv("basera-certificates.csv", cols, rows);
+    Array.prototype.forEach.call(out.querySelectorAll("select[data-cert-for]"), function(sel){
+      sel.addEventListener("change", async function(){
+        var code = sel.getAttribute("data-cert-for");
+        var next = sel.value === "1";
+        var row = D.certs.filter(function(c){ return c.code === code; })[0];
+        if (!next && !confirm("Revoke certificate " + code + "?\n\nPublic verification will report it as not valid.")) {
+          sel.value = "1";
+          return;
+        }
+        sel.disabled = true;
+        try {
+          await patch("certificates", "code=eq." + encodeURIComponent(code), { is_valid: next });
+          if (row) row.is_valid = next;
+          toast(next ? "Certificate restored" : "Certificate revoked");
+        } catch(e){
+          sel.value = row && row.is_valid ? "1" : "0";
+          toast(e.message, true);
+        }
+        sel.disabled = false;
+      });
+    });
+  }
+
+  function viewLeads(){
+    var STATUSES = ["new","contacted","qualified","won","lost"];
+    var cols = [
+      { k:"created_at", label:"Received", cls:"num muted", cell:function(r){ return date(r.created_at); } },
+      { k:"name", label:"Name" },
+      { k:"company", label:"Company", cls:"muted", cell:function(r){ return esc(r.company || "—"); } },
+      { k:"email", label:"Email", cls:"muted",
+        cell:function(r){ return '<a href="mailto:' + esc(r.email) + '">' + esc(r.email) + "</a>"; } },
+      { k:"interest", label:"Interest", cls:"muted", cell:function(r){ return esc(r.interest || "—"); } },
+      { k:"message", label:"Message", cls:"wrap muted",
+        cell:function(r){ return esc(clip(r.message, 150)) || "—"; } },
+      { k:"source", label:"Source", cls:"muted", cell:function(r){ return esc(r.source || "—"); } },
+      { k:"status", label:"Status", cell:function(r){
+          var opts = STATUSES.map(function(o){
+            return '<option value="' + o + '"' + (r.status === o ? " selected" : "") + ">" + o + "</option>";
+          }).join("");
+          return '<select class="mini" data-lead-for="' + esc(r.id) + '">' + opts + "</select>";
+        } }
+    ];
+    function rows(){
+      return filterRows(D.leads, el("q") ? el("q").value : "",
+        ["name","company","email","interest","message","source","status"]);
+    }
+    out.innerHTML =
+      pageHead("Leads", "Enquiries submitted from the contact form on the marketing site.") +
+      searchBar("Search name, company, email, message…", true) +
+      '<div class="panel">' + table("leads", cols, rows(), "No enquiries yet.") + "</div>";
+    wireCommon(viewLeads);
+    wireSort("leads", viewLeads);
+    wireCsv("basera-leads.csv", cols, rows);
+    Array.prototype.forEach.call(out.querySelectorAll("select[data-lead-for]"), function(sel){
+      sel.addEventListener("change", async function(){
+        var id = sel.getAttribute("data-lead-for");
+        var next = sel.value;
+        var row = D.leads.filter(function(l){ return String(l.id) === String(id); })[0];
+        var prev = row ? row.status : "new";
+        sel.disabled = true;
+        try {
+          await patch("leads", "id=eq." + encodeURIComponent(id), { status: next });
+          if (row) row.status = next;
+          toast("Lead marked " + next);
+        } catch(e){
+          sel.value = prev;
+          toast(e.message, true);
+        }
+        sel.disabled = false;
+      });
+    });
+  }
+
+  function viewOrgs(){
+    var cols = [
+      { k:"name", label:"Organization" },
+      { k:"type", label:"Type", cls:"muted" },
+      { k:"join_code", label:"Join code", cls:"mono",
+        cell:function(r){ return r.join_code ? esc(r.join_code) : '<span class="muted">—</span>'; } },
+      { k:"members", label:"Members", cls:"num",
+        val:function(r){ return D.membersPerOrg[r.id] || 0; },
+        cell:function(r){ return String(D.membersPerOrg[r.id] || 0); } },
+      { k:"created_at", label:"Created", cls:"num muted", cell:function(r){ return date(r.created_at); } }
+    ];
+    function rows(){
+      return filterRows(D.orgs, el("q") ? el("q").value : "", ["name","type","join_code"]);
+    }
+    out.innerHTML =
+      pageHead("Organizations", "A learner joins one by entering its code when signing up.") +
+      searchBar("Search name, type, join code…", true) +
+      '<div class="panel">' + table("orgs", cols, rows(), "No organizations yet.") + "</div>";
+    wireCommon(viewOrgs);
+    wireSort("orgs", viewOrgs);
+    wireCsv("basera-organizations.csv", cols, rows);
+  }
+
+  function viewCoach(){
+    var cols = [
+      { k:"created_at", label:"When", cls:"num muted", cell:function(r){ return when(r.created_at); } },
+      { k:"lang", label:"Lang", cls:"muted", cell:function(r){ return esc(r.lang || "—"); } },
+      { k:"user_message", label:"Question", cls:"wrap",
+        cell:function(r){ return esc(clip(r.user_message, 200)); } },
+      { k:"reply", label:"Answer", cls:"wrap muted",
+        cell:function(r){ return r.reply ? esc(clip(r.reply, 220)) : '<span class="pill bad">no reply</span>'; } },
+      { k:"course_ids", label:"Suggested", cls:"muted",
+        val:function(r){ return (r.course_ids || []).length; },
+        cell:function(r){
+          var ids = r.course_ids || [];
+          if (!ids.length) return "—";
+          return ids.map(function(i){ return '<span class="pill">' + esc(i) + "</span>"; }).join(" ");
+        } }
+    ];
+    function rows(){
+      return filterRows(D.logs, el("q") ? el("q").value : "", ["user_message","reply","lang"]);
+    }
+    var failed = D.logs.filter(function(l){ return !l.reply; }).length;
+    out.innerHTML =
+      pageHead("Career coach", "The " + LOG_LIMIT + " most recent exchanges." +
+           (failed ? "  " + failed + " of them have no reply — usually a missing ANTHROPIC_API_KEY." : "")) +
+      searchBar("Search questions and answers…", true) +
+      '<div class="panel">' + table("logs", cols, rows(), "No one has used the coach yet.") + "</div>";
+    wireCommon(viewCoach);
+    wireSort("logs", viewCoach);
+    wireCsv("basera-coach-logs.csv", cols, rows);
+  }
+
+  // ============================================================
+  // Router
+  // ============================================================
+  var ROUTES = [
+    { id:"overview", label:"Overview",      fn:viewOverview,     count:null },
+    { id:"learners", label:"Learners",      fn:viewLearners,     count:function(){ return D.profiles.length; } },
+    { id:"enrols",   label:"Enrolments",    fn:viewEnrolments,   count:function(){ return D.enrols.length; } },
+    { id:"certs",    label:"Certificates",  fn:viewCertificates, count:function(){ return D.certs.length; } },
+    { id:"courses",  label:"Courses",       fn:viewCourses,      count:function(){ return D.courses.length; } },
+    { id:"orgs",     label:"Organizations", fn:viewOrgs,         count:function(){ return D.orgs.length; } },
+    { id:"leads",    label:"Leads",         fn:viewLeads,        count:function(){ return D.leads.length; } },
+    { id:"coach",    label:"Career coach",  fn:viewCoach,        count:function(){ return D.logs.length; } }
+  ];
+
+  function current(){
+    var h = (location.hash || "").replace(/^#\/?/, "");
+    return ROUTES.filter(function(r){ return r.id === h; })[0] || ROUTES[0];
+  }
+  function navLink(r, cur){
+    var n = r.count ? r.count() : null;
+    return '<a href="#/' + r.id + '"' + (r.id === cur.id ? ' class="sel"' : "") + ">" +
+           "<span>" + esc(r.label) + "</span>" +
+           (n === null ? "" : '<span class="n">' + n + "</span>") + "</a>";
+  }
+  function shell(route){
+    var nav = "<h6>Platform</h6>";
+    ROUTES.slice(0,4).forEach(function(r){ nav += navLink(r, route); });
+    nav += "<h6>Catalogue &amp; clients</h6>";
+    ROUTES.slice(4,6).forEach(function(r){ nav += navLink(r, route); });
+    nav += "<h6>Marketing site</h6>";
+    ROUTES.slice(6).forEach(function(r){ nav += navLink(r, route); });
+    nav += '<h6>Links</h6><a href="learn.html">Learner portal</a><a href="index.html">Public site</a>';
+    shellHost.innerHTML = '<div class="shell"><nav class="side">' + nav + '</nav><main id="main"></main></div>';
+  }
+
+  function chrome(showOut){
+    who.textContent = me ? (me.email || "") : "";
+    outBtn.hidden = !showOut;
+    langBtn.classList.toggle("on", CLANG === "ar");
+    langBtn.textContent = CLANG === "en" ? "عربي" : "EN";
+  }
+
+  function userId(){
+    // "sub" claim out of the access token
+    try {
+      var p = session.access_token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");
+      var json = decodeURIComponent(atob(p).split("").map(function(c){
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(""));
+      return JSON.parse(json).sub;
+    } catch(e){ return ""; }
+  }
+
+  async function render(){
+    out = shellHost;
+    if (!signedIn()) { me = null; chrome(false); viewSignIn(); return; }
+
+    shellHost.innerHTML = '<div class="loading"><span class="spin"></span></div>';
+    try {
+      if (!me) {
+        var rows = await rest("profiles?select=*&id=eq." + encodeURIComponent(userId()));
+        me = (rows || [])[0] || null;
+      }
+    } catch(e){
+      chrome(false);
+      shellHost.innerHTML = '<div class="gate"><div class="card"><h2>Could not load your profile</h2>' +
+        '<div class="err">' + esc(e.message) + "</div>" +
+        '<button class="btn" id="so">Sign out</button></div></div>';
+      el("so").addEventListener("click", signOut);
+      return;
+    }
+    if (!me) { chrome(false); viewSignIn("No profile row found for this account."); return; }
+    if (me.role !== "admin") { chrome(true); viewDenied(me.role); return; }
+
+    chrome(true);
+    try { await loadAll(false); }
+    catch(e){
+      shellHost.innerHTML = '<div class="err">' + esc(e.message) + "</div>";
+      return;
+    }
+
+    var route = current();
+    shell(route);
+    out = el("main");
+    route.fn();
+  }
+
+  outBtn.addEventListener("click", signOut);
+  langBtn.addEventListener("click", function(){
+    CLANG = CLANG === "en" ? "ar" : "en";
+    localStorage.setItem(LANG_KEY, CLANG);
+    render();
+  });
+
+  window.addEventListener("hashchange", render);
+  render();
+})();
+</script>
+</body>
+</html>
