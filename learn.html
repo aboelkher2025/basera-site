@@ -277,6 +277,7 @@
       foot:"Basera (بصيرة) — corporate training and learning platform, Saudi Arabia.",
 
       si_title:"Sign in", su_title:"Create an account",
+      sp_title:"Set your password", sp_sub:"Choose the password you will use to sign in.", sp_btn:"Save password", sp_done:"Password saved. Welcome.",
       si_kicker:"Learning portal", si_sub:"Your courses, progress and certificates in one place.",
       f_email:"Work email", f_pass:"Password", f_name:"Full name",
       f_dept:"Department", f_join:"Company join code", f_join_hint:"Optional — links your account to your employer.",
@@ -322,6 +323,7 @@
       foot:"بصيرة — تدريب الشركات ومنصة تعلّم، المملكة العربية السعودية.",
 
       si_title:"تسجيل الدخول", su_title:"إنشاء حساب",
+      sp_title:"عيّن كلمة المرور", sp_sub:"اختر كلمة المرور التي ستستخدمها لتسجيل الدخول.", sp_btn:"حفظ كلمة المرور", sp_done:"تم حفظ كلمة المرور. أهلاً بك.",
       si_kicker:"منصة التعلّم", si_sub:"دوراتك وتقدمك وشهاداتك في مكان واحد.",
       f_email:"البريد الإلكتروني", f_pass:"كلمة المرور", f_name:"الاسم الكامل",
       f_dept:"الإدارة", f_join:"رمز انضمام الشركة", f_join_hint:"اختياري — يربط حسابك بجهة عملك.",
@@ -590,6 +592,58 @@
 
   function authMsg(text, kind){
     el("authMsg").innerHTML = '<div class="note ' + (kind || "") + '">' + esc(text) + '</div>';
+  }
+
+  // Invitation and password-reset links land here with the session in the URL.
+  function viewSetPassword(){
+    show(
+      '<div class="form">' +
+        '<div class="page-head" style="text-align:center">' +
+          '<div class="kicker">' + esc(t("si_kicker")) + '</div>' +
+          '<h1>' + esc(t("sp_title")) + '</h1>' +
+          '<p>' + esc(t("sp_sub")) + '</p>' +
+        '</div>' +
+        '<div id="authMsg"></div>' +
+        '<form id="authForm" novalidate>' +
+          field("pass", t("f_pass"), "password", t("f_pass_hint"), true) +
+          '<button class="btn btn-primary" style="width:100%;margin-top:6px" type="submit" id="authBtn">' + esc(t("sp_btn")) + '</button>' +
+        '</form>' +
+      '</div>');
+    el("f_pass").setAttribute("autocomplete", "new-password");
+    el("authForm").addEventListener("submit", async function(ev){
+      ev.preventDefault();
+      var pass = el("f_pass").value || "";
+      if (pass.length < 8) return authMsg(t("err_pass_short"), "bad");
+      var btn = el("authBtn"); btn.disabled = true;
+      try {
+        var r = await fetch(SB_URL + "/auth/v1/user", {
+          method: "PUT", headers: authHeaders(), body: JSON.stringify({ password: pass })
+        });
+        var data = await r.json().catch(function(){ return {}; });
+        if (!r.ok) throw new Error(data.error_description || data.msg || data.message || "Could not save password");
+        authMsg(t("sp_done"), "ok");
+        setTimeout(function(){ location.hash = "#/dashboard"; }, 700);
+      } catch (err) {
+        authMsg(err.message, "bad"); btn.disabled = false;
+      }
+    });
+  }
+
+  // Supabase puts the tokens of an invite / recovery / magic link in the
+  // URL fragment. Capture them into the session and go set a password.
+  function captureAuthRedirect(){
+    var h = location.hash || "";
+    if (h.indexOf("access_token=") === -1) return false;
+    var p = {};
+    h.replace(/^#/, "").split("&").forEach(function(kv){
+      var i = kv.indexOf("="); if (i > 0) p[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1));
+    });
+    if (!p.access_token) return false;
+    saveSession({ access_token: p.access_token, refresh_token: p.refresh_token || null, token_type: p.token_type || "bearer", expires_in: Number(p.expires_in) || 3600 });
+    cache.profile = null;
+    var needsPassword = p.type === "invite" || p.type === "recovery" || p.type === "magiclink" || p.type === "signup";
+    history.replaceState(null, "", location.pathname + (needsPassword ? "#/setpassword" : "#/dashboard"));
+    return true;
   }
 
   async function submitAuth(isUp){
@@ -989,6 +1043,7 @@
       if (route !== "signup") route = "signin";
       return route === "signup" ? viewAuth("signup") : viewAuth("signin");
     }
+    if (route === "setpassword") return viewSetPassword();
     if (route === "signin" || route === "signup" || route === "") {
       location.hash = "#/dashboard";
       return;
@@ -1032,7 +1087,8 @@
     render();
   });
 
-  // Boot: apply saved language, then route.
+  // Boot: pick up an invite / reset link if there is one, apply saved language, then route.
+  captureAuthRedirect();
   document.documentElement.lang = CUR;
   document.documentElement.dir = CUR === "ar" ? "rtl" : "ltr";
   setLang(CUR);
