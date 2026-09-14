@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basera — Learning portal</title>
+<meta name="description" content="Basera learning portal: your courses, lessons, progress and certificates.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens (shared with index.html) ---------- */
+  :root{
+    --petrol:#10373C;
+    --petrol-2:#0B2A2E;
+    --mint:#E4EDE8;
+    --mint-2:#D3E2DA;
+    --saffron:#E9A23B;
+    --saffron-2:#C8862A;
+    --ink:#16262A;
+    --ink-2:#4A5E62;
+    --white:#FBFAF6;
+    --line:rgba(16,55,60,.14);
+    --line-light:rgba(251,250,246,.18);
+    --ok:#2E7D57;
+    --bad:#B4462F;
+    --radius:6px;
+    --max:1180px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
+    color:var(--ink);background:var(--white);
+    line-height:1.55;font-weight:400;
+    -webkit-font-smoothing:antialiased;
+  }
+  [dir="rtl"] body,[dir="rtl"]{line-height:1.7}
+  [dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3{letter-spacing:0}
+  a{color:inherit;text-decoration:none}
+  img,svg{display:block;max-width:100%}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  input,select,textarea{font:inherit;color:inherit}
+  :focus-visible{outline:3px solid var(--saffron);outline-offset:3px}
+  /* display:flex on .bar nav / .who would otherwise beat the hidden attribute */
+  [hidden]{display:none !important}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  /* ---------- Header ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:var(--petrol);color:var(--white);
+    border-bottom:1px solid var(--line-light);
+  }
+  .bar{display:flex;align-items:center;gap:20px;height:64px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:1.05rem}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--saffron);flex:none}
+  .bar nav{display:flex;gap:18px;margin-inline-start:auto;font-size:.93rem}
+  .bar nav a{opacity:.82;padding:6px 0;border-bottom:2px solid transparent;transition:opacity .2s var(--ease)}
+  .bar nav a:hover{opacity:1}
+  .bar nav a.on{opacity:1;border-bottom-color:var(--saffron)}
+  .tools{display:flex;align-items:center;gap:12px;margin-inline-start:auto}
+  .bar nav + .tools{margin-inline-start:0}
+  .lang{display:flex;border:1px solid var(--line-light);border-radius:var(--radius);overflow:hidden}
+  .lang button{padding:5px 10px;font-size:.8rem;opacity:.7}
+  .lang button.active{background:var(--line-light);opacity:1}
+  .who{display:flex;align-items:center;gap:8px;font-size:.88rem}
+  .avatar{
+    width:30px;height:30px;border-radius:50%;flex:none;
+    background:var(--saffron);color:var(--petrol-2);
+    display:grid;place-items:center;font-weight:600;font-size:.8rem;
+  }
+  .menu-btn{display:none;font-size:1.4rem;line-height:1}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 20px;border-radius:var(--radius);font-weight:500;font-size:.95rem;
+    transition:background .2s var(--ease),opacity .2s var(--ease);
+  }
+  .btn-primary{background:var(--saffron);color:var(--petrol-2)}
+  .btn-primary:hover{background:var(--saffron-2)}
+  .btn-dark{background:var(--petrol);color:var(--white)}
+  .btn-dark:hover{background:var(--petrol-2)}
+  .btn-ghost{border:1px solid var(--line);color:var(--ink)}
+  .btn-ghost:hover{background:var(--mint)}
+  .btn-sm{padding:7px 14px;font-size:.87rem}
+  .btn[disabled]{opacity:.5;cursor:not-allowed}
+
+  /* ---------- Layout ---------- */
+  main{min-height:calc(100vh - 64px - 120px);padding:36px 0 64px}
+  .page-head{margin-bottom:26px}
+  .page-head h1{font-size:1.7rem;font-weight:600;letter-spacing:-.01em}
+  .page-head p{color:var(--ink-2);margin-top:6px;font-size:.96rem}
+  .kicker{
+    font-size:.74rem;text-transform:uppercase;letter-spacing:.12em;
+    color:var(--ink-2);font-weight:500;margin-bottom:8px;
+  }
+  [dir="rtl"] .kicker{letter-spacing:0}
+  .grid{display:grid;gap:18px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .split{display:grid;grid-template-columns:280px 1fr;gap:32px;align-items:start}
+
+  /* ---------- Cards ---------- */
+  .card{
+    border:1px solid var(--line);border-radius:var(--radius);
+    background:var(--white);padding:20px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .card h3{font-size:1.05rem;font-weight:600;line-height:1.35}
+  .card p{color:var(--ink-2);font-size:.9rem}
+  .card .foot{margin-top:auto;padding-top:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .meta{display:flex;flex-wrap:wrap;gap:6px}
+  .meta span{
+    font-size:.72rem;padding:3px 8px;border-radius:100px;
+    background:var(--mint);color:var(--petrol);font-weight:500;
+  }
+  .stat{border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;background:var(--mint)}
+  .stat .n{font-size:1.9rem;font-weight:600;color:var(--petrol);line-height:1.1}
+  .stat .l{font-size:.84rem;color:var(--ink-2);margin-top:2px}
+
+  /* ---------- Progress ---------- */
+  .prog{height:6px;border-radius:100px;background:var(--mint-2);overflow:hidden}
+  .prog i{display:block;height:100%;background:var(--petrol);border-radius:100px;transition:width .4s var(--ease)}
+  .prog.done i{background:var(--ok)}
+  .prog-row{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--ink-2)}
+  .prog-row .prog{flex:1}
+
+  /* ---------- Forms ---------- */
+  .form{max-width:420px;margin:0 auto}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:.85rem;font-weight:500;margin-bottom:5px}
+  .field input,.field select{
+    width:100%;padding:11px 13px;border:1px solid var(--line);
+    border-radius:var(--radius);background:var(--white);
+  }
+  .field input:focus,.field select:focus{border-color:var(--petrol);outline:none}
+  .field .hint{font-size:.78rem;color:var(--ink-2);margin-top:4px}
+  .note{
+    padding:12px 14px;border-radius:var(--radius);font-size:.88rem;
+    border:1px solid var(--line);background:var(--mint);margin-bottom:16px;
+  }
+  .note.bad{background:#FBEDE9;border-color:rgba(180,70,47,.3);color:var(--bad)}
+  .note.ok{background:#E9F3EE;border-color:rgba(46,125,87,.3);color:var(--ok)}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:22px}
+  .tabs button{
+    padding:9px 16px;font-size:.92rem;font-weight:500;color:var(--ink-2);
+    border-bottom:2px solid transparent;margin-bottom:-1px;
+  }
+  .tabs button.on{color:var(--petrol);border-bottom-color:var(--saffron)}
+
+  /* ---------- Lesson ---------- */
+  .toc{border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;position:sticky;top:88px}
+  .toc h4{padding:13px 16px;background:var(--mint);font-size:.82rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600;color:var(--petrol)}
+  [dir="rtl"] .toc h4{letter-spacing:0}
+  .toc a{
+    display:flex;gap:10px;align-items:flex-start;padding:12px 16px;
+    border-top:1px solid var(--line);font-size:.89rem;transition:background .18s var(--ease);
+  }
+  .toc a:hover{background:var(--mint)}
+  .toc a.on{background:var(--mint);font-weight:500}
+  .tick{
+    width:18px;height:18px;border-radius:50%;flex:none;margin-top:2px;
+    border:1.5px solid var(--line);display:grid;place-items:center;font-size:.6rem;
+  }
+  .tick.done{background:var(--ok);border-color:var(--ok);color:#fff}
+  .lesson-body{font-size:1.02rem;line-height:1.75;max-width:70ch}
+  .lesson-body p{margin-bottom:1.05em}
+  .lesson-nav{display:flex;justify-content:space-between;gap:12px;margin-top:34px;padding-top:22px;border-top:1px solid var(--line)}
+
+  /* ---------- Quiz ---------- */
+  .q{border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px}
+  .q h4{font-size:1rem;font-weight:600;margin-bottom:12px}
+  .opt{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:var(--radius);cursor:pointer;transition:background .15s var(--ease)}
+  .opt:hover{background:var(--mint)}
+  .opt input{margin-top:4px;flex:none;accent-color:var(--petrol)}
+  .opt.right{background:#E9F3EE}
+  .opt.wrong{background:#FBEDE9}
+
+  /* ---------- Certificate ---------- */
+  .cert{
+    border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px;background:var(--mint);position:relative;overflow:hidden;
+  }
+  .cert::after{
+    content:"";position:absolute;inset-inline-end:-30px;top:-30px;
+    width:120px;height:120px;border-radius:50%;background:rgba(233,162,59,.18);
+  }
+  .cert .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.05rem;font-weight:600;color:var(--petrol);letter-spacing:.04em}
+  .cert h3{font-size:1.15rem;font-weight:600;margin:6px 0 2px}
+
+  .empty{text-align:center;padding:56px 24px;border:1px dashed var(--line);border-radius:var(--radius);color:var(--ink-2)}
+  .empty h3{font-size:1.1rem;font-weight:600;color:var(--ink);margin-bottom:6px}
+  .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--petrol);border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .loading{padding:60px;text-align:center;color:var(--ink-2)}
+
+  footer{border-top:1px solid var(--line);padding:26px 0;font-size:.85rem;color:var(--ink-2)}
+  .foot-row{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+  @media(max-width:900px){
+    .split{grid-template-columns:1fr}
+    .toc{position:static}
+    .g3{grid-template-columns:repeat(2,1fr)}
+  }
+  @media(max-width:680px){
+    .g3,.g2{grid-template-columns:1fr}
+    .bar nav{display:none}
+    .bar nav.open{
+      display:flex;position:absolute;top:64px;inset-inline:0;
+      flex-direction:column;background:var(--petrol);padding:14px 24px;gap:12px;
+      border-bottom:1px solid var(--line-light);
+    }
+    .menu-btn{display:block}
+    .who span{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="index.html"><span class="dot"></span><span data-i18n="brand">Basera</span></a>
+    <nav id="nav" hidden>
+      <a href="#/dashboard" data-nav="dashboard" data-i18n="nav_dash">My learning</a>
+      <a href="#/catalogue" data-nav="catalogue" data-i18n="nav_cat">Catalogue</a>
+      <a href="#/certificates" data-nav="certificates" data-i18n="nav_certs">Certificates</a>
+    </nav>
+    <div class="tools">
+      <div class="lang">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="ar">ع</button>
+      </div>
+      <div class="who" id="who" hidden>
+        <span class="avatar" id="avatar">—</span>
+        <button id="signOut" title="Sign out"><span data-i18n="sign_out">Sign out</span></button>
+      </div>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu" hidden>☰</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="view">
+  <div class="loading"><span class="spin"></span></div>
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <span data-i18n="foot">Basera (بصيرة) — corporate training and learning platform, Saudi Arabia.</span>
+    <a href="index.html" data-i18n="back_site">Back to the main site</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // ============================================================
+  // Config — same project as index.html. The anon key is public
+  // by design; row-level security is what protects the data.
+  // ============================================================
+  var SB_URL = "https://brlhihishoilxyslwubj.supabase.co";
+  var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybGhpaGlzaG9pbHh5c2x3dWJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDYyNzEsImV4cCI6MjEwNDg4MjI3MX0.xOcmd_ANs4wN7S5Cy7tTl5-St-iX73q_Ro5wRydaH4I";
+  var PASS_MARK = 70;   // percent needed to clear a quiz lesson
+
+  // ============================================================
+  // Translations
+  // ============================================================
+  var T = {
+    en: {
+      brand:"Basera", nav_dash:"My learning", nav_cat:"Catalogue", nav_certs:"Certificates",
+      sign_out:"Sign out", back_site:"Back to the main site",
+      foot:"Basera (بصيرة) — corporate training and learning platform, Saudi Arabia.",
+
+      si_title:"Sign in", su_title:"Create an account",
+      si_kicker:"Learning portal", si_sub:"Your courses, progress and certificates in one place.",
+      f_email:"Work email", f_pass:"Password", f_name:"Full name",
+      f_dept:"Department", f_join:"Company join code", f_join_hint:"Optional — links your account to your employer.",
+      f_pass_hint:"At least 8 characters.",
+      do_signin:"Sign in", do_signup:"Create account",
+      no_account:"No account yet?", have_account:"Already have an account?",
+      err_creds:"Email or password is not correct.",
+      err_generic:"Something went wrong. Please try again.",
+      err_fields:"Please fill in every required field.",
+      err_pass_short:"Password must be at least 8 characters.",
+      check_email:"Account created. Check your email to confirm it, then sign in.",
+
+      dash_title:"My learning", dash_sub:"Pick up where you left off.",
+      st_active:"In progress", st_done:"Completed", st_certs:"Certificates",
+      no_courses:"You are not enrolled yet",
+      no_courses_p:"Browse the catalogue and enrol in your first course.",
+      browse:"Browse the catalogue",
+      cat_title:"Catalogue", cat_sub:"Every published Basera course.",
+      resume:"Continue", start:"Start", enrol:"Enrol", enrolled:"Enrolled", view:"Open",
+      enrolling:"Enrolling…",
+      complete_label:"complete",
+      certs_title:"Certificates", certs_sub:"Issued automatically when you finish a course.",
+      no_certs:"No certificates yet",
+      no_certs_p:"Finish a course with a certificate to earn your first one.",
+      issued:"Issued", score:"Score", holder:"Awarded to",
+      lessons:"Lessons", lesson:"Lesson", of:"of",
+      mark_done:"Mark as complete", done:"Completed", next:"Next", prev:"Previous",
+      back_course:"Back to the course", back_dash:"Back to my learning",
+      q_check:"Check answers", q_retry:"Try again", q_pass:"Passed", q_score:"You scored",
+      q_need:"You need {n}% to clear this lesson.",
+      q_pick:"Answer every question first.",
+      course_done:"Course complete",
+      course_done_p:"Your certificate has been issued — it is on your certificates page.",
+      loading:"Loading…",
+      not_found:"That page does not exist.",
+      lv_b:"Beginner", lv_i:"Intermediate", lv_a:"Advanced",
+      fm_live:"Live online", fm_self:"Self-paced", fm_site:"On site",
+      hrs:"hrs", sar:"SAR", cert:"Certificate", min:"min"
+    },
+    ar: {
+      brand:"بصيرة", nav_dash:"تعلّمي", nav_cat:"الدورات", nav_certs:"الشهادات",
+      sign_out:"تسجيل الخروج", back_site:"العودة للموقع",
+      foot:"بصيرة — تدريب الشركات ومنصة تعلّم، المملكة العربية السعودية.",
+
+      si_title:"تسجيل الدخول", su_title:"إنشاء حساب",
+      si_kicker:"منصة التعلّم", si_sub:"دوراتك وتقدمك وشهاداتك في مكان واحد.",
+      f_email:"البريد الإلكتروني", f_pass:"كلمة المرور", f_name:"الاسم الكامل",
+      f_dept:"الإدارة", f_join:"رمز انضمام الشركة", f_join_hint:"اختياري — يربط حسابك بجهة عملك.",
+      f_pass_hint:"٨ أحرف على الأقل.",
+      do_signin:"دخول", do_signup:"إنشاء الحساب",
+      no_account:"ليس لديك حساب؟", have_account:"لديك حساب بالفعل؟",
+      err_creds:"البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+      err_generic:"حدث خطأ. حاول مرة أخرى.",
+      err_fields:"يرجى تعبئة جميع الحقول المطلوبة.",
+      err_pass_short:"كلمة المرور يجب أن تكون ٨ أحرف على الأقل.",
+      check_email:"تم إنشاء الحساب. تحقق من بريدك لتأكيده ثم سجّل الدخول.",
+
+      dash_title:"تعلّمي", dash_sub:"أكمل من حيث توقفت.",
+      st_active:"قيد التقدم", st_done:"مكتملة", st_certs:"الشهادات",
+      no_courses:"لم تسجّل في أي دورة بعد",
+      no_courses_p:"تصفح الدورات وسجّل في أول دورة لك.",
+      browse:"تصفح الدورات",
+      cat_title:"الدورات", cat_sub:"جميع دورات بصيرة المنشورة.",
+      resume:"متابعة", start:"ابدأ", enrol:"سجّل", enrolled:"مسجَّل", view:"افتح",
+      enrolling:"جارٍ التسجيل…",
+      complete_label:"مكتمل",
+      certs_title:"الشهادات", certs_sub:"تصدر تلقائياً عند إكمال الدورة.",
+      no_certs:"لا توجد شهادات بعد",
+      no_certs_p:"أكمل دورة تمنح شهادة لتحصل على أول شهادة.",
+      issued:"تاريخ الإصدار", score:"الدرجة", holder:"ممنوحة إلى",
+      lessons:"الدروس", lesson:"الدرس", of:"من",
+      mark_done:"تحديد كمكتمل", done:"مكتمل", next:"التالي", prev:"السابق",
+      back_course:"العودة للدورة", back_dash:"العودة لتعلّمي",
+      q_check:"تحقق من الإجابات", q_retry:"حاول مرة أخرى", q_pass:"ناجح", q_score:"درجتك",
+      q_need:"تحتاج {n}٪ لاجتياز هذا الدرس.",
+      q_pick:"أجب عن جميع الأسئلة أولاً.",
+      course_done:"اكتملت الدورة",
+      course_done_p:"تم إصدار شهادتك — تجدها في صفحة الشهادات.",
+      loading:"جارٍ التحميل…",
+      not_found:"هذه الصفحة غير موجودة.",
+      lv_b:"مبتدئ", lv_i:"متوسط", lv_a:"متقدم",
+      fm_live:"أونلاين مباشر", fm_self:"ذاتي", fm_site:"في الموقع",
+      hrs:"ساعة", sar:"ريال", cert:"شهادة", min:"دقيقة"
+    }
+  };
+
+  var CUR = localStorage.getItem("basera_lang") || "en";
+  function t(k){ return (T[CUR] && T[CUR][k]) || T.en[k] || k; }
+
+  function setLang(lang){
+    CUR = lang;
+    localStorage.setItem("basera_lang", lang);
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    document.querySelectorAll("[data-i18n]").forEach(function(el){
+      var v = T[lang][el.dataset.i18n];
+      if (v !== undefined) el.textContent = v;
+    });
+    document.querySelectorAll(".lang button").forEach(function(b){
+      b.classList.toggle("active", b.dataset.lang === lang);
+    });
+    render();
+  }
+
+  // ============================================================
+  // Small helpers
+  // ============================================================
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function L(row, field){                    // localised column picker
+    return row[field + "_" + CUR] || row[field + "_en"] || "";
+  }
+  function paras(text){
+    return String(text || "").split(/\n{2,}/).filter(Boolean)
+      .map(function(p){ return "<p>" + esc(p).replace(/\n/g,"<br>") + "</p>"; }).join("");
+  }
+  function initials(name){
+    var parts = String(name || "?").trim().split(/\s+/);
+    return ((parts[0] || "?")[0] + (parts.length > 1 ? parts[parts.length-1][0] : "")).toUpperCase();
+  }
+  function el(id){ return document.getElementById(id); }
+
+  // ============================================================
+  // Session — stored locally, refreshed when the token expires
+  // ============================================================
+  var SESSION_KEY = "basera_session";
+  var session = null;
+  try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); } catch(e){ session = null; }
+
+  function saveSession(s){
+    session = s;
+    if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s));
+    else localStorage.removeItem(SESSION_KEY);
+  }
+  function signedIn(){ return !!(session && session.access_token); }
+
+  function authHeaders(){
+    var h = { "apikey": SB_KEY, "Content-Type": "application/json" };
+    h["Authorization"] = "Bearer " + (signedIn() ? session.access_token : SB_KEY);
+    return h;
+  }
+
+  async function refreshSession(){
+    if (!session || !session.refresh_token) return false;
+    var r = await fetch(SB_URL + "/auth/v1/token?grant_type=refresh_token", {
+      method: "POST",
+      headers: { "apikey": SB_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: session.refresh_token })
+    });
+    if (!r.ok) { saveSession(null); return false; }
+    saveSession(await r.json());
+    return true;
+  }
+
+  // REST call with one automatic retry after a token refresh.
+  async function rest(path, opts, retried){
+    opts = opts || {};
+    var r = await fetch(SB_URL + "/rest/v1/" + path, {
+      method: opts.method || "GET",
+      headers: Object.assign(authHeaders(), opts.headers || {}),
+      body: opts.body ? JSON.stringify(opts.body) : undefined
+    });
+    if (r.status === 401 && !retried && session) {
+      if (await refreshSession()) return rest(path, opts, true);
+      saveSession(null);
+      location.hash = "#/signin";
+      throw new Error("signed out");
+    }
+    if (!r.ok) {
+      var detail = await r.text().catch(function(){ return ""; });
+      throw new Error("REST " + r.status + " " + detail);
+    }
+    if (r.status === 204) return null;
+    return r.json().catch(function(){ return null; });
+  }
+
+  async function auth(endpoint, body){
+    var r = await fetch(SB_URL + "/auth/v1/" + endpoint, {
+      method: "POST",
+      headers: { "apikey": SB_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    var data = await r.json().catch(function(){ return {}; });
+    if (!r.ok) {
+      var e = new Error(data.error_description || data.msg || data.message || "auth error");
+      e.status = r.status;
+      throw e;
+    }
+    return data;
+  }
+
+  // ============================================================
+  // Data access
+  // ============================================================
+  var cache = { profile:null, courses:null };
+
+  function getProfile(){
+    if (cache.profile) return Promise.resolve(cache.profile);
+    return rest("profiles?select=id,full_name,email,role,org_id,department&limit=1")
+      .then(function(rows){ cache.profile = (rows && rows[0]) || null; return cache.profile; });
+  }
+  function getCourses(){
+    if (cache.courses) return Promise.resolve(cache.courses);
+    return rest("courses?select=id,title_en,title_ar,summary_en,summary_ar,domain,level,format,hours,price_sar,has_certificate&is_published=eq.true&order=sort_order")
+      .then(function(rows){ cache.courses = rows || []; return cache.courses; });
+  }
+  function getEnrollments(){
+    return rest("enrollments?select=id,course_id,status,progress_pct,score,enrolled_at,completed_at&order=enrolled_at.desc");
+  }
+  function getLessons(courseId){
+    return rest("lessons?select=id,course_id,title_en,title_ar,kind,body_en,body_ar,media_url,duration_min,quiz,sort_order&course_id=eq." +
+      encodeURIComponent(courseId) + "&order=sort_order");
+  }
+  function getProgress(enrollmentId){
+    return rest("lesson_progress?select=lesson_id,score,completed_at&enrollment_id=eq." + encodeURIComponent(enrollmentId));
+  }
+  function getCertificates(){
+    return rest("certificates?select=code,holder_name,course_id,issued_on,score,is_valid&order=issued_on.desc");
+  }
+  function enrol(courseId){
+    return rest("enrollments", {
+      method: "POST",
+      headers: { "Prefer": "return=representation" },
+      body: { user_id: session.user.id, course_id: courseId }
+    });
+  }
+  // Composite primary key (enrollment_id, lesson_id) — upsert so a
+  // retaken quiz updates the score instead of failing on conflict.
+  function markComplete(enrollmentId, lessonId, score){
+    return rest("lesson_progress", {
+      method: "POST",
+      headers: { "Prefer": "resolution=merge-duplicates,return=representation" },
+      body: { enrollment_id: enrollmentId, lesson_id: lessonId, score: (score == null ? null : score) }
+    });
+  }
+
+  // ============================================================
+  // Chrome
+  // ============================================================
+  function paintChrome(){
+    var nav = el("nav"), who = el("who"), menuBtn = el("menuBtn");
+    nav.hidden = !signedIn();
+    who.hidden = !signedIn();
+    menuBtn.hidden = !signedIn();
+    if (signedIn()) {
+      var name = (cache.profile && cache.profile.full_name) ||
+                 (session.user && session.user.email) || "?";
+      el("avatar").textContent = initials(name);
+      el("avatar").title = name;
+    }
+    var route = (location.hash || "").split("/")[1] || "";
+    document.querySelectorAll("[data-nav]").forEach(function(a){
+      a.classList.toggle("on", a.dataset.nav === route);
+    });
+  }
+
+  // ============================================================
+  // Views
+  // ============================================================
+  var view = el("view");
+  function show(html){ view.innerHTML = html; paintChrome(); }
+  function busy(){ view.innerHTML = '<div class="loading"><span class="spin"></span></div>'; }
+
+  // ---------- Auth ----------
+  function viewAuth(mode){
+    var isUp = mode === "signup";
+    show(
+      '<div class="form">' +
+        '<div class="page-head" style="text-align:center">' +
+          '<div class="kicker">' + esc(t("si_kicker")) + '</div>' +
+          '<h1>' + esc(isUp ? t("su_title") : t("si_title")) + '</h1>' +
+          '<p>' + esc(t("si_sub")) + '</p>' +
+        '</div>' +
+        '<div id="authMsg"></div>' +
+        '<form id="authForm" novalidate>' +
+          (isUp ? field("name", t("f_name"), "text", "", true) : "") +
+          field("email", t("f_email"), "email", "", true) +
+          field("pass", t("f_pass"), "password", isUp ? t("f_pass_hint") : "", true) +
+          (isUp ? field("dept", t("f_dept"), "text", "", false) : "") +
+          (isUp ? field("join", t("f_join"), "text", t("f_join_hint"), false) : "") +
+          '<button class="btn btn-primary" style="width:100%;margin-top:6px" type="submit" id="authBtn">' +
+            esc(isUp ? t("do_signup") : t("do_signin")) +
+          '</button>' +
+        '</form>' +
+        '<p style="text-align:center;margin-top:16px;font-size:.9rem;color:var(--ink-2)">' +
+          esc(isUp ? t("have_account") : t("no_account")) + ' ' +
+          '<a href="#/' + (isUp ? "signin" : "signup") + '" style="color:var(--petrol);font-weight:500;text-decoration:underline">' +
+            esc(isUp ? t("do_signin") : t("do_signup")) +
+          '</a>' +
+        '</p>' +
+      '</div>'
+    );
+
+    el("authForm").addEventListener("submit", function(ev){
+      ev.preventDefault();
+      submitAuth(isUp);
+    });
+  }
+
+  function field(id, label, type, hint, required){
+    return '<div class="field">' +
+      '<label for="f_' + id + '">' + esc(label) + (required ? "" : " <span style=\"color:var(--ink-2);font-weight:400\">·</span>") + '</label>' +
+      '<input id="f_' + id + '" type="' + type + '" autocomplete="' +
+        (type === "password" ? "current-password" : (id === "email" ? "email" : (id === "name" ? "name" : "off"))) + '">' +
+      (hint ? '<div class="hint">' + esc(hint) + '</div>' : "") +
+    '</div>';
+  }
+
+  function authMsg(text, kind){
+    el("authMsg").innerHTML = '<div class="note ' + (kind || "") + '">' + esc(text) + '</div>';
+  }
+
+  async function submitAuth(isUp){
+    var btn = el("authBtn");
+    var email = (el("f_email").value || "").trim();
+    var pass  = el("f_pass").value || "";
+    var name  = isUp ? (el("f_name").value || "").trim() : "";
+
+    if (!email || !pass || (isUp && !name)) return authMsg(t("err_fields"), "bad");
+    if (isUp && pass.length < 8) return authMsg(t("err_pass_short"), "bad");
+
+    btn.disabled = true;
+    var original = btn.textContent;
+    btn.innerHTML = '<span class="spin"></span>';
+
+    try {
+      var data;
+      if (isUp) {
+        var meta = { full_name: name, lang: CUR };
+        var dept = (el("f_dept").value || "").trim();
+        var join = (el("f_join").value || "").trim();
+        if (dept) meta.department = dept;
+        if (join) meta.join_code = join.toUpperCase();
+        data = await auth("signup", { email: email, password: pass, data: meta });
+        // With email confirmation on, signup returns a user but no token.
+        if (!data.access_token) {
+          btn.disabled = false; btn.textContent = original;
+          return authMsg(t("check_email"), "ok");
+        }
+      } else {
+        data = await auth("token?grant_type=password", { email: email, password: pass });
+      }
+      saveSession(data);
+      cache.profile = null;
+      await getProfile().catch(function(){});
+      location.hash = "#/dashboard";
+    } catch (err) {
+      btn.disabled = false; btn.textContent = original;
+      var msg = String(err.message || "");
+      authMsg(/invalid|credential|grant/i.test(msg) ? t("err_creds") : (msg || t("err_generic")), "bad");
+    }
+  }
+
+  // ---------- Dashboard ----------
+  async function viewDashboard(){
+    busy();
+    var res = await Promise.all([getEnrollments(), getCourses(), getCertificates()]);
+    var enrs = res[0] || [], courses = res[1] || [], certs = res[2] || [];
+    var byId = {};
+    courses.forEach(function(c){ byId[c.id] = c; });
+
+    var active = enrs.filter(function(e){ return e.status !== "completed"; });
+    var done   = enrs.filter(function(e){ return e.status === "completed"; });
+
+    var body;
+    if (!enrs.length) {
+      body = '<div class="empty">' +
+        '<h3>' + esc(t("no_courses")) + '</h3>' +
+        '<p style="margin-bottom:18px">' + esc(t("no_courses_p")) + '</p>' +
+        '<a class="btn btn-primary" href="#/catalogue">' + esc(t("browse")) + '</a>' +
+      '</div>';
+    } else {
+      body = '<div class="grid g3">' + enrs.map(function(e){
+        var c = byId[e.course_id];
+        if (!c) return "";
+        var pct = e.progress_pct || 0;
+        return '<article class="card">' +
+          '<div class="meta"><span>' + esc(t("lv_" + c.level)) + '</span><span>' + esc(t("fm_" + c.format)) + '</span></div>' +
+          '<h3>' + esc(L(c, "title")) + '</h3>' +
+          '<div class="prog-row">' +
+            '<div class="prog' + (pct >= 100 ? " done" : "") + '"><i style="width:' + pct + '%"></i></div>' +
+            '<span>' + pct + '% ' + esc(t("complete_label")) + '</span>' +
+          '</div>' +
+          '<div class="foot">' +
+            '<a class="btn btn-dark btn-sm" href="#/course/' + encodeURIComponent(c.id) + '">' +
+              esc(pct > 0 ? t("resume") : t("start")) +
+            '</a>' +
+          '</div>' +
+        '</article>';
+      }).join("") + '</div>';
+    }
+
+    show(
+      '<div class="page-head"><h1>' + esc(t("dash_title")) + '</h1><p>' + esc(t("dash_sub")) + '</p></div>' +
+      '<div class="grid g3" style="margin-bottom:28px">' +
+        stat(active.length, t("st_active")) +
+        stat(done.length, t("st_done")) +
+        stat(certs.length, t("st_certs")) +
+      '</div>' + body
+    );
+  }
+  function stat(n, label){
+    return '<div class="stat"><div class="n">' + n + '</div><div class="l">' + esc(label) + '</div></div>';
+  }
+
+  // ---------- Catalogue ----------
+  async function viewCatalogue(){
+    busy();
+    var res = await Promise.all([getCourses(), getEnrollments()]);
+    var courses = res[0] || [], enrs = res[1] || [];
+    var mine = {};
+    enrs.forEach(function(e){ mine[e.course_id] = e; });
+
+    show(
+      '<div class="page-head"><h1>' + esc(t("cat_title")) + '</h1><p>' + esc(t("cat_sub")) + '</p></div>' +
+      '<div class="grid g3">' + courses.map(function(c){
+        var e = mine[c.id];
+        return '<article class="card">' +
+          '<div class="meta">' +
+            '<span>' + esc(t("lv_" + c.level)) + '</span>' +
+            '<span>' + esc(t("fm_" + c.format)) + '</span>' +
+            '<span>' + c.hours + " " + esc(t("hrs")) + '</span>' +
+            (c.has_certificate ? '<span>' + esc(t("cert")) + '</span>' : "") +
+          '</div>' +
+          '<h3>' + esc(L(c, "title")) + '</h3>' +
+          '<p>' + esc(L(c, "summary")) + '</p>' +
+          '<div class="foot">' +
+            (e
+              ? '<a class="btn btn-ghost btn-sm" href="#/course/' + encodeURIComponent(c.id) + '">' + esc(t("view")) + '</a>'
+              : '<button class="btn btn-primary btn-sm" data-enrol="' + esc(c.id) + '">' + esc(t("enrol")) + '</button>') +
+          '</div>' +
+        '</article>';
+      }).join("") + '</div>'
+    );
+
+    view.querySelectorAll("[data-enrol]").forEach(function(btn){
+      btn.addEventListener("click", async function(){
+        btn.disabled = true;
+        btn.textContent = t("enrolling");
+        try {
+          await enrol(btn.dataset.enrol);
+          location.hash = "#/course/" + encodeURIComponent(btn.dataset.enrol);
+        } catch (err) {
+          btn.disabled = false;
+          btn.textContent = t("enrol");
+          alert(t("err_generic"));
+        }
+      });
+    });
+  }
+
+  // ---------- Course ----------
+  async function viewCourse(courseId){
+    busy();
+    var res = await Promise.all([getCourses(), getEnrollments(), getLessons(courseId)]);
+    var courses = res[0] || [], enrs = res[1] || [], lessons = res[2] || [];
+    var course = courses.filter(function(c){ return c.id === courseId; })[0];
+    if (!course) return show('<div class="empty"><h3>' + esc(t("not_found")) + '</h3></div>');
+
+    var e = enrs.filter(function(x){ return x.course_id === courseId; })[0];
+    if (!e) {                                   // not enrolled — enrol, then reload
+      try { var created = await enrol(courseId); e = created && created[0]; }
+      catch (err) { return show('<div class="empty"><h3>' + esc(t("err_generic")) + '</h3></div>'); }
+    }
+
+    var prog = await getProgress(e.id) || [];
+    var doneSet = {};
+    prog.forEach(function(p){ doneSet[p.lesson_id] = true; });
+    var pct = e.progress_pct || 0;
+
+    show(
+      '<div class="page-head">' +
+        '<div class="kicker"><a href="#/dashboard" style="text-decoration:underline">' + esc(t("back_dash")) + '</a></div>' +
+        '<h1>' + esc(L(course, "title")) + '</h1>' +
+        '<p>' + esc(L(course, "summary")) + '</p>' +
+      '</div>' +
+      (pct >= 100
+        ? '<div class="note ok"><b>' + esc(t("course_done")) + '.</b> ' + esc(t("course_done_p")) + '</div>'
+        : '') +
+      '<div class="prog-row" style="margin-bottom:26px;max-width:460px">' +
+        '<div class="prog' + (pct >= 100 ? " done" : "") + '"><i style="width:' + pct + '%"></i></div>' +
+        '<span>' + pct + '% ' + esc(t("complete_label")) + '</span>' +
+      '</div>' +
+      '<div class="toc" style="max-width:640px;position:static">' +
+        '<h4>' + esc(t("lessons")) + ' · ' + lessons.length + '</h4>' +
+        lessons.map(function(l, i){
+          return '<a href="#/lesson/' + encodeURIComponent(courseId) + '/' + encodeURIComponent(l.id) + '">' +
+            '<span class="tick' + (doneSet[l.id] ? " done" : "") + '">' + (doneSet[l.id] ? "✓" : "") + '</span>' +
+            '<span style="flex:1">' + esc(L(l, "title")) +
+              '<span style="display:block;color:var(--ink-2);font-size:.8rem">' +
+                (i + 1) + " " + esc(t("of")) + " " + lessons.length + " · " +
+                (l.kind === "quiz" ? esc(t("q_check")) : (l.duration_min + " " + esc(t("min")))) +
+              '</span>' +
+            '</span>' +
+          '</a>';
+        }).join("") +
+      '</div>'
+    );
+  }
+
+  // ---------- Lesson ----------
+  async function viewLesson(courseId, lessonId){
+    busy();
+    var res = await Promise.all([getCourses(), getEnrollments(), getLessons(courseId)]);
+    var courses = res[0] || [], enrs = res[1] || [], lessons = res[2] || [];
+    var course = courses.filter(function(c){ return c.id === courseId; })[0];
+    var e = enrs.filter(function(x){ return x.course_id === courseId; })[0];
+    var idx = lessons.map(function(l){ return l.id; }).indexOf(lessonId);
+    if (!course || !e || idx < 0) return show('<div class="empty"><h3>' + esc(t("not_found")) + '</h3></div>');
+
+    var lesson = lessons[idx];
+    var prog = await getProgress(e.id) || [];
+    var doneSet = {};
+    prog.forEach(function(p){ doneSet[p.lesson_id] = true; });
+
+    var toc = '<div class="toc">' +
+      '<h4>' + esc(L(course, "title")) + '</h4>' +
+      lessons.map(function(l){
+        return '<a class="' + (l.id === lessonId ? "on" : "") + '" href="#/lesson/' +
+            encodeURIComponent(courseId) + '/' + encodeURIComponent(l.id) + '">' +
+          '<span class="tick' + (doneSet[l.id] ? " done" : "") + '">' + (doneSet[l.id] ? "✓" : "") + '</span>' +
+          '<span style="flex:1">' + esc(L(l, "title")) + '</span>' +
+        '</a>';
+      }).join("") +
+    '</div>';
+
+    var main =
+      '<div class="kicker">' +
+        esc(t("lesson")) + " " + (idx + 1) + " " + esc(t("of")) + " " + lessons.length +
+        ' · <a href="#/course/' + encodeURIComponent(courseId) + '" style="text-decoration:underline">' +
+          esc(t("back_course")) + '</a>' +
+      '</div>' +
+      '<h1 style="font-size:1.6rem;font-weight:600;margin-bottom:18px">' + esc(L(lesson, "title")) + '</h1>' +
+      '<div id="lessonMain"></div>';
+
+    show('<div class="split">' + toc + '<div>' + main + '</div></div>');
+
+    var host = el("lessonMain");
+    if (lesson.kind === "quiz") renderQuiz(host, lesson, e, lessons, idx, doneSet);
+    else renderText(host, lesson, e, lessons, idx, doneSet);
+  }
+
+  function navRow(lessons, idx, courseId){
+    var prev = idx > 0 ? lessons[idx-1] : null;
+    var next = idx < lessons.length - 1 ? lessons[idx+1] : null;
+    return '<div class="lesson-nav">' +
+      (prev
+        ? '<a class="btn btn-ghost btn-sm" href="#/lesson/' + encodeURIComponent(courseId) + '/' + encodeURIComponent(prev.id) + '">← ' + esc(t("prev")) + '</a>'
+        : '<span></span>') +
+      (next
+        ? '<a class="btn btn-ghost btn-sm" href="#/lesson/' + encodeURIComponent(courseId) + '/' + encodeURIComponent(next.id) + '">' + esc(t("next")) + ' →</a>'
+        : '<a class="btn btn-ghost btn-sm" href="#/course/' + encodeURIComponent(courseId) + '">' + esc(t("back_course")) + '</a>') +
+    '</div>';
+  }
+
+  function renderText(host, lesson, enrollment, lessons, idx, doneSet){
+    var isDone = !!doneSet[lesson.id];
+    host.innerHTML =
+      (lesson.media_url && lesson.kind === "video"
+        ? '<div style="margin-bottom:20px"><video controls style="width:100%;border-radius:var(--radius)" src="' + esc(lesson.media_url) + '"></video></div>'
+        : "") +
+      (lesson.media_url && lesson.kind === "pdf"
+        ? '<p style="margin-bottom:18px"><a class="btn btn-ghost btn-sm" href="' + esc(lesson.media_url) + '" target="_blank" rel="noopener">PDF ↗</a></p>'
+        : "") +
+      '<div class="lesson-body">' + paras(L(lesson, "body")) + '</div>' +
+      '<div style="margin-top:28px">' +
+        '<button class="btn ' + (isDone ? "btn-ghost" : "btn-primary") + '" id="doneBtn"' + (isDone ? " disabled" : "") + '>' +
+          (isDone ? "✓ " + esc(t("done")) : esc(t("mark_done"))) +
+        '</button>' +
+      '</div>' +
+      navRow(lessons, idx, lesson.course_id);
+
+    if (!isDone) {
+      el("doneBtn").addEventListener("click", async function(){
+        var b = el("doneBtn");
+        b.disabled = true;
+        b.innerHTML = '<span class="spin"></span>';
+        try {
+          await markComplete(enrollment.id, lesson.id, null);
+          render();                       // re-read so ticks and % refresh
+        } catch (err) {
+          b.disabled = false;
+          b.textContent = t("mark_done");
+          alert(t("err_generic"));
+        }
+      });
+    }
+  }
+
+  function renderQuiz(host, lesson, enrollment, lessons, idx, doneSet){
+    var qs = Array.isArray(lesson.quiz) ? lesson.quiz : [];
+    var isDone = !!doneSet[lesson.id];
+
+    host.innerHTML =
+      '<div id="quizMsg"></div>' +
+      '<form id="quizForm">' +
+        qs.map(function(q, qi){
+          var opts = q["options_" + CUR] || q.options_en || [];
+          return '<div class="q" data-q="' + qi + '">' +
+            '<h4>' + (qi + 1) + '. ' + esc(q["q_" + CUR] || q.q_en) + '</h4>' +
+            opts.map(function(o, oi){
+              return '<label class="opt" data-opt="' + oi + '">' +
+                '<input type="radio" name="q' + qi + '" value="' + oi + '">' +
+                '<span>' + esc(o) + '</span>' +
+              '</label>';
+            }).join("") +
+          '</div>';
+        }).join("") +
+        '<button class="btn btn-primary" type="submit" id="quizBtn">' +
+          esc(isDone ? t("q_retry") : t("q_check")) +
+        '</button>' +
+      '</form>' +
+      navRow(lessons, idx, lesson.course_id);
+
+    el("quizForm").addEventListener("submit", async function(ev){
+      ev.preventDefault();
+      var answers = [], missing = false;
+      qs.forEach(function(q, qi){
+        var picked = host.querySelector('input[name="q' + qi + '"]:checked');
+        if (!picked) missing = true;
+        answers.push(picked ? parseInt(picked.value, 10) : -1);
+      });
+      if (missing) {
+        el("quizMsg").innerHTML = '<div class="note bad">' + esc(t("q_pick")) + '</div>';
+        return;
+      }
+
+      var right = 0;
+      qs.forEach(function(q, qi){
+        var block = host.querySelector('[data-q="' + qi + '"]');
+        var correct = q.answer;
+        if (answers[qi] === correct) right++;
+        block.querySelectorAll(".opt").forEach(function(o){
+          var oi = parseInt(o.dataset.opt, 10);
+          o.classList.remove("right","wrong");
+          if (oi === correct) o.classList.add("right");
+          else if (oi === answers[qi]) o.classList.add("wrong");
+        });
+      });
+
+      var score = Math.round((right / qs.length) * 100);
+      var passed = score >= PASS_MARK;
+
+      el("quizMsg").innerHTML =
+        '<div class="note ' + (passed ? "ok" : "bad") + '">' +
+          '<b>' + esc(t("q_score")) + " " + score + '%</b>' +
+          (passed ? " — " + esc(t("q_pass")) + "." : " — " + esc(t("q_need").replace("{n}", PASS_MARK))) +
+        '</div>';
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      if (passed) {
+        var b = el("quizBtn");
+        b.disabled = true;
+        b.innerHTML = '<span class="spin"></span>';
+        try {
+          await markComplete(enrollment.id, lesson.id, score);
+          setTimeout(render, 700);        // let the reader see the result first
+        } catch (err) {
+          b.disabled = false;
+          b.textContent = t("q_check");
+          alert(t("err_generic"));
+        }
+      } else {
+        el("quizBtn").textContent = t("q_retry");
+      }
+    });
+  }
+
+  // ---------- Certificates ----------
+  async function viewCertificates(){
+    busy();
+    var res = await Promise.all([getCertificates(), getCourses()]);
+    var certs = res[0] || [], courses = res[1] || [];
+    var byId = {};
+    courses.forEach(function(c){ byId[c.id] = c; });
+
+    show(
+      '<div class="page-head"><h1>' + esc(t("certs_title")) + '</h1><p>' + esc(t("certs_sub")) + '</p></div>' +
+      (certs.length
+        ? '<div class="grid g2">' + certs.map(function(c){
+            var course = byId[c.course_id];
+            return '<div class="cert">' +
+              '<div class="kicker">' + esc(t("cert")) + '</div>' +
+              '<div class="code">' + esc(c.code) + '</div>' +
+              '<h3>' + esc(course ? L(course, "title") : c.course_id) + '</h3>' +
+              '<p style="font-size:.9rem;color:var(--ink-2)">' + esc(t("holder")) + ": " + esc(c.holder_name) + '</p>' +
+              '<p style="font-size:.9rem;color:var(--ink-2)">' + esc(t("issued")) + ": " + esc(c.issued_on) +
+                (c.score != null ? " · " + esc(t("score")) + ": " + c.score + "%" : "") + '</p>' +
+            '</div>';
+          }).join("") + '</div>'
+        : '<div class="empty">' +
+            '<h3>' + esc(t("no_certs")) + '</h3>' +
+            '<p style="margin-bottom:18px">' + esc(t("no_certs_p")) + '</p>' +
+            '<a class="btn btn-primary" href="#/catalogue">' + esc(t("browse")) + '</a>' +
+          '</div>')
+    );
+  }
+
+  // ============================================================
+  // Router
+  // ============================================================
+  async function render(){
+    var parts = (location.hash || "").replace(/^#\/?/, "").split("/").map(decodeURIComponent);
+    var route = parts[0] || "";
+
+    if (!signedIn()) {
+      if (route !== "signup") route = "signin";
+      return route === "signup" ? viewAuth("signup") : viewAuth("signin");
+    }
+    if (route === "signin" || route === "signup" || route === "") {
+      location.hash = "#/dashboard";
+      return;
+    }
+
+    try {
+      await getProfile().catch(function(){});
+      if (route === "dashboard")         await viewDashboard();
+      else if (route === "catalogue")    await viewCatalogue();
+      else if (route === "certificates") await viewCertificates();
+      else if (route === "course")       await viewCourse(parts[1]);
+      else if (route === "lesson")       await viewLesson(parts[1], parts[2]);
+      else show('<div class="empty"><h3>' + esc(t("not_found")) + '</h3></div>');
+    } catch (err) {
+      if (String(err.message) !== "signed out") {
+        show('<div class="empty"><h3>' + esc(t("err_generic")) + '</h3>' +
+             '<p style="font-size:.82rem;margin-top:8px">' + esc(err.message) + '</p></div>');
+      }
+    }
+  }
+
+  // ============================================================
+  // Wiring
+  // ============================================================
+  document.querySelectorAll(".lang button").forEach(function(b){
+    b.addEventListener("click", function(){ setLang(b.dataset.lang); });
+  });
+  el("signOut").addEventListener("click", function(){
+    saveSession(null);
+    cache.profile = null;
+    location.hash = "#/signin";
+    render();
+  });
+  el("menuBtn").addEventListener("click", function(){ el("nav").classList.toggle("open"); });
+  view.addEventListener("click", function(ev){
+    var a = ev.target.closest && ev.target.closest("a[href^='#/']");
+    if (a) el("nav").classList.remove("open");
+  });
+  window.addEventListener("hashchange", function(){
+    el("nav").classList.remove("open");
+    render();
+  });
+
+  // Boot: apply saved language, then route.
+  document.documentElement.lang = CUR;
+  document.documentElement.dir = CUR === "ar" ? "rtl" : "ltr";
+  setLang(CUR);
+})();
+</script>
+</body>
+</html>
