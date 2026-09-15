@@ -483,11 +483,11 @@ window.BA = (function(){
   // ------------------------------------------------------------
   // Gate, shell, router
   // ------------------------------------------------------------
-  var root, who, outBtn, langBtn, rolesNav;
+  var root, who, outBtn, langBtn, pagesNav;
   function viewSignIn(msg){
     chrome(false);
     root.innerHTML =
-      '<div class="gate"><div class="card"><h2>Control panel</h2><p>Sign in with a staff account.</p>' +
+      '<div class="gate"><div class="card"><h2>Control panel</h2><p>Sign in to see the pages your account can open.</p>' +
       (msg ? '<div class="err">' + A.esc(msg) + "</div>" : "") +
       '<form id="f"><label for="e">Email</label><input id="e" type="email" autocomplete="username" required>' +
       '<label for="p">Password</label><input id="p" type="password" autocomplete="current-password" required>' +
@@ -503,31 +503,47 @@ window.BA = (function(){
       } catch(err){ viewSignIn(err.message || "Sign-in failed"); }
     });
   }
-  function viewDenied(role){
+  // Reached only by an account type with no sections at all (learner,
+  // partner). Everyone else lands on their own first page instead.
+  function viewNoAccess(role){
     chrome(true);
     var m = A.roleById[role];
     root.innerHTML =
-      '<div class="gate"><div class="card"><h2>Not a staff account</h2>' +
-      "<p>You are signed in as <b>" + A.esc(m ? m.label : role || "unknown") + "</b>. The control panel needs <b>Admin</b> or <b>Super admin</b>.</p>" +
-      '<button class="btn" id="so">Sign out</button><div class="foot"><a href="learn.html">Go to the learning portal</a></div></div></div>';
+      '<div class="gate"><div class="card"><h2>Nothing to manage here</h2>' +
+      "<p>You are signed in as <b>" + A.esc(m ? m.label : role || "unknown") + "</b>, which has no management pages. " +
+      "Your learning lives in the portal.</p>" +
+      '<a class="btn" href="learn.html">Go to the learning portal</a>' +
+      '<div class="foot"><button class="linkish" id="so">Sign out</button></div></div></div>';
     A.el("so").addEventListener("click", A.signOut);
   }
   A.signOut = function(){ saveSession(null); A.me = null; A.D = {}; A.render(); };
 
+  // Every section names the account types that may open it. The top nav
+  // and the route guard are both built from this list, so a role cannot
+  // reach a page by typing its hash. RLS still decides what the page can
+  // actually read once it is open — this only controls what is offered.
+  var STAFF_ONLY = ["super_admin", "admin"];
   A.ROUTES = [
-    { id:"dashboard",    label:"Dashboard",     group:"Platform" },
-    { id:"reports",      label:"Reports",       group:"Platform" },
-    { id:"accounts",     label:"Accounts",      group:"People",    count:function(D){ return D.profiles.length; } },
-    { id:"companies",    label:"Companies",     group:"People",    count:function(D){ return D.orgs.length; } },
-    { id:"courses",      label:"Courses",       group:"Catalogue", count:function(D){ return D.courses.length; } },
-    { id:"lessons",      label:"Lessons",       group:"Catalogue", count:function(D){ return D.lessons.length; } },
-    { id:"enrolments",   label:"Enrolments",    group:"Learning",  count:function(D){ return D.enrols.length; } },
-    { id:"progress",     label:"Progress",      group:"Learning",  count:function(D){ return D.progress.length; } },
-    { id:"certificates", label:"Certificates",  group:"Learning",  count:function(D){ return D.certs.length; } },
-    { id:"leads",        label:"Leads",         group:"Marketing", count:function(D){ return D.leads.length; } },
-    { id:"coach",        label:"Career coach",  group:"Marketing", count:function(D){ return D.logs.length; } },
-    { id:"database",     label:"Database",      group:"System" }
+    { id:"dashboard",    label:"Dashboard",     group:"Platform",  roles:STAFF_ONLY },
+    { id:"reports",      label:"Reports",       group:"Platform",  roles:STAFF_ONLY },
+    { id:"access",       label:"Users & access",group:"People",    roles:["super_admin"] },
+    { id:"accounts",     label:"Accounts",      group:"People",    roles:STAFF_ONLY, count:function(D){ return D.profiles.length; } },
+    { id:"companies",    label:"Companies",     group:"People",    roles:["super_admin","admin","client_admin"], count:function(D){ return D.orgs.length; } },
+    { id:"courses",      label:"Courses",       group:"Catalogue", roles:["super_admin","admin","trainer"], count:function(D){ return D.courses.length; } },
+    { id:"lessons",      label:"Lessons",       group:"Catalogue", roles:["super_admin","admin","trainer"], count:function(D){ return D.lessons.length; } },
+    { id:"enrolments",   label:"Enrolments",    group:"Learning",  roles:["super_admin","admin","trainer","client_admin"], count:function(D){ return D.enrols.length; } },
+    { id:"progress",     label:"Progress",      group:"Learning",  roles:["super_admin","admin","trainer","client_admin"], count:function(D){ return D.progress.length; } },
+    { id:"certificates", label:"Certificates",  group:"Learning",  roles:["super_admin","admin","client_admin"], count:function(D){ return D.certs.length; } },
+    { id:"leads",        label:"Leads",         group:"Marketing", roles:STAFF_ONLY, count:function(D){ return D.leads.length; } },
+    { id:"coach",        label:"Career coach",  group:"Marketing", roles:STAFF_ONLY, count:function(D){ return D.logs.length; } },
+    { id:"database",     label:"Database",      group:"System",    roles:STAFF_ONLY }
   ];
+  A.routeById = {};
+  A.ROUTES.forEach(function(r){ A.routeById[r.id] = r; });
+  A.routesFor = function(role){
+    return A.ROUTES.filter(function(r){ return r.roles.indexOf(role) >= 0; });
+  };
+  A.allowedRoutes = function(){ return A.routesFor(A.me && A.me.role); };
   A.views = {};
   A.go = function(id, params){
     var qs = params ? "?" + Object.keys(params).map(function(k){ return k + "=" + encodeURIComponent(params[k]); }).join("&") : "";
@@ -538,36 +554,51 @@ window.BA = (function(){
     var parts = h.split("?"), id = parts[0];
     A.params = {};
     (parts[1] || "").split("&").forEach(function(kv){ if (!kv) return; var p = kv.split("="); A.params[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || ""); });
-    return A.ROUTES.filter(function(r){ return r.id === id; })[0] || A.ROUTES[0];
+    // Only ever resolve to a section this account may open, so a stale or
+    // hand-typed hash falls back to their first page instead of erroring.
+    var allowed = A.allowedRoutes();
+    return allowed.filter(function(r){ return r.id === id; })[0] || allowed[0] || null;
   }
-  function shell(route){
-    var nav = "", group = null;
-    A.ROUTES.forEach(function(r){
-      if (r.group !== group) { group = r.group; nav += "<h6>" + A.esc(group) + "</h6>"; }
+  function shell(){
+    root.innerHTML = '<div class="shell"><main id="main"></main></div>';
+  }
+  // The page nav lives in the top bar and lists exactly the sections this
+  // account may open — "as per my account", nothing more.
+  function topNav(route){
+    var html = "";
+    A.allowedRoutes().forEach(function(r){
       var n = r.count ? r.count(A.D) : null;
-      nav += '<a href="#/' + r.id + '"' + (r.id === route.id ? ' class="sel"' : "") + "><span>" + A.esc(r.label) + "</span>" + (n === null ? "" : '<span class="n">' + n + "</span>") + "</a>";
+      html += '<a href="#/' + r.id + '"' + (route && r.id === route.id ? ' class="sel"' : "") +
+              ' title="' + A.esc(r.group) + '">' + A.esc(r.label) +
+              (n === null ? "" : '<b class="n">' + n + "</b>") + "</a>";
     });
-    nav += '<h6>Links</h6><a href="learn.html">Learner portal</a><a href="index.html">Public site</a>';
-    root.innerHTML = '<div class="shell"><nav class="side">' + nav + '</nav><main id="main"></main></div>';
+    html += '<span class="sep"></span>' +
+            '<a href="learn.html" class="out">Portal</a>' +
+            '<a href="index.html" class="out">Site</a>';
+    pagesNav.innerHTML = html;
   }
-  function rolesStrip(route){
-    var D = A.D, html = "";
-    var sel = route.id === "accounts" ? (A.params.role || "") : "";
+  // Account-type chips with live counts. Used by the Accounts and
+  // Users &amp; access pages now that the top bar carries the page nav.
+  A.roleStrip = function(selRole, hrefFor){
+    var D = A.D, html = '<div class="roles">';
     A.ROLES.forEach(function(r){
       var n = D.roleCounts ? (D.roleCounts[r.id] || 0) : 0;
-      var cls = "rchip" + (A.me && A.me.role === r.id ? " me" : "") + (sel === r.id ? " sel" : "");
-      html += '<a class="' + cls + '" href="#/accounts?role=' + r.id + '" title="' + A.esc(r.label + " — " + r.desc) + '">' + A.icon(r.icon) + "<b>" + n + "</b><span>" + A.esc(r.label) + "</span></a>";
+      var cls = "rchip" + (A.me && A.me.role === r.id ? " me" : "") + (selRole === r.id ? " sel" : "");
+      var href = hrefFor ? hrefFor(r.id) : ("#/accounts?role=" + r.id);
+      html += '<a class="' + cls + '" href="' + A.esc(href) + '" title="' + A.esc(r.label + " — " + r.desc) + '">' +
+              A.icon(r.icon) + "<b>" + n + "</b><span>" + A.esc(r.label) + "</span></a>";
     });
-    var nOrg = D.orgs ? D.orgs.length : 0;
-    html += '<a class="rchip' + (route.id === "companies" ? " sel" : "") + '" href="#/companies" title="Companies (organizations)">' + A.icon("building") + "<b>" + nOrg + "</b><span>Companies</span></a>";
-    rolesNav.innerHTML = html;
-  }
+    return html + "</div>";
+  };
   function chrome(showOut){
-    who.textContent = A.me ? (A.me.email || "") : "";
+    var m = A.me && A.roleById[A.me.role];
+    who.innerHTML = A.me
+      ? A.esc(A.me.email || "") + (m ? ' <span class="whorole">' + A.esc(m.label) + "</span>" : "")
+      : "";
     outBtn.hidden = !showOut;
     langBtn.classList.toggle("on", A.CLANG === "ar");
     langBtn.textContent = A.CLANG === "en" ? "عربي" : "EN";
-    if (!showOut) rolesNav.innerHTML = "";
+    if (!showOut) pagesNav.innerHTML = "";
   }
 
   A.render = async function(){
@@ -586,13 +617,16 @@ window.BA = (function(){
       return;
     }
     if (!A.me) { viewSignIn("No profile row found for this account."); return; }
-    if (!A.isStaffRole(A.me.role)) { viewDenied(A.me.role); return; }
+    if (!A.allowedRoutes().length) { viewNoAccess(A.me.role); return; }
     chrome(true);
+    // Trainers and company leads read the shared views but cannot write to
+    // them — RLS would reject it — so the actions are not offered at all.
+    document.body.classList.toggle("readonly", !A.isStaffRole(A.me.role));
     try { await A.loadAll(false); }
     catch(e){ root.innerHTML = '<div class="gate"><div class="err">' + A.esc(e.message) + "</div></div>"; return; }
     var route = current();
-    shell(route);
-    rolesStrip(route);
+    shell();
+    topNav(route);
     A.out = A.el("main");
     var fn = A.views[route.id];
     if (fn) { try { fn(); } catch(e){ A.out.innerHTML = '<div class="err">' + A.esc(e.stack || e.message) + "</div>"; } }
@@ -600,7 +634,7 @@ window.BA = (function(){
   };
 
   A.start = function(){
-    root = A.el("root"); who = A.el("who"); outBtn = A.el("outBtn"); langBtn = A.el("langBtn"); rolesNav = A.el("roles");
+    root = A.el("root"); who = A.el("who"); outBtn = A.el("outBtn"); langBtn = A.el("langBtn"); pagesNav = A.el("pages");
     outBtn.addEventListener("click", A.signOut);
     langBtn.addEventListener("click", function(){
       A.CLANG = A.CLANG === "en" ? "ar" : "en";
