@@ -140,6 +140,24 @@
   }
   .field input:focus,.field select:focus{border-color:var(--petrol);outline:none}
   .field .hint{font-size:.78rem;color:var(--ink-2);margin-top:4px}
+  /* Sign-up is long enough that one flat column of inputs reads as a wall,
+     so related fields sit in a titled group. */
+  .fgroup{border:0;padding:0;margin:0 0 22px}
+  .fgroup legend{
+    padding:0;margin-bottom:10px;font-size:.72rem;font-weight:600;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);
+  }
+  .field label .optional{font-weight:400;font-size:.76rem;color:var(--ink-2)}
+  .field input.bad,.field select.bad{border-color:var(--bad)}
+  .field .ferr{font-size:.78rem;color:var(--bad);margin-top:4px}
+  /* A value the learner cannot change here, shown rather than hidden. */
+  .ro{
+    display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;
+    padding:9px 0;border-bottom:1px solid var(--line);
+  }
+  .ro span{font-size:.85rem;color:var(--ink-2);min-width:110px}
+  .ro b{font-weight:500}
+  .ro .hint{flex-basis:100%;font-size:.78rem;color:var(--ink-2);margin:0}
   .note{
     padding:12px 14px;border-radius:var(--radius);font-size:.88rem;
     border:1px solid var(--line);background:var(--mint);margin-bottom:16px;
@@ -229,6 +247,8 @@
       <a href="#/dashboard" data-nav="dashboard" data-i18n="nav_dash">My learning</a>
       <a href="#/catalogue" data-nav="catalogue" data-i18n="nav_cat">Catalogue</a>
       <a href="#/certificates" data-nav="certificates" data-i18n="nav_certs">Certificates</a>
+      <a href="#/account" data-nav="account" data-i18n="nav_account">Account</a>
+      <a href="admin.html" id="panelLink" data-i18n="nav_panel" hidden>Control panel</a>
     </nav>
     <div class="tools">
       <div class="lang">
@@ -290,6 +310,29 @@
       err_pass_short:"Password must be at least 8 characters.",
       check_email:"Account created. Check your email to confirm it, then sign in.",
 
+      nav_account:"Account", nav_panel:"Control panel",
+      su_sub:"It takes a minute. You can enrol in a course straight afterwards.",
+      sec_you:"About you", sec_sign:"How you sign in", sec_org:"Your company",
+      sec_org_hint:"Leave this empty if you are signing up on your own.",
+      optional:"Optional",
+      f_pass2:"Confirm password", f_show:"Show", f_hide:"Hide",
+      err_name:"Enter your full name.",
+      err_email:"Enter a valid email address.",
+      err_pass_match:"The two passwords do not match.",
+
+      acc_title:"Account", acc_sub:"Your details and how you sign in.",
+      acc_details:"Your details", acc_security:"Password",
+      acc_type:"Account type", acc_company:"Company", acc_email_ro:"Sign-in email",
+      acc_email_hint:"Contact Basera if you need this changed.",
+      f_lang:"Preferred language",
+      acc_save:"Save changes", acc_saved:"Saved.",
+      f_pass_new:"New password", acc_pass_btn:"Update password",
+      acc_pass_done:"Password updated.",
+      acc_panel_p:"Your account can open the control panel.",
+      acc_open_panel:"Open the control panel",
+      role_super_admin:"Super admin", role_admin:"Admin", role_trainer:"Trainer",
+      role_client_admin:"Company lead", role_learner:"Learner", role_partner:"Partner",
+
       dash_title:"My learning", dash_sub:"Pick up where you left off.",
       st_active:"In progress", st_done:"Completed", st_certs:"Certificates",
       no_courses:"You are not enrolled yet",
@@ -335,6 +378,29 @@
       err_fields:"يرجى تعبئة جميع الحقول المطلوبة.",
       err_pass_short:"كلمة المرور يجب أن تكون ٨ أحرف على الأقل.",
       check_email:"تم إنشاء الحساب. تحقق من بريدك لتأكيده ثم سجّل الدخول.",
+
+      nav_account:"حسابي", nav_panel:"لوحة التحكم",
+      su_sub:"لن يستغرق سوى دقيقة، ويمكنك التسجيل في دورة بعدها مباشرة.",
+      sec_you:"بياناتك", sec_sign:"بيانات الدخول", sec_org:"جهة عملك",
+      sec_org_hint:"اتركه فارغاً إذا كنت تسجّل بصفتك الشخصية.",
+      optional:"اختياري",
+      f_pass2:"تأكيد كلمة المرور", f_show:"إظهار", f_hide:"إخفاء",
+      err_name:"أدخل اسمك الكامل.",
+      err_email:"أدخل بريداً إلكترونياً صحيحاً.",
+      err_pass_match:"كلمتا المرور غير متطابقتين.",
+
+      acc_title:"حسابي", acc_sub:"بياناتك وطريقة دخولك.",
+      acc_details:"بياناتك", acc_security:"كلمة المرور",
+      acc_type:"نوع الحساب", acc_company:"الشركة", acc_email_ro:"بريد الدخول",
+      acc_email_hint:"تواصل مع بصيرة إذا احتجت تغييره.",
+      f_lang:"اللغة المفضلة",
+      acc_save:"حفظ التغييرات", acc_saved:"تم الحفظ.",
+      f_pass_new:"كلمة المرور الجديدة", acc_pass_btn:"تحديث كلمة المرور",
+      acc_pass_done:"تم تحديث كلمة المرور.",
+      acc_panel_p:"يمكن لحسابك فتح لوحة التحكم.",
+      acc_open_panel:"افتح لوحة التحكم",
+      role_super_admin:"مدير عام", role_admin:"مشرف", role_trainer:"مدرب",
+      role_client_admin:"مسؤول الشركة", role_learner:"متدرب", role_partner:"شريك",
 
       dash_title:"تعلّمي", dash_sub:"أكمل من حيث توقفت.",
       st_active:"قيد التقدم", st_done:"مكتملة", st_certs:"الشهادات",
@@ -476,11 +542,21 @@
   // ============================================================
   // Data access
   // ============================================================
+  // Account types with at least one section in the control panel. Kept in
+  // step with A.ROUTES in admin.js — a learner or partner has nothing to
+  // manage, so the link is not offered to them.
+  var PANEL_ROLES = ["super_admin", "admin", "trainer", "client_admin"];
+  function roleLabel(role){
+    var k = "role_" + String(role || "");
+    var s = t(k);
+    return s === k ? (role || "—") : s;
+  }
+
   var cache = { profile:null, courses:null };
 
   function getProfile(){
     if (cache.profile) return Promise.resolve(cache.profile);
-    return rest("profiles?select=id,full_name,email,role,org_id,department&limit=1")
+    return rest("profiles?select=id,full_name,email,role,org_id,department,lang&limit=1")
       .then(function(rows){ cache.profile = (rows && rows[0]) || null; return cache.profile; });
   }
   function getCourses(){
@@ -532,6 +608,11 @@
       el("avatar").textContent = initials(name);
       el("avatar").title = name;
     }
+    // The control panel is only offered to account types that have
+    // something to manage there; the panel re-checks this itself, and
+    // RLS decides what they can actually see once inside.
+    var panel = el("panelLink");
+    if (panel) panel.hidden = !(signedIn() && cache.profile && PANEL_ROLES.indexOf(cache.profile.role) >= 0);
     var route = (location.hash || "").split("/")[1] || "";
     document.querySelectorAll("[data-nav]").forEach(function(a){
       a.classList.toggle("on", a.dataset.nav === route);
@@ -553,15 +634,22 @@
         '<div class="page-head" style="text-align:center">' +
           '<div class="kicker">' + esc(t("si_kicker")) + '</div>' +
           '<h1>' + esc(isUp ? t("su_title") : t("si_title")) + '</h1>' +
-          '<p>' + esc(t("si_sub")) + '</p>' +
+          '<p>' + esc(isUp ? t("su_sub") : t("si_sub")) + '</p>' +
         '</div>' +
         '<div id="authMsg"></div>' +
         '<form id="authForm" novalidate>' +
-          (isUp ? field("name", t("f_name"), "text", "", true) : "") +
-          field("email", t("f_email"), "email", "", true) +
-          field("pass", t("f_pass"), "password", isUp ? t("f_pass_hint") : "", true) +
-          (isUp ? field("dept", t("f_dept"), "text", "", false) : "") +
-          (isUp ? field("join", t("f_join"), "text", t("f_join_hint"), false) : "") +
+          (isUp
+            ? group(t("sec_you"),
+                field("name",  t("f_name"),  "text",  "", true) +
+                field("email", t("f_email"), "email", "", true) +
+                field("dept",  t("f_dept"),  "text",  "", false)) +
+              group(t("sec_sign"),
+                field("pass",  t("f_pass"),  "password", t("f_pass_hint"), true, "new-password") +
+                field("pass2", t("f_pass2"), "password", "", true, "new-password")) +
+              group(t("sec_org"),
+                field("join", t("f_join"), "text", t("sec_org_hint"), false))
+            : field("email", t("f_email"), "email", "", true) +
+              field("pass",  t("f_pass"),  "password", "", true)) +
           '<button class="btn btn-primary" style="width:100%;margin-top:6px" type="submit" id="authBtn">' +
             esc(isUp ? t("do_signup") : t("do_signin")) +
           '</button>' +
@@ -581,14 +669,44 @@
     });
   }
 
-  function field(id, label, type, hint, required){
-    return '<div class="field">' +
-      '<label for="f_' + id + '">' + esc(label) + (required ? "" : " <span style=\"color:var(--ink-2);font-weight:400\">·</span>") + '</label>' +
-      '<input id="f_' + id + '" type="' + type + '" autocomplete="' +
-        (type === "password" ? "current-password" : (id === "email" ? "email" : (id === "name" ? "name" : "off"))) + '">' +
+  // A titled block of related fields. Sign-up is long enough that one flat
+  // column of inputs reads as a wall; grouping says what each part is for.
+  function group(title, inner){
+    return '<fieldset class="fgroup"><legend>' + esc(title) + '</legend>' + inner + '</fieldset>';
+  }
+
+  function field(id, label, type, hint, required, autocomplete){
+    var ac = autocomplete ||
+      (type === "password" ? "current-password" : (id === "email" ? "email" : (id === "name" ? "name" : "off")));
+    return '<div class="field" data-field="' + id + '">' +
+      '<label for="f_' + id + '">' + esc(label) +
+        (required ? "" : ' <span class="optional">' + esc(t("optional")) + '</span>') + '</label>' +
+      '<input id="f_' + id + '" type="' + type + '" autocomplete="' + ac + '">' +
       (hint ? '<div class="hint">' + esc(hint) + '</div>' : "") +
+      '<div class="ferr" hidden></div>' +
     '</div>';
   }
+
+  // Errors sit under the field they belong to. The banner above the form is
+  // kept for what the server says, which belongs to no single field.
+  function fieldErr(id, msg){
+    var w = document.querySelector('[data-field="' + id + '"] .ferr');
+    if (!w) return;
+    w.textContent = msg || "";
+    w.hidden = !msg;
+    var input = el("f_" + id);
+    if (input) input.classList.toggle("bad", !!msg);
+  }
+  function clearErrors(){
+    Array.prototype.forEach.call(document.querySelectorAll(".ferr"), function(w){
+      w.hidden = true; w.textContent = "";
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".field input"), function(i){
+      i.classList.remove("bad");
+    });
+    var m = el("authMsg"); if (m) m.innerHTML = "";
+  }
+  function validEmail(s){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s); }
 
   function authMsg(text, kind){
     el("authMsg").innerHTML = '<div class="note ' + (kind || "") + '">' + esc(text) + '</div>';
@@ -652,8 +770,22 @@
     var pass  = el("f_pass").value || "";
     var name  = isUp ? (el("f_name").value || "").trim() : "";
 
-    if (!email || !pass || (isUp && !name)) return authMsg(t("err_fields"), "bad");
-    if (isUp && pass.length < 8) return authMsg(t("err_pass_short"), "bad");
+    clearErrors();
+    var firstBad = null;
+    function bad(id, msg){ fieldErr(id, msg); if (!firstBad) firstBad = id; }
+
+    if (isUp && !name) bad("name", t("err_name"));
+    if (!email) bad("email", t("err_fields"));
+    else if (!validEmail(email)) bad("email", t("err_email"));
+    if (!pass) bad("pass", t("err_fields"));
+    else if (isUp && pass.length < 8) bad("pass", t("err_pass_short"));
+    if (isUp && pass && (el("f_pass2").value || "") !== pass) bad("pass2", t("err_pass_match"));
+
+    if (firstBad) {
+      var f = el("f_" + firstBad);
+      if (f) f.focus();
+      return;
+    }
 
     btn.disabled = true;
     var original = btn.textContent;
@@ -1032,6 +1164,123 @@
     );
   }
 
+  // ---------- Account ----------
+  function accMsg(text, kind){
+    var w = el("accMsg");
+    if (w) w.innerHTML = '<div class="note ' + (kind || "") + '">' + esc(text) + '</div>';
+  }
+
+  async function viewAccount(){
+    busy();
+    var p = (await getProfile()) || {};
+    // Only staff and company leads can read organizations under RLS, so a
+    // plain learner simply gets nothing back and the row is left out.
+    var company = "";
+    if (p.org_id) {
+      try {
+        var rows = await rest("organizations?select=name&id=eq." + encodeURIComponent(p.org_id));
+        company = (rows && rows[0] && rows[0].name) || "";
+      } catch (e) { company = ""; }
+    }
+
+    function ro(label, value, hint){
+      return '<div class="ro"><span>' + esc(label) + '</span><b>' + esc(value || "—") + '</b>' +
+             (hint ? '<div class="hint">' + esc(hint) + '</div>' : "") + '</div>';
+    }
+
+    show(
+      '<div class="form">' +
+        '<div class="page-head">' +
+          '<h1>' + esc(t("acc_title")) + '</h1>' +
+          '<p>' + esc(t("acc_sub")) + '</p>' +
+        '</div>' +
+        '<div id="accMsg"></div>' +
+        '<form id="accForm" novalidate>' +
+          group(t("acc_details"),
+            field("fullname", t("f_name"), "text", "", true, "name") +
+            field("department", t("f_dept"), "text", "", false) +
+            '<div class="field"><label for="f_lang">' + esc(t("f_lang")) + '</label>' +
+              '<select id="f_lang"><option value="en">English</option><option value="ar">العربية</option></select>' +
+            '</div>' +
+            ro(t("acc_email_ro"), p.email, t("acc_email_hint")) +
+            ro(t("acc_type"), roleLabel(p.role)) +
+            (company ? ro(t("acc_company"), company) : "")) +
+          '<button class="btn btn-primary" style="width:100%" type="submit" id="accBtn">' + esc(t("acc_save")) + '</button>' +
+        '</form>' +
+        '<form id="pwForm" novalidate style="margin-top:26px">' +
+          group(t("acc_security"),
+            field("npass",  t("f_pass_new"), "password", t("f_pass_hint"), true, "new-password") +
+            field("npass2", t("f_pass2"),    "password", "", true, "new-password")) +
+          '<button class="btn" style="width:100%" type="submit" id="pwBtn">' + esc(t("acc_pass_btn")) + '</button>' +
+        '</form>' +
+        (PANEL_ROLES.indexOf(p.role) >= 0
+          ? '<div class="note" style="margin-top:26px">' + esc(t("acc_panel_p")) + ' ' +
+            '<a href="admin.html" style="color:var(--petrol);font-weight:500;text-decoration:underline">' +
+              esc(t("acc_open_panel")) + '</a></div>'
+          : "") +
+      '</div>'
+    );
+
+    el("f_fullname").value   = p.full_name  || "";
+    el("f_department").value = p.department || "";
+    el("f_lang").value       = (p.lang === "ar" ? "ar" : "en");
+
+    el("accForm").addEventListener("submit", async function(ev){
+      ev.preventDefault();
+      clearErrors();
+      var nm = (el("f_fullname").value || "").trim();
+      if (!nm) { fieldErr("fullname", t("err_name")); el("f_fullname").focus(); return; }
+      var btn = el("accBtn"); btn.disabled = true;
+      try {
+        var lang = el("f_lang").value === "ar" ? "ar" : "en";
+        var changedLang = lang !== CUR;
+        await rest("profiles?id=eq." + encodeURIComponent(p.id), {
+          method: "PATCH",
+          headers: { "Prefer": "return=representation" },
+          body: {
+            full_name: nm,
+            department: (el("f_department").value || "").trim() || null,
+            lang: lang
+          }
+        });
+        cache.profile = null;
+        await getProfile().catch(function(){});
+        if (changedLang) {
+          // Repaint the whole screen so the new language applies everywhere,
+          // not just to the header labels.
+          setLang(lang);
+          await viewAccount();
+        }
+        accMsg(t("acc_saved"), "ok");
+        paintChrome();
+      } catch (err) {
+        accMsg(err.message || t("err_generic"), "bad");
+      }
+      var b2 = el("accBtn"); if (b2) b2.disabled = false;
+    });
+
+    el("pwForm").addEventListener("submit", async function(ev){
+      ev.preventDefault();
+      clearErrors();
+      var a = el("f_npass").value || "", b = el("f_npass2").value || "";
+      if (a.length < 8) { fieldErr("npass", t("err_pass_short")); el("f_npass").focus(); return; }
+      if (a !== b) { fieldErr("npass2", t("err_pass_match")); el("f_npass2").focus(); return; }
+      var btn = el("pwBtn"); btn.disabled = true;
+      try {
+        var r = await fetch(SB_URL + "/auth/v1/user", {
+          method: "PUT", headers: authHeaders(), body: JSON.stringify({ password: a })
+        });
+        var data = await r.json().catch(function(){ return {}; });
+        if (!r.ok) throw new Error(data.error_description || data.msg || data.message || t("err_generic"));
+        el("f_npass").value = ""; el("f_npass2").value = "";
+        accMsg(t("acc_pass_done"), "ok");
+      } catch (err) {
+        accMsg(err.message || t("err_generic"), "bad");
+      }
+      btn.disabled = false;
+    });
+  }
+
   // ============================================================
   // Router
   // ============================================================
@@ -1054,6 +1303,7 @@
       if (route === "dashboard")         await viewDashboard();
       else if (route === "catalogue")    await viewCatalogue();
       else if (route === "certificates") await viewCertificates();
+      else if (route === "account")      await viewAccount();
       else if (route === "course")       await viewCourse(parts[1]);
       else if (route === "lesson")       await viewLesson(parts[1], parts[2]);
       else show('<div class="empty"><h3>' + esc(t("not_found")) + '</h3></div>');
