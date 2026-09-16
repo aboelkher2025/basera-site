@@ -3,7 +3,7 @@
 Corporate training, OD consulting and learning platform for companies in Saudi Arabia.
 
 ## What's here
-- `index.html` — the marketing site (EN/AR, course search, certificate check, AI career coach). No build step.
+- `index.html` + `motion.js` — the marketing site (EN/AR, generated motion backgrounds, course search, certificate check, AI career coach, FAQ). No build step.
 - `learn.html` — the learning portal (sign in, enrol, lessons, quizzes, progress, certificates). No build step.
 - `admin.html` + `admin*.js` / `admin.css` — the staff control panel: every table, dashboards, reports, account management.
 - `supabase/` — the migration and Edge Function the panel depends on.
@@ -19,6 +19,21 @@ python3 -m http.server 8080
 1. Push to `main`.
 2. In the repo: Settings → Pages → Source: **GitHub Actions**.
 3. The Actions tab shows the deploy; the URL is `https://<user>.github.io/<repo>/`.
+
+## Design system and motion
+One visual language across all three surfaces: IBM Plex Sans Arabic, the petrol / mint /
+saffron palette with a teal accent (`#0C8FA3`), pill buttons, lifted cards, numbered
+section eyebrows, and a fade-up on every view change.
+
+`motion.js` draws the "video" backgrounds on the marketing site. There are no video files:
+each section has `<div class="bg" data-motion="aurora|waves|particles|grid|orbit|topo"
+data-tone="dark|petrol|light|mint">` and the engine renders it on a canvas. Canvases only
+animate while on screen, cap the device pixel ratio at 1.5, and draw one still frame when
+the visitor prefers reduced motion. To use real footage later, put a `<video>` inside the
+same `.bg` element; the canvas becomes the poster.
+
+The portal and control panel share the system but carry no background motion - people
+read and work there.
 
 ## Learning portal (`learn.html`)
 Single file, same tokens and EN/AR handling as the marketing site. Talks to Supabase over
