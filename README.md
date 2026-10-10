@@ -57,7 +57,7 @@ the Actions tab - which has always started immediately.
 **Cache stamps.** GitHub Pages caches every file for ten minutes. Every `<link>` and `<script>`
 tag in the pages carries `?v=<stamp>` so a page and its assets always change together. When you
 change any CSS or JS, bump the stamp in the pages that use it (one value, currently
-`20261010b`, used everywhere).
+`20261010c`, used everywhere).
 
 **Backend.** The project is connected to this repository through Supabase's GitHub integration,
 which runs `supabase db push` and deploys `supabase/functions/` on each push to `main`.

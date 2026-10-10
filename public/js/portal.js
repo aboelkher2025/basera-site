@@ -345,7 +345,12 @@
   // Views
   // ============================================================
   var view = el("view");
-  function show(html){ view.innerHTML = html; paintChrome(); }
+  function show(html){
+    // A view that started before the session was cleared must not paint over
+    // the sign-in form that the hash change already drew.
+    if (!signedIn() && html.indexOf('id="authForm"') === -1) return;
+    view.innerHTML = html; paintChrome();
+  }
   function busy(){ view.innerHTML = '<div class="loading"><span class="spin"></span></div>'; }
 
   // ---------- Auth ----------

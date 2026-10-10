@@ -235,7 +235,8 @@ window.BA = (function(){
     var head = cols.map(function(c){
       if (c.k === "_act") return "<th></th>";
       var arr = (st && st.k === c.k) ? (st.dir > 0 ? " ▲" : " ▼") : "";
-      return '<th data-sort="' + A.esc(c.k) + '">' + A.esc(c.label) + '<span class="arr">' + arr + "</span></th>";
+      var sortState_ = (st && st.k === c.k) ? (st.dir > 0 ? "ascending" : "descending") : "none";
+      return '<th data-sort="' + A.esc(c.k) + '" tabindex="0" role="columnheader" aria-sort="' + sortState_ + '">' + A.esc(c.label) + '<span class="arr">' + arr + "</span></th>";
     }).join("");
     var body = rows.map(function(r){
       return "<tr>" + cols.map(function(c){
@@ -246,6 +247,7 @@ window.BA = (function(){
   };
   A.wireSort = function(view, rerender){
     Array.prototype.forEach.call(A.out.querySelectorAll("th[data-sort]"), function(th){
+      th.addEventListener("keydown", function(e){ if (e.key === "Enter" || e.key === " ") { e.preventDefault(); th.click(); } });
       th.addEventListener("click", function(){
         var k = th.getAttribute("data-sort"), st = sortState[view];
         sortState[view] = (st && st.k === k) ? { k:k, dir:-st.dir } : { k:k, dir:1 };
@@ -302,7 +304,7 @@ window.BA = (function(){
            '<div class="spacer"></div>' + (right || "") + "</div><div style=\"height:12px\"></div>";
   };
   A.searchBar = function(placeholder, withCsv, extraHtml){
-    return '<div class="bar"><input type="search" id="q" placeholder="' + A.esc(placeholder) + '">' + (extraHtml || "") +
+    return '<div class="bar"><input type="search" id="q" placeholder="' + A.esc(placeholder) + '" aria-label="' + A.esc(placeholder) + '">' + (extraHtml || "") +
       '<div class="spacer"></div>' + (withCsv ? '<button class="btn light" id="csv">Export CSV</button>' : "") +
       '<button class="btn light" id="reload">Refresh</button></div>';
   };
@@ -352,10 +354,13 @@ window.BA = (function(){
   // ------------------------------------------------------------
   // Modal, forms, confirm
   // ------------------------------------------------------------
+  var modalSeq = 0;
   function openModal(html, wide){
     var ov = document.createElement("div");
     ov.className = "overlay";
-    ov.innerHTML = '<div class="modal' + (wide ? " wide" : "") + '" role="dialog" aria-modal="true">' + html + "</div>";
+    var mid = "mt" + (++modalSeq);
+    html = html.replace("<header><h2>", '<header><h2 id="' + mid + '">');
+    ov.innerHTML = '<div class="modal' + (wide ? " wide" : "") + '" role="dialog" aria-modal="true" aria-labelledby="' + mid + '">' + html + "</div>";
     document.body.appendChild(ov);
     function close(){ ov.remove(); document.removeEventListener("keydown", esc); }
     function esc(e){ if (e.key === "Escape") { close(); if (ov._cancel) ov._cancel(); } }
@@ -600,7 +605,8 @@ window.BA = (function(){
       : "";
     outBtn.hidden = !showOut;
     langBtn.classList.toggle("on", A.CLANG === "ar");
-    langBtn.textContent = A.CLANG === "en" ? "عربي" : "EN";
+    langBtn.textContent = A.CLANG === "en" ? "Titles: عربي" : "Titles: EN";
+    langBtn.title = A.CLANG === "en" ? "Show course and lesson titles in Arabic" : "Show course and lesson titles in English";
     if (!showOut) pagesNav.innerHTML = "";
   }
 
@@ -620,7 +626,7 @@ window.BA = (function(){
       return;
     }
     if (!A.me) { viewSignIn("No profile row found for this account."); return; }
-    if (!A.allowedRoutes().length) { viewNoAccess(A.me.role); return; }
+    if (!A.allowedRoutes().length) { history.replaceState(null, "", location.pathname + location.search + "#/"); viewNoAccess(A.me.role); return; }
     chrome(true);
     // Trainers and company leads read the shared views but cannot write to
     // them — RLS would reject it — so the actions are not offered at all.

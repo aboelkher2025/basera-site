@@ -62,7 +62,7 @@
       opt1:"برامج تدريبية", opt2:"استشارات التطوير التنظيمي", opt3:"منصة تعلّم لشركتي", opt4:"أن أصبح مدرباً شريكاً",
       ft_p:"تدريب الشركات والتطوير التنظيمي ومنصة تعلّم للشركات في المملكة العربية السعودية.",
       ft_h1:"الشركة", ft_h2:"المنصة", ft_l1:"المزايا", ft_l2:"دخول المتعلم", ft_l3:"تحقق من شهادة", ft_faq:"أسئلة",
-      nav_courses:"الدورات", skip:"انتقل إلى المحتوى", m_sample:"تقرير نموذجي", cm_enrol:"سجّل عبر بوابة المتعلم", cm_ask:"اسأل عن هذه الدورة", cm_cert:"شهادة عند الإتمام",
+      nav_courses:"الدورات", skip:"انتقل إلى المحتوى", m_sample:"تقرير نموذجي", cm_enrol:"سجّل عبر بوابة المتعلم", cm_ask:"اسأل عن هذه الدورة", cm_cert:"شهادة عند الإتمام", v_err:"تعذر التحقق الآن. حاول مرة أخرى بعد قليل.", l_err:"لم يُرسل الطلب. تحقق من الاتصال وحاول مجدداً، أو راسلنا مباشرة.",
       cs_h2:"ابحث عن دورة لنفسك", cs_p:"مجموعات مفتوحة ودورات ذاتية للأفراد. ابحث بالمهارة أو الوظيفة أو الشهادة.",
       cs_ph:"ابحث مثلاً: Power BI، تقييم الوظائف، المدير الجديد", cs_clear:"مسح",
       cs_note:"يتم التسجيل عبر بوابة المتعلم — أنشئ حساباً في دقيقة وستُحفظ فيه دوراتك وشهاداتك.",
@@ -153,7 +153,9 @@
   }
   // ---------- Course detail ----------
   const cm = document.getElementById('courseModal');
+  let cmOpener = null;
   function openCourse(id){
+    cmOpener = document.activeElement;
     const c = COURSES.find(x => x.id === id); if (!c) return;
     const [title, desc] = c[CUR];
     document.getElementById('cmTitle').textContent = title;
@@ -163,7 +165,20 @@
     document.getElementById('cmEnrol').href = 'learn.html#/catalogue';
     cm.classList.add('open'); document.body.classList.add('modal-open'); document.getElementById('cmClose').focus();
   }
-  function closeCourse(){ cm.classList.remove('open'); document.body.classList.remove('modal-open'); }
+  function closeCourse(){
+    cm.classList.remove('open'); document.body.classList.remove('modal-open');
+    if (cmOpener && cmOpener.focus) cmOpener.focus();     // back to the card that opened it
+    cmOpener = null;
+  }
+  // keep Tab inside the dialog while it is open
+  cm.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const f = [...cm.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])')].filter(x => !x.hidden);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
   grid.addEventListener('click', e => { if (e.target.closest('.btn')) return; const card = e.target.closest('.course'); if (card) openCourse(card.dataset.id); });
   grid.addEventListener('keydown', e => { const card = e.target.closest('.course'); if (card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openCourse(card.dataset.id); } });
   document.getElementById('cmClose').addEventListener('click', closeCourse);
@@ -190,7 +205,7 @@
       const c = rows && rows[0];
       if (c && c.is_valid){ box.innerHTML = `<b>${t('v_ok')}</b>${c.holder_name} — ${CUR==='ar'?c.course_title_ar:c.course_title_en} — ${c.issued_on}`; box.classList.add('ok'); }
       else { box.textContent = t('v_no'); box.classList.add('no'); }
-    }catch(e){ box.textContent = t('v_no'); box.classList.add('no'); }
+    }catch(e){ box.textContent = t('v_err'); box.classList.add('no'); }
   }
   document.getElementById('certBtn').addEventListener('click', checkCert);
   document.getElementById('certCode').addEventListener('keydown', e => { if (e.key === 'Enter') checkCert(); });
@@ -244,9 +259,12 @@
     const f = e.target;
     if (!f.name.value || !f.company.value || !f.email.value){ f.reportValidity(); return; }
     const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+    const ok = document.getElementById('formOk'), err = document.getElementById('formErr');
+    ok.classList.remove('show'); err.classList.remove('show');
     sb.post("leads", {name:f.name.value, company:f.company.value, email:f.email.value, interest:f.need.value, message:f.msg.value, source:"site"})
-      .catch(()=>{})
-      .finally(()=>{ btn.disabled=false; document.getElementById('formOk').classList.add('show'); f.reset(); });
+      .then(() => { ok.classList.add('show'); f.reset(); })
+      .catch(() => { err.classList.add('show'); })        // keep what they typed; say it did not go through
+      .finally(() => { btn.disabled = false; });
   });
 
   // ---------- Boot ----------

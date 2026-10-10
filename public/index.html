@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/tokens.css?v=20261010b">
-<link rel="stylesheet" href="css/site.css?v=20261010b">
+<link rel="stylesheet" href="css/tokens.css?v=20261010c">
+<link rel="stylesheet" href="css/site.css?v=20261010c">
 </head>
 <body>
 
@@ -163,7 +163,7 @@
     </div>
     <div class="reveal">
       <div class="search-bar">
-        <input id="courseSearch" type="search" placeholder="Search e.g. Power BI, job evaluation, first-time manager" data-i18n-ph="cs_ph">
+        <input id="courseSearch" type="search" placeholder="Search e.g. Power BI, job evaluation, first-time manager" data-i18n-ph="cs_ph" aria-label="Search courses">
         <button class="btn btn-dark" id="clearSearch" type="button" data-i18n="cs_clear">Clear</button>
       </div>
       <div class="filters" id="filters"></div>
@@ -327,6 +327,7 @@
       <div class="field"><label for="msg" data-i18n="l_msg">What do you need?</label><textarea id="msg" name="msg"></textarea></div>
       <button class="btn btn-primary" type="submit" data-i18n="l_send">Send request</button>
       <div class="form-ok" id="formOk" role="status" data-i18n="l_ok">Request sent. We'll reply within two working days.</div>
+      <div class="form-err" id="formErr" role="alert" data-i18n="l_err">The request did not go through. Check your connection and try again, or email us directly.</div>
     </form>
   </div>
 </section>
@@ -390,11 +391,11 @@
   <span data-i18n="lv_b">Beginner</span><span data-i18n="lv_i">Intermediate</span><span data-i18n="lv_a">Advanced</span><span data-i18n="fm_live">Live online</span><span data-i18n="fm_self">Self-paced</span><span data-i18n="fm_site">On site</span><span data-i18n="cert">Certificate</span><span data-i18n="hrs">hrs</span><span data-i18n="sar">SAR</span><span data-i18n="enrol">Enrol</span>
   <span data-i18n="rc_one">1 course</span><span data-i18n="rc_many">courses</span><span data-i18n="rc_none">No matching courses. Try another word.</span>
   <span data-i18n="cm_cert">Certificate on completion</span><span data-i18n="skip">Skip to content</span><span data-i18n="m_sample">Sample report</span>
-  <span data-i18n="v_ok">Certificate is valid</span><span data-i18n="v_no">No certificate found with that code. Check it and try again.</span><span data-i18n="v_empty">Enter a certificate code first.</span>
+  <span data-i18n="v_ok">Certificate is valid</span><span data-i18n="v_no">No certificate found with that code. Check it and try again.</span><span data-i18n="v_empty">Enter a certificate code first.</span><span data-i18n="v_err">Could not check right now. Try again in a moment.</span>
 </div>
 
-<script src="js/config.js?v=20261010b"></script>
-<script src="js/motion.js?v=20261010b"></script>
-<script src="js/site.js?v=20261010b"></script>
+<script src="js/config.js?v=20261010c"></script>
+<script src="js/motion.js?v=20261010c"></script>
+<script src="js/site.js?v=20261010c"></script>
 </body>
 </html>
