@@ -57,6 +57,11 @@ anything else gets a "not a staff account" screen. Shares the session key with `
 Split into `admin.html` (shell), `admin.css`, `admin.js` (core), `admin-views.js`,
 `admin-reports.js` and `admin-db.js`. No build step.
 
+When you change any `admin*.js` or `admin*.css`, bump the `?v=` stamp on the tags in
+`admin.html` as well. GitHub Pages caches every file for ten minutes, and without the stamp a
+visitor can get a fresh page with stale scripts (or the reverse) for that window.
+
+
 **Account types** (icons in the top-left strip, with live counts):
 
 | Type | `profiles.role` | Can |
