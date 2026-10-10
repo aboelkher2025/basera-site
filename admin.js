@@ -557,7 +557,13 @@ window.BA = (function(){
     // Only ever resolve to a section this account may open, so a stale or
     // hand-typed hash falls back to their first page instead of erroring.
     var allowed = A.allowedRoutes();
-    return allowed.filter(function(r){ return r.id === id; })[0] || allowed[0] || null;
+    var route = allowed.filter(function(r){ return r.id === id; })[0] || allowed[0] || null;
+    // Correct the address bar too, so a hand-typed or stale hash does not
+    // leave the URL claiming a section this account never opened.
+    if (route && route.id !== id) {
+      history.replaceState(null, "", location.pathname + location.search + "#/" + route.id);
+    }
+    return route;
   }
   function shell(){
     root.innerHTML = '<div class="shell"><main id="main"></main></div>';
