@@ -6,8 +6,5 @@ project_id = "brlhihishoilxyslwubj"
 [db]
 major_version = 15
 
-[functions.career-coach]
-verify_jwt = true
-
 [functions.admin-users]
 verify_jwt = true

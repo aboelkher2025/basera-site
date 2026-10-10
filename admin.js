@@ -9,7 +9,6 @@ window.BA = (function(){
   var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJybGhpaGlzaG9pbHh5c2x3dWJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMDYyNzEsImV4cCI6MjEwNDg4MjI3MX0.xOcmd_ANs4wN7S5Cy7tTl5-St-iX73q_Ro5wRydaH4I";
   var SESSION_KEY = "basera_session";      // shared with learn.html
   var LANG_KEY    = "basera_admin_lang";
-  var LOG_LIMIT   = 500;
   var PORTAL_URL  = location.href.replace(/admin\.html.*$/, "learn.html");
 
   var A = {};
@@ -190,11 +189,10 @@ window.BA = (function(){
       A.rest("enrollments?select=*&order=enrolled_at.desc"),
       A.rest("certificates?select=*&order=created_at.desc"),
       A.rest("leads?select=*&order=created_at.desc"),
-      A.rest("coach_logs?select=*&order=created_at.desc&limit=" + LOG_LIMIT),
       A.rest("lesson_progress?select=*&order=completed_at.desc")
     ]);
     D.profiles = r[0] || []; D.orgs = r[1] || []; D.courses = r[2] || []; D.lessons = r[3] || [];
-    D.enrols = r[4] || []; D.certs = r[5] || []; D.leads = r[6] || []; D.logs = r[7] || []; D.progress = r[8] || [];
+    D.enrols = r[4] || []; D.certs = r[5] || []; D.leads = r[6] || []; D.progress = r[7] || [];
     A.reindex();
     D.loaded = true;
   };
@@ -535,7 +533,6 @@ window.BA = (function(){
     { id:"progress",     label:"Progress",      group:"Learning",  roles:["super_admin","admin","trainer","client_admin"], count:function(D){ return D.progress.length; } },
     { id:"certificates", label:"Certificates",  group:"Learning",  roles:["super_admin","admin","client_admin"], count:function(D){ return D.certs.length; } },
     { id:"leads",        label:"Leads",         group:"Marketing", roles:STAFF_ONLY, count:function(D){ return D.leads.length; } },
-    { id:"coach",        label:"Career coach",  group:"Marketing", roles:STAFF_ONLY, count:function(D){ return D.logs.length; } },
     { id:"database",     label:"Database",      group:"System",    roles:STAFF_ONLY }
   ];
   A.routeById = {};

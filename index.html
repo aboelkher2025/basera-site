@@ -225,33 +225,6 @@
   .cs-note{margin-top:26px;font-size:.9rem;color:var(--ink-2)}
   .cs-note a{color:var(--petrol);font-weight:500;border-bottom:1px solid var(--line)}
 
-  /* Coach */
-  .coach-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:start}
-  .coach-side p{color:var(--mint);opacity:.85;margin-bottom:20px}
-  .prompts{display:grid;gap:8px}
-  .prompts button{text-align:start;padding:13px 16px;border:1px solid var(--line-light);border-radius:var(--radius);color:var(--white);font-size:.92rem;background:rgba(251,250,246,.04);transition:background .25s,border-color .25s,transform .3s var(--ease-out)}
-  .prompts button:hover{background:rgba(251,250,246,.1);border-color:var(--saffron);transform:translateX(4px)}
-  [dir="rtl"] .prompts button:hover{transform:translateX(-4px)}
-  .chat{background:var(--white);color:var(--ink);border-radius:var(--radius-lg);display:flex;flex-direction:column;height:540px;overflow:hidden;box-shadow:var(--shadow);border:1px solid rgba(251,250,246,.2)}
-  .chat-log{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:14px}
-  .msg{max-width:88%;padding:12px 16px;border-radius:14px;font-size:.95rem;line-height:1.5;animation:rise .4s var(--ease-out)}
-  .msg.user{align-self:flex-end;background:var(--petrol);color:var(--white);border-end-end-radius:4px}
-  .msg.bot{align-self:flex-start;background:var(--mint);border-end-start-radius:4px}
-  .msg.bot.thinking{color:var(--ink-2)}
-  .msg.bot.thinking::after{content:"…";animation:dots 1.2s steps(3,end) infinite}
-  @keyframes dots{0%{content:"."}33%{content:".."}66%{content:"..."}}
-  .recs{align-self:stretch;display:grid;gap:8px}
-  .rec{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--radius);font-size:.9rem;transition:border-color .2s,transform .3s var(--ease-out)}
-  .rec:hover{border-color:var(--petrol);transform:translateX(3px)}
-  .rec small{display:block;color:var(--ink-2);font-size:.8rem}
-  .rec svg{flex:none;width:16px;height:16px;color:var(--petrol)}
-  [dir="rtl"] .rec svg{transform:scaleX(-1)}
-  .chat-input{display:flex;gap:10px;padding:14px;border-top:1px solid var(--line)}
-  .chat-input input{flex:1;font:inherit;padding:12px 16px;border:1.5px solid var(--line);border-radius:999px}
-  .chat-input input:focus{border-color:var(--petrol);outline:none}
-  .chat-input .btn{padding:12px 20px}
-  .chat-note{font-size:.78rem;color:var(--ink-2);padding:0 16px 12px}
-
   /* Steps */
   .steps{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
   .step-list{counter-reset:step;display:grid;gap:0}
@@ -374,7 +347,7 @@
     .offers{grid-template-columns:1fr}
     .domains{grid-template-columns:1fr 1fr}
     .courses{grid-template-columns:1fr 1fr}
-    .verify,.coach-grid,.steps,.platform-grid,.partners,.contact{grid-template-columns:1fr;gap:36px}
+    .verify,.steps,.platform-grid,.partners,.contact{grid-template-columns:1fr;gap:36px}
     .steps-aside{position:static}
     .stats .wrap{grid-template-columns:1fr 1fr}
     .stat:nth-child(2){border-inline-end:0}
@@ -388,7 +361,6 @@
     .scroll-cue{display:none}
     .row,.courses,.domains,.foot{grid-template-columns:1fr}
     .search-bar{grid-template-columns:1fr}
-    .chat{height:460px}
     .bar{grid-template-columns:90px 1fr 40px}
     .hero-card{padding:22px}
   }
@@ -418,7 +390,6 @@
       <a href="#offers" data-i18n="nav_offers">What we do</a>
       <a href="#domains" data-i18n="nav_domains">Programmes</a>
       <a href="#courses" data-i18n="nav_courses">Courses</a>
-      <a href="#coach" data-i18n="nav_coach">Career coach</a>
       <a href="#platform" data-i18n="nav_platform">Platform</a>
       <a href="#partners" data-i18n="nav_partners">Trainers</a>
       <a href="#contact" data-i18n="nav_contact">Contact</a>
@@ -562,45 +533,12 @@
   </div>
 </section>
 
-<!-- ================= COACH ================= -->
-<section class="sec dark veil" id="coach">
-  <div class="bg" data-motion="particles" data-tone="petrol"></div>
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div class="eyebrow"><span data-i18n="eb_coach">04 — Career coach</span></div>
-      <h2 data-i18n="co_h2">Ask the career coach</h2>
-      <p data-i18n="co_p">Tell it where you are and where you want to go. It answers from our course catalogue and points you to the right track — in Arabic or English.</p>
-    </div>
-    <div class="coach-grid reveal">
-      <div class="coach-side">
-        <p data-i18n="co_side">Try one of these, or type your own:</p>
-        <div class="prompts" id="prompts">
-          <button type="button" data-i18n="q1">I'm an HR coordinator and want to move into OD</button>
-          <button type="button" data-i18n="q2">I manage a showroom team and struggle with performance conversations</button>
-          <button type="button" data-i18n="q3">Which certificate helps me become an HR analyst?</button>
-          <button type="button" data-i18n="q4">أنا محاسب وأريد فهم تحليلات البيانات في Power BI</button>
-        </div>
-      </div>
-      <div class="chat">
-        <div class="chat-log" id="chatLog" aria-live="polite">
-          <div class="msg bot" data-i18n="co_hello">Hi. What's your current role, and what do you want to be able to do in the next year?</div>
-        </div>
-        <div class="chat-input">
-          <input id="chatInput" placeholder="Type your message" data-i18n-ph="co_ph" aria-label="Message">
-          <button class="btn btn-primary" id="chatSend" type="button" data-i18n="co_send">Send</button>
-        </div>
-        <div class="chat-note" data-i18n="co_note">The coach recommends only from Basera's catalogue. It does not give legal or financial advice.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ================= STEPS ================= -->
 <section class="sec light veil-l" id="how">
   <div class="bg" data-motion="waves" data-tone="light" data-speed=".7"></div>
   <div class="wrap steps">
     <div class="steps-aside reveal">
-      <div class="eyebrow"><span data-i18n="eb_how">05 — How it works</span></div>
+      <div class="eyebrow"><span data-i18n="eb_how">04 — How it works</span></div>
       <h2 data-i18n="how_h2">How an engagement runs</h2>
       <p data-i18n="how_p">No long discovery phases. We scope in a week, deliver in weeks, and hand you a report that shows what changed.</p>
       <a class="btn btn-dark" href="#contact" data-i18n="cta_talk">Talk to us</a>
@@ -619,7 +557,7 @@
   <div class="bg" data-motion="grid" data-tone="dark"></div>
   <div class="wrap">
     <div class="section-head reveal">
-      <div class="eyebrow"><span data-i18n="eb_platform">06 — Platform</span></div>
+      <div class="eyebrow"><span data-i18n="eb_platform">05 — Platform</span></div>
       <h2 data-i18n="pl_h2">The platform behind every programme</h2>
       <p data-i18n="pl_p">Built for companies that need to prove training happened — to auditors, to leadership, and to the employees themselves.</p>
     </div>
@@ -655,7 +593,7 @@
   <div class="bg" data-motion="topo" data-tone="mint" data-speed=".8"></div>
   <div class="wrap verify">
     <div class="reveal">
-      <div class="eyebrow"><span data-i18n="eb_verify">07 — Certificates</span></div>
+      <div class="eyebrow"><span data-i18n="eb_verify">06 — Certificates</span></div>
       <h2 data-i18n="v_h2" style="margin-bottom:16px">Verify a certificate</h2>
       <p data-i18n="v_p">Every Basera certificate carries a code. Employers and recruiters can check it here in seconds — no account needed.</p>
     </div>
@@ -674,7 +612,7 @@
   <div class="bg" data-motion="particles" data-tone="light"></div>
   <div class="wrap partners">
     <div class="reveal">
-      <div class="eyebrow"><span data-i18n="eb_partners">08 — Trainers</span></div>
+      <div class="eyebrow"><span data-i18n="eb_partners">07 — Trainers</span></div>
       <h2 data-i18n="pa_h2" style="margin-bottom:16px">For independent trainers and agencies</h2>
       <p data-i18n="pa_p">Bring your programme. We handle the client, the classroom, the platform and the paperwork. You deliver and get paid.</p>
       <div class="partner-points">
@@ -700,7 +638,7 @@
   <div class="bg" data-motion="waves" data-tone="mint" data-speed=".6"></div>
   <div class="wrap">
     <div class="section-head reveal">
-      <div class="eyebrow"><span data-i18n="eb_faq">09 — Questions</span></div>
+      <div class="eyebrow"><span data-i18n="eb_faq">08 — Questions</span></div>
       <h2 data-i18n="faq_h2">Questions companies ask us first</h2>
       <p data-i18n="faq_p">Short answers. For anything else, the contact form below reaches a person, not a queue.</p>
     </div>
@@ -720,7 +658,7 @@
   <div class="bg" data-motion="aurora" data-tone="petrol" data-speed=".8"></div>
   <div class="wrap contact">
     <div class="reveal">
-      <div class="eyebrow"><span data-i18n="eb_contact">10 — Contact</span></div>
+      <div class="eyebrow"><span data-i18n="eb_contact">09 — Contact</span></div>
       <h2 data-i18n="c_h2" style="margin-bottom:16px">Tell us what your team needs</h2>
       <p data-i18n="c_p">Send a few lines and we'll come back within two working days with a proposal, or a call if it's quicker.</p>
       <div class="contact-meta">
@@ -769,7 +707,6 @@
           <li><a href="#offers" data-i18n="nav_offers">What we do</a></li>
           <li><a href="#domains" data-i18n="nav_domains">Programmes</a></li>
           <li><a href="#courses" data-i18n="nav_courses">Courses</a></li>
-          <li><a href="#coach" data-i18n="nav_coach">Career coach</a></li>
           <li><a href="#partners" data-i18n="nav_partners">Trainers</a></li>
           <li><a href="#faq" data-i18n="ft_faq">Questions</a></li>
         </ul>
@@ -795,9 +732,8 @@
 <div hidden id="i18n-defaults">
   <span data-i18n="fl_all">All</span><span data-i18n="fl_hr">HR and OD</span><span data-i18n="fl_lead">Leadership</span><span data-i18n="fl_sales">Sales and customers</span><span data-i18n="fl_data">Data</span><span data-i18n="fl_auto">Automation and AI</span><span data-i18n="fl_fin">Finance</span>
   <span data-i18n="lv_b">Beginner</span><span data-i18n="lv_i">Intermediate</span><span data-i18n="lv_a">Advanced</span><span data-i18n="fm_live">Live online</span><span data-i18n="fm_self">Self-paced</span><span data-i18n="fm_site">On site</span><span data-i18n="cert">Certificate</span><span data-i18n="hrs">hrs</span><span data-i18n="sar">SAR</span><span data-i18n="enrol">Enrol</span>
-  <span data-i18n="rc_one">1 course</span><span data-i18n="rc_many">courses</span><span data-i18n="rc_none">No matching courses. Try another word, or ask the career coach.</span>
+  <span data-i18n="rc_one">1 course</span><span data-i18n="rc_many">courses</span><span data-i18n="rc_none">No matching courses. Try another word.</span>
   <span data-i18n="v_ok">Certificate is valid</span><span data-i18n="v_no">No certificate found with that code. Check it and try again.</span><span data-i18n="v_empty">Enter a certificate code first.</span>
-  <span data-i18n="co_err">The coach is unavailable right now. Here are the closest courses to what you wrote:</span><span data-i18n="co_view">View course</span>
 </div>
 
 <script src="motion.js"></script>
@@ -814,7 +750,7 @@
       hero_note:"تُقدَّم حضورياً، أو مباشرة عن بُعد، أو ذاتياً عبر بوابة تعلّم تحمل علامتك.",
       hero_scroll:"مرّر",
       st1:"دورة في الكتالوج المفتوح", st2:"مجالات برامج، من المبتدئ إلى المتقدم", st3:"صيغ تقديم: حضوري، مباشر عن بُعد، ذاتي", st4:"لغتان، يختارهما كل متعلم",
-      eb_offers:"٠١ — ماذا نقدم", eb_domains:"٠٢ — البرامج", eb_courses:"٠٣ — الدورات المفتوحة", eb_coach:"٠٤ — المرشد المهني", eb_how:"٠٥ — كيف نعمل", eb_platform:"٠٦ — المنصة", eb_verify:"٠٧ — الشهادات", eb_partners:"٠٨ — المدربون", eb_faq:"٠٩ — أسئلة", eb_contact:"١٠ — تواصل معنا",
+      eb_offers:"٠١ — ماذا نقدم", eb_domains:"٠٢ — البرامج", eb_courses:"٠٣ — الدورات المفتوحة", eb_how:"٠٤ — كيف نعمل", eb_platform:"٠٥ — المنصة", eb_verify:"٠٦ — الشهادات", eb_partners:"٠٧ — المدربون", eb_faq:"٠٨ — أسئلة", eb_contact:"٠٩ — تواصل معنا",
       j1:"التسجيل", j1s:"فرقك ومجموعاتك", j2:"التعلّم", j2s:"مباشر أو حضوري أو ذاتي", j3:"الشهادة", j3s:"موثّقة وقابلة للمشاركة", j4:"التقرير", j4s:"الإتمام والدرجات والأثر",
       strip:"التطوير التنظيمي • التعويضات والمزايا • إدارة التغيير • القيادة • تحليلات الموارد البشرية • تجربة العملاء • المبيعات وما بعد البيع • أتمتة العمليات",
       offers_h2:"ثلاث طرق نعمل بها مع الشركات",
@@ -866,22 +802,15 @@
       opt1:"برامج تدريبية", opt2:"استشارات التطوير التنظيمي", opt3:"منصة تعلّم لشركتي", opt4:"أن أصبح مدرباً شريكاً",
       ft_p:"تدريب الشركات والتطوير التنظيمي ومنصة تعلّم للشركات في المملكة العربية السعودية.",
       ft_h1:"الشركة", ft_h2:"المنصة", ft_l1:"المزايا", ft_l2:"دخول المتعلم", ft_l3:"تحقق من شهادة", ft_faq:"أسئلة",
-      nav_courses:"الدورات", nav_coach:"المرشد المهني",
+      nav_courses:"الدورات",
       cs_h2:"ابحث عن دورة لنفسك", cs_p:"مجموعات مفتوحة ودورات ذاتية للأفراد. ابحث بالمهارة أو الوظيفة أو الشهادة.",
       cs_ph:"ابحث مثلاً: Power BI، تقييم الوظائف، المدير الجديد", cs_clear:"مسح",
       cs_note:"يتم التسجيل عبر بوابة المتعلم — أنشئ حساباً في دقيقة وستُحفظ فيه دوراتك وشهاداتك.",
       fl_all:"الكل", fl_hr:"الموارد البشرية والتطوير التنظيمي", fl_lead:"القيادة", fl_sales:"المبيعات والعملاء", fl_data:"البيانات", fl_auto:"الأتمتة والذكاء الاصطناعي", fl_fin:"المالية",
       lv_b:"مبتدئ", lv_i:"متوسط", lv_a:"متقدم", fm_live:"مباشر عن بُعد", fm_self:"ذاتي", fm_site:"حضوري", cert:"شهادة", hrs:"ساعة", sar:"ر.س", enrol:"سجّل",
-      rc_one:"دورة واحدة", rc_many:"دورة", rc_none:"لا توجد دورات مطابقة. جرّب كلمة أخرى أو اسأل المرشد المهني.",
+      rc_one:"دورة واحدة", rc_many:"دورة", rc_none:"لا توجد دورات مطابقة. جرّب كلمة أخرى.",
       v_h2:"تحقق من شهادة", v_p:"كل شهادة من بصيرة تحمل رمزاً. يمكن لأصحاب العمل والمسؤولين عن التوظيف التحقق منه هنا في ثوانٍ — بلا حساب.",
       v_btn:"تحقق", v_ok:"الشهادة صالحة", v_no:"لم يُعثر على هذه الشهادة. تأكد من الرمز وحاول مجدداً.", v_empty:"أدخل رمز الشهادة أولاً.",
-      co_h2:"اسأل المرشد المهني", co_p:"أخبره أين أنت وإلى أين تريد الوصول. يجيب من كتالوج دوراتنا ويوجهك للمسار المناسب — بالعربية أو الإنجليزية.",
-      co_side:"جرّب أحد هذه الأسئلة أو اكتب سؤالك:",
-      q1:"أنا منسق موارد بشرية وأريد الانتقال إلى التطوير التنظيمي", q2:"أدير فريق معرض وأجد صعوبة في محادثات الأداء", q3:"أي شهادة تساعدني لأصبح محلل موارد بشرية؟", q4:"أنا محاسب وأريد فهم تحليلات البيانات في Power BI",
-      co_hello:"أهلاً. ما وظيفتك الحالية، وماذا تريد أن تتمكن من فعله خلال السنة القادمة؟",
-      co_ph:"اكتب رسالتك", co_send:"أرسل", co_note:"يوصي المرشد من كتالوج بصيرة فقط. لا يقدم نصائح قانونية أو مالية.",
-      co_err:"تعذر الاتصال بالمرشد الآن. إليك أقرب الدورات لما كتبته:",
-      co_view:"عرض الدورة",
       ft_c:"© 2026 بصيرة. جميع الحقوق محفوظة.", ft_pr:"الخصوصية", ft_tm:"الشروط"
     }
   };
@@ -916,8 +845,7 @@
   const SB_H = {"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"};
   const sb = {
     async get(path){ const r = await fetch(`${SB_URL}/rest/v1/${path}`,{headers:SB_H}); if(!r.ok) throw new Error(r.status); return r.json(); },
-    async post(path, body, extra={}){ const r = await fetch(`${SB_URL}/rest/v1/${path}`,{method:"POST",headers:{...SB_H,...extra},body:JSON.stringify(body)}); if(!r.ok) throw new Error(r.status); return r.status===201&&!extra.Prefer?null:r.json().catch(()=>null); },
-    async fn(name, body){ const r = await fetch(`${SB_URL}/functions/v1/${name}`,{method:"POST",headers:SB_H,body:JSON.stringify(body)}); if(!r.ok) throw new Error(r.status); return r.json(); }
+    async post(path, body, extra={}){ const r = await fetch(`${SB_URL}/rest/v1/${path}`,{method:"POST",headers:{...SB_H,...extra},body:JSON.stringify(body)}); if(!r.ok) throw new Error(r.status); return r.status===201&&!extra.Prefer?null:r.json().catch(()=>null); }
   };
 
   // ---------- Course dataset (fallback copy; live data loads from Supabase) ----------
@@ -989,46 +917,6 @@
   document.getElementById('certCode').addEventListener('keydown', e => { if (e.key === 'Enter') checkCert(); });
   // Deep link: index.html#verify=BSR-2026-00417
   (function(){ const m = location.hash.match(/verify=([A-Za-z0-9-]+)/); if (m) { document.getElementById('certCode').value = m[1]; checkCert(); setTimeout(() => document.getElementById('verify').scrollIntoView(), 300); } })();
-
-  // ---------- Career coach ----------
-  const log = document.getElementById('chatLog'), input = document.getElementById('chatInput');
-  const history = [];
-  function addMsg(text, who, cls=''){ const d=document.createElement('div'); d.className=`msg ${who} ${cls}`; d.textContent=text; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
-  function addRecs(ids){
-    const cs = ids.map(id => COURSES.find(c=>c.id===id)).filter(Boolean); if (!cs.length) return;
-    const w=document.createElement('div'); w.className='recs';
-    w.innerHTML = cs.map(c=>`<a class="rec" href="#courses" data-id="${c.id}"><span>${c[CUR][0]}<small>${t('lv_'+c.lv)} · ${c.h} ${t('hrs')} · ${c.p.toLocaleString()} ${t('sar')}</small></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>`).join('');
-    w.querySelectorAll('.rec').forEach(a => a.addEventListener('click', () => { const c=COURSES.find(x=>x.id===a.dataset.id); q.value=c.en[0]; activeFilter='all'; renderCourses(); }));
-    log.appendChild(w); log.scrollTop=log.scrollHeight;
-  }
-  function localMatch(text){
-    const words = text.toLowerCase().split(/[^a-z؀-ۿ0-9]+/).filter(w=>w.length>2);
-    return COURSES.map(c => ({c, s: words.reduce((n,w)=> n + ((c.k+' '+c.en.join(' ')+' '+c.ar.join(' ')).toLowerCase().includes(w)?1:0),0)}))
-      .filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,3).map(x=>x.c.id);
-  }
-  let coachBusy = false;
-  async function askCoach(text){
-    if (!text.trim() || coachBusy) return;
-    coachBusy = true;
-    addMsg(text,'user'); input.value='';
-    history.push({role:'user', content:text});
-    const th = addMsg(CUR==='ar'?'يفكر':'Thinking','bot','thinking');
-    try{
-      const j = await sb.fn("career-coach", {messages: history, lang: CUR});
-      if (j.error) throw new Error(j.error);
-      th.classList.remove('thinking'); th.textContent = j.reply;
-      history.push({role:'assistant', content: JSON.stringify(j)});
-      addRecs(j.course_ids||[]);
-    }catch(e){
-      th.classList.remove('thinking'); th.textContent = t('co_err');
-      history.pop();
-      addRecs(localMatch(text));
-    }
-    coachBusy = false;
-  }
-  document.getElementById('chatSend').addEventListener('click', () => askCoach(input.value));
-  input.addEventListener('keydown', e => { if (e.key==='Enter') askCoach(input.value); });
-  document.querySelectorAll('#prompts button').forEach(b => b.addEventListener('click', () => askCoach(b.textContent)));
 
   // ---------- Nav: mobile menu, scroll state, active section, progress ----------
   const nav = document.getElementById('nav'), menuBtn = document.getElementById('menuBtn'), navLinks = document.getElementById('navLinks'), progress = document.getElementById('progress'), totop = document.getElementById('totop');

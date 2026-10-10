@@ -1,5 +1,5 @@
 /* Basera control panel — views: dashboard, accounts, companies, courses,
-   lessons, enrolments, progress, certificates, leads, coach. */
+   lessons, enrolments, progress, certificates, leads. */
 (function(A){
   "use strict";
   var esc = A.esc, D = function(){ return A.D; };
@@ -155,7 +155,7 @@
       A.tile(d.roleCounts.trainer||0, "Trainers") + A.tile(d.orgs.length, "Companies") + A.tile(d.courses.length, "Courses") +
       A.tile(d.lessons.length, "Lessons") + A.tile(d.enrols.length, "Enrolments") + A.tile(active, "In progress") +
       A.tile(completed, "Completed") + A.tile(avg + "%", "Avg progress") + A.tile(validCerts, "Certificates") +
-      A.tile(d.leads.length, "Leads") + A.tile(newLeads, "New leads") + A.tile(d.logs.length, "Coach chats") + "</div>";
+      A.tile(d.leads.length, "Leads") + A.tile(newLeads, "New leads") + "</div>";
     html += '<div class="grid2">' +
       '<div class="panel"><h3>New accounts by month</h3><div class="pad" id="c1"></div></div>' +
       '<div class="panel"><h3>Enrolments by month</h3><div class="pad" id="c2"></div></div>' +
@@ -393,7 +393,7 @@
         { k:"format", label:"Format", type:"select", options:FORMATS, half:true }, { k:"hours", label:"Hours", type:"number", required:true, half:true },
         { k:"price_sar", label:"Price (SAR)", type:"number", required:true, half:true }, { k:"sort_order", label:"Sort order", type:"number", half:true },
         { k:"trainer_id", label:"Trainer", type:"select", options:[{ v:"", l:"— Unassigned" }].concat(trainers.map(function(p){ return { v:p.id, l:(p.full_name || p.email) }; })), hint: trainers.length ? "" : "Create an account with type Trainer to assign one." },
-        { k:"keywords", label:"Keywords", hint:"Space-separated, used by search and the career coach." },
+        { k:"keywords", label:"Keywords", hint:"Space-separated, used by the course search." },
         { k:"has_certificate", label:"Issues a certificate on completion", type:"checkbox" },
         { k:"is_published", label:"Visible on the public site", type:"checkbox" }
       ].filter(Boolean);
@@ -686,31 +686,5 @@
       if (!await A.confirm({ title:"Delete lead?", text:l.name + " (" + l.email + ") is removed.", label:"Delete", danger:true })) return;
       await guarded(async function(){ await A.remove("leads", "id=eq." + A.q(l.id)); await A.reload(); }, "Lead deleted");
     }
-  };
-
-  // ------------------------------------------------------------
-  // Career coach logs
-  // ------------------------------------------------------------
-  A.views.coach = function(){
-    var d = D(), byId = {}; d.logs.forEach(function(l){ byId[l.id] = l; });
-    var cols = [
-      { k:"created_at", label:"When", cls:"num muted", cell:function(r){ return A.when(r.created_at); } },
-      { k:"lang", label:"Lang", cls:"muted", cell:function(r){ return esc(r.lang || "—"); } },
-      { k:"user_message", label:"Question", cls:"wrap", cell:function(r){ return esc(A.clip(r.user_message, 180)); } },
-      { k:"reply", label:"Answer", cls:"wrap muted", cell:function(r){ return r.reply ? esc(A.clip(r.reply, 200)) : A.pill("no reply","bad"); } },
-      { k:"course_ids", label:"Suggested", cls:"muted", val:function(r){ return (r.course_ids || []).length; }, cell:function(r){ var ids = r.course_ids || []; return ids.length ? ids.map(function(i){ return A.pill(i); }).join(" ") : "—"; } },
-      { k:"_act", label:"", cls:"act", cell:function(r){ return A.btn("view", r.id, "Open") + A.btn("del", r.id, "Delete", "danger"); } }
-    ];
-    function rows(){ return A.filterRows(d.logs, A.qval("q"), ["user_message","reply","lang"]); }
-    function paint(){
-      A.out.innerHTML = A.pageHead("Career coach", "The " + d.logs.length + " most recent conversations on the public site.") +
-        A.searchBar("Search questions and answers…", true) + '<div class="panel">' + A.table("logs", cols, rows(), "No one has used the coach yet.") + "</div>";
-      A.wireCommon(paint); A.wireSort("logs", paint); A.wireCsv("basera-coach-logs.csv", cols, rows);
-      A.actions({ view:function(l){ A.showJson("Coach conversation", l); }, del: async function(l){
-        if (!await A.confirm({ title:"Delete this log?", label:"Delete", danger:true })) return;
-        await guarded(async function(){ await A.remove("coach_logs", "id=eq." + A.q(l.id)); await A.reload(); }, "Deleted");
-      } }, function(k){ return byId[k]; });
-    }
-    paint();
   };
 })(window.BA);
