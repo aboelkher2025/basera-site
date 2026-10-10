@@ -1,122 +1,107 @@
-# Basera (بصيرة) — website
+# Basera (بصيرة)
 
-Corporate training, OD consulting and learning platform for companies in Saudi Arabia.
+Corporate training, OD consulting and a learning platform for companies in Saudi Arabia.
+Bilingual (English / Arabic, RTL), no build step, static front end on GitHub Pages,
+Supabase behind it.
 
-## What's here
-- `index.html` + `motion.js` — the marketing site (EN/AR, generated motion backgrounds, course search, certificate check, FAQ). No build step.
-- `learn.html` — the learning portal (sign in, enrol, lessons, quizzes, progress, certificates). No build step.
-- `admin.html` + `admin*.js` / `admin.css` — the staff control panel: every table, dashboards, reports, account management.
-- `supabase/` — migrations, Edge Functions and config; synced to the project by the GitHub integration.
-- `.github/workflows/deploy.yml` — publishes to GitHub Pages on every push to `main`.
+Live: https://aboelkher2025.github.io/basera-site/
+
+## Layout
+
+```
+public/                 everything that is deployed (GitHub Pages serves this folder)
+  index.html            marketing site
+  learn.html            learner portal
+  admin.html            control panel (staff)
+  privacy.html          legal pages, bilingual
+  terms.html
+  css/tokens.css        the one palette and radius/shadow set every page shares
+  css/site.css          marketing site
+  css/portal.css        learner portal
+  css/admin.css         control panel  (+ admin-nav.css for the role-aware top nav)
+  css/legal.css         privacy and terms
+  js/config.js          contact details and portal URL - edit here, not in markup
+  js/motion.js          generated "video" backgrounds (canvas) for the marketing site
+  js/site.js            marketing site: i18n, course search and detail, certificate check, lead form
+  js/portal.js          learner portal: auth, catalogue, lessons, quizzes, certificates, account
+  js/admin/core.js      panel: session, REST, routing, role gating, tables, forms
+  js/admin/views.js     panel: dashboard, accounts, companies, courses, lessons, enrolments, progress, certificates, leads
+  js/admin/access.js    panel: Users & access (super admin only)
+  js/admin/reports.js   panel: ten reports with CSV export
+  js/admin/db.js        panel: generic browser over every table the API exposes
+supabase/               the backend, synced to the project by Supabase's GitHub integration
+  config.toml
+  migrations/           full history, one file per applied version, byte-identical to what ran
+  functions/admin-users account create / delete / password, service role held server-side
+tests/panel-harness.html  the panel on a mock backend, for QA without credentials
+docs/qa-report.md       the latest QA pass
+.github/workflows/      deploys public/ to GitHub Pages on push and on manual dispatch
+```
 
 ## Run locally
-Open `index.html` in a browser, or:
+
+Serve the repository root and open `/public/index.html`:
+
 ```
-python3 -m http.server 8080
+python3 -m http.server 8099
 ```
+
+The panel harness is at `/tests/panel-harness.html?role=super_admin`.
 
 ## Deploy
-1. Push to `main`.
-2. In the repo: Settings → Pages → Source: **GitHub Actions**.
-3. The Actions tab shows the deploy; the URL is `https://<user>.github.io/<repo>/`.
 
-## Design system and motion
-One visual language across all three surfaces: IBM Plex Sans Arabic, the petrol / mint /
-saffron palette with a teal accent (`#0C8FA3`), pill buttons, lifted cards, numbered
-section eyebrows, and a fade-up on every view change.
+**Front end.** Push to `main`. The workflow uploads `public/`. If a push-triggered run sits in
+`queued` without a runner, trigger it by hand - `gh workflow run "Deploy to GitHub Pages"` or
+the Actions tab - which has always started immediately.
 
-`motion.js` draws the "video" backgrounds on the marketing site. There are no video files:
-each section has `<div class="bg" data-motion="aurora|waves|particles|grid|orbit|topo"
-data-tone="dark|petrol|light|mint">` and the engine renders it on a canvas. Canvases only
-animate while on screen, cap the device pixel ratio at 1.5, and draw one still frame when
-the visitor prefers reduced motion. To use real footage later, put a `<video>` inside the
-same `.bg` element; the canvas becomes the poster.
+**Cache stamps.** GitHub Pages caches every file for ten minutes. Every `<link>` and `<script>`
+tag in the pages carries `?v=<stamp>` so a page and its assets always change together. When you
+change any CSS or JS, bump the stamp in the pages that use it (one value, currently
+`20261010b`, used everywhere).
 
-The portal and control panel share the system but carry no background motion - people
-read and work there.
+**Backend.** The project is connected to this repository through Supabase's GitHub integration,
+which runs `supabase db push` and deploys `supabase/functions/` on each push to `main`.
+`supabase/migrations/` must therefore contain every version the database has, named
+`<version>_<name>.sql` exactly as `supabase_migrations.schema_migrations` records them. Never
+edit or rename an applied file; add a new one. Applying SQL from the dashboard still works, but
+add the same SQL as a migration file afterwards so the two stay in step. Secrets are never in
+the repo.
 
-## Learning portal (`learn.html`)
-Single file, same tokens and EN/AR handling as the marketing site. Talks to Supabase over
-REST with the user's own access token, so every row it sees is the one RLS allows.
-
-- **Sign up / sign in** — Supabase email + password. Sign-up takes an optional company
-  join code, which the `handle_new_user` trigger resolves to an organization.
-- **The first account ever created becomes `super_admin`.** Register the owner account before
-  giving the link to anyone else.
-- **Enrol** — writes to `enrollments`; the `enr_set_org` trigger fills in `org_id`.
-- **Lessons** — text lessons have a *Mark as complete* button; quiz lessons are graded in
-  the browser and need **70%** to clear (change `PASS_MARK` in the file).
-- **Progress and certificates are not computed in the front-end.** Completing a lesson
-  writes one `lesson_progress` row; the `recompute_progress` trigger updates
-  `enrollments.progress_pct`, flips status to `completed` at 100%, and issues the
-  certificate. The portal only reads the result.
-
-## Control panel (`admin.html`)
-Staff only: needs a signed-in account whose `profiles.role` is `admin` or `super_admin`;
-anything else gets a "not a staff account" screen. Shares the session key with `learn.html`.
-Split into `admin.html` (shell), `admin.css`, `admin.js` (core), `admin-views.js`,
-`admin-reports.js` and `admin-db.js`. No build step.
-
-When you change any `admin*.js` or `admin*.css`, bump the `?v=` stamp on the tags in
-`admin.html` as well. GitHub Pages caches every file for ten minutes, and without the stamp a
-visitor can get a fresh page with stale scripts (or the reverse) for that window.
-
-
-**Account types** (icons in the top-left strip, with live counts):
+## Account types
 
 | Type | `profiles.role` | Can |
 |---|---|---|
-| Super admin | `super_admin` | Everything. The only type that can create, promote or delete admins. |
+| Super admin | `super_admin` | Everything, including creating, promoting and deleting admins. |
 | Admin | `admin` | Everything except managing admin accounts. |
 | Trainer | `trainer` | Read their assigned courses, the learners on them, and those learners' progress. |
-| Company lead | `client_admin` | Manage their own company's learners (portal side). |
+| Company lead | `client_admin` | See their own company's learners, enrolments, progress and certificates. |
 | Learner | `learner` | Enrol, learn, earn certificates. |
-| Partner | `partner` | External partner account (kept from the original schema). |
+| Partner | `partner` | External partner account. |
 
-Companies are `organizations`; they appear in the same strip.
+**The first account ever created becomes `super_admin`.** Every page in the panel declares
+which types may open it; the top nav shows only those, and a forbidden address is rewritten
+to the account's first page. The database enforces the same rules through row-level security
+and a guard trigger: only a super admin can grant or remove admin roles, and the last super
+admin can be neither demoted nor deleted.
 
-**Views**: Dashboard (tiles + six charts), Reports (ten reports, CSV export), Accounts,
-Companies, Courses, Lessons (with a quiz editor), Enrolments, Progress (per-lesson mark /
-unmark, reset), Certificates (revoke, restore, issue by hand), Leads, and
-Database - a generic browser over every table PostgREST exposes, with insert / edit / delete.
+## How the pieces talk
 
-**Every read and write goes through RLS with the signed-in user's own token.** The panel
-never holds a service key. Creating and deleting *accounts* is the one thing the browser
-cannot do, so that goes through the `admin-users` Edge Function, which re-checks the
-caller's role on every call.
+Every request from every page carries the signed-in user's own token (or the public anon
+key), so row-level security decides what comes back. No page holds a service key. The one
+thing the browser cannot do - create or delete an auth user - goes through the `admin-users`
+Edge Function, which re-checks the caller's role on every call.
 
-**The first account ever created becomes `super_admin`.** Register the owner before
-sharing any link.
+Progress, completion and certificate issue are not computed in the browser: completing a
+lesson writes one `lesson_progress` row and the `recompute_progress` trigger does the rest.
 
-### Backend: the `supabase/` folder is the source of truth
-The project is connected to this repository through Supabase's GitHub integration. On
-every push to `main` it runs `supabase db push` and deploys every function under
-`supabase/functions/`. So:
-
-- `supabase/migrations/` holds the full migration history, one file per applied version,
-  named `<version>_<name>.sql` exactly as recorded in `supabase_migrations.schema_migrations`.
-  Never rename or edit an applied file; add a new one. A file the database has not seen is
-  applied on the next push - which is how schema changes ship from now on.
-- `supabase/functions/admin-users/` is deployed on every push. Edit them here, not in the dashboard, or the next push overwrites the change.
-- `supabase/config.toml` carries the project id and `verify_jwt` for the function.
-- Secrets are never in the repo.
-
-Applying SQL from the dashboard editor still works, but then add the same SQL as a
-migration file so the repo and the database stay in step.
-
-For invitation and password-reset emails to land correctly, set **Authentication -> URL
-configuration -> Site URL** to the portal URL and add it to the redirect allow-list.
-`learn.html` handles the `#access_token=...&type=invite|recovery` fragment and shows a
-set-password screen.
-
-## Backend (Supabase project `basera`, eu-central-1)
-- Tables: `courses` (public read), `certificates` (lookup only via `verify_certificate(code)` RPC), `leads` (public insert).
-- Learning tables: `profiles`, `organizations`, `lessons`, `enrollments`, `lesson_progress` — all RLS'd to the signed-in user, their org (`client_admin`), or `admin`.
-- The anon key in `index.html` is public by design; row-level security protects the data.
+Invitation and password-reset links land on `learn.html`, which reads the tokens from the
+URL fragment and shows a set-password screen. For those emails to point at the right place,
+set **Authentication → URL configuration → Site URL** in the Supabase dashboard to the portal
+URL.
 
 ## Before going live
-- Replace `hello@basera.sa` and the phone number in the contact section.
-- Add real courses to `courses` and real certificates to `certificates`; the demo code `BSR-2026-00417` can be deleted.
 
-## Custom domain
-Add a `CNAME` file containing the domain, then point DNS at GitHub Pages.
+- Real contact details in `public/js/config.js` (the current values are placeholders).
+- Have `privacy.html` and `terms.html` reviewed by counsel; they are plain-language drafts.
+- The "Completion by department" panel on the site is labelled as a sample report; replace it
+  with a real one when there is data to show.

@@ -1,299 +1,3 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Basera — Learning portal</title>
-<meta name="description" content="Basera learning portal: your courses, lessons, progress and certificates.">
-<meta name="robots" content="noindex">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  /* ---------- Tokens (shared with index.html) ---------- */
-  :root{
-    --petrol:#10373C;
-    --petrol-2:#0B2A2E;
-    --mint:#E4EDE8;
-    --mint-2:#D3E2DA;
-    --saffron:#E9A23B;
-    --saffron-2:#C8862A;
-    --ink:#16262A;
-    --ink-2:#4A5E62;
-    --white:#FBFAF6;
-    --line:rgba(16,55,60,.14);
-    --line-light:rgba(251,250,246,.18);
-    --ok:#2E7D57;
-    --bad:#B4462F;
-    --teal:#0C8FA3;
-    --radius:8px; --radius-lg:16px;
-    --max:1180px;
-    --ease:cubic-bezier(.22,.61,.36,1); --ease-out:cubic-bezier(.16,1,.3,1);
-    --shadow:0 24px 50px -24px rgba(7,29,32,.35);
-  }
-  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-  @keyframes glow{0%,100%{opacity:.55}50%{opacity:.9}}
-  *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;
-    color:var(--ink);background:var(--white);
-    line-height:1.55;font-weight:400;
-    -webkit-font-smoothing:antialiased;
-  }
-  [dir="rtl"] body,[dir="rtl"]{line-height:1.7}
-  [dir="rtl"] h1,[dir="rtl"] h2,[dir="rtl"] h3{letter-spacing:0}
-  a{color:inherit;text-decoration:none}
-  img,svg{display:block;max-width:100%}
-  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
-  input,select,textarea{font:inherit;color:inherit}
-  :focus-visible{outline:3px solid var(--saffron);outline-offset:3px}
-  /* display:flex on .bar nav / .who would otherwise beat the hidden attribute */
-  [hidden]{display:none !important}
-  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
-  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-
-  /* ---------- Header ---------- */
-  header{
-    position:sticky;top:0;z-index:50;
-    background:linear-gradient(90deg,var(--petrol-2),var(--petrol) 60%,#134349);color:var(--white);
-    border-bottom:1px solid var(--line-light);
-  }
-  header::before{content:"";position:absolute;top:0;bottom:0;inset-inline-end:0;width:45%;
-    background:radial-gradient(70% 160% at 100% 50%,rgba(12,143,163,.38),transparent 70%);pointer-events:none;animation:glow 9s ease-in-out infinite}
-  header .bar{position:relative}
-  .bar{display:flex;align-items:center;gap:20px;height:64px}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:1.05rem}
-  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--saffron);flex:none;box-shadow:0 0 0 4px rgba(233,162,59,.18)}
-  .bar nav{display:flex;gap:18px;margin-inline-start:auto;font-size:.93rem}
-  .bar nav a{opacity:.82;padding:6px 0;border-bottom:2px solid transparent;transition:opacity .2s var(--ease)}
-  .bar nav a:hover{opacity:1}
-  .bar nav a.on{opacity:1;border-bottom-color:var(--saffron)}
-  .tools{display:flex;align-items:center;gap:12px;margin-inline-start:auto}
-  .bar nav + .tools{margin-inline-start:0}
-  .lang{display:flex;border:1px solid var(--line-light);border-radius:var(--radius);overflow:hidden}
-  .lang button{padding:5px 10px;font-size:.8rem;opacity:.7}
-  .lang button.active{background:var(--line-light);opacity:1}
-  .who{display:flex;align-items:center;gap:8px;font-size:.88rem}
-  .avatar{
-    width:30px;height:30px;border-radius:50%;flex:none;
-    background:var(--saffron);color:var(--petrol-2);
-    display:grid;place-items:center;font-weight:600;font-size:.8rem;
-  }
-  .menu-btn{display:none;font-size:1.4rem;line-height:1}
-
-  /* ---------- Buttons ---------- */
-  .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    padding:11px 22px;border-radius:999px;font-weight:500;font-size:.95rem;
-    transition:background .2s var(--ease),opacity .2s var(--ease),transform .3s var(--ease-out),box-shadow .3s var(--ease-out);
-  }
-  .btn:not([disabled]):hover{transform:translateY(-1px)}
-  .btn-primary:not([disabled]):hover{box-shadow:0 12px 26px -12px rgba(233,162,59,.8)}
-  .btn-primary{background:var(--saffron);color:var(--petrol-2)}
-  .btn-primary:hover{background:var(--saffron-2)}
-  .btn-dark{background:var(--petrol);color:var(--white)}
-  .btn-dark:hover{background:var(--petrol-2)}
-  .btn-ghost{border:1px solid var(--line);color:var(--ink)}
-  .btn-ghost:hover{background:var(--mint)}
-  .btn-sm{padding:7px 14px;font-size:.87rem}
-  .btn[disabled]{opacity:.5;cursor:not-allowed}
-
-  /* ---------- Layout ---------- */
-  main{min-height:calc(100vh - 64px - 120px);padding:40px 0 72px}
-  main > *{animation:rise .5s var(--ease-out) both}
-  .page-head{margin-bottom:26px}
-  .page-head h1{font-size:clamp(1.7rem,2.6vw,2.2rem);font-weight:600;letter-spacing:-.02em}
-  .page-head p{color:var(--ink-2);margin-top:6px;font-size:.96rem}
-  .kicker{
-    font-size:.74rem;text-transform:uppercase;letter-spacing:.12em;
-    color:var(--teal);font-weight:600;margin-bottom:8px;display:inline-flex;align-items:center;gap:10px;
-  }
-  .kicker::before{content:"";width:22px;height:1.5px;background:var(--teal)}
-  [dir="rtl"] .kicker{letter-spacing:0}
-  .grid{display:grid;gap:18px}
-  .g3{grid-template-columns:repeat(3,1fr)}
-  .g2{grid-template-columns:repeat(2,1fr)}
-  .split{display:grid;grid-template-columns:280px 1fr;gap:32px;align-items:start}
-
-  /* ---------- Cards ---------- */
-  .card{
-    border:1px solid var(--line);border-radius:var(--radius-lg);
-    background:#fff;padding:22px;position:relative;overflow:hidden;
-    display:flex;flex-direction:column;gap:10px;
-    transition:transform .4s var(--ease-out),box-shadow .4s var(--ease-out),border-color .3s;
-  }
-  .card::before{content:"";position:absolute;top:0;inset-inline:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--saffron));opacity:.85}
-  .card:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:rgba(16,55,60,.3)}
-  .card h3{font-size:1.05rem;font-weight:600;line-height:1.35}
-  .card p{color:var(--ink-2);font-size:.9rem}
-  .card .foot{margin-top:auto;padding-top:12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .meta{display:flex;flex-wrap:wrap;gap:6px}
-  .meta span{
-    font-size:.72rem;padding:3px 8px;border-radius:100px;
-    background:var(--mint);color:var(--petrol);font-weight:500;
-  }
-  .stat{border:1px solid var(--line);border-radius:var(--radius-lg);padding:20px 22px;background:linear-gradient(135deg,#fff,var(--mint));transition:transform .4s var(--ease-out),box-shadow .4s var(--ease-out)}
-  .stat:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-  .stat .n{font-size:2.2rem;font-weight:600;color:var(--petrol);line-height:1.1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-  .stat .l{font-size:.84rem;color:var(--ink-2);margin-top:2px}
-
-  /* ---------- Progress ---------- */
-  .prog{height:6px;border-radius:100px;background:var(--mint-2);overflow:hidden}
-  .prog i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--petrol));border-radius:100px;transition:width .8s var(--ease-out)}
-  .prog.done i{background:var(--ok)}
-  .prog-row{display:flex;align-items:center;gap:10px;font-size:.82rem;color:var(--ink-2)}
-  .prog-row .prog{flex:1}
-
-  /* ---------- Forms ---------- */
-  .form{max-width:440px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:var(--radius-lg);padding:32px;box-shadow:var(--shadow)}
-  @media(max-width:520px){.form{padding:22px}}
-  .field{margin-bottom:14px}
-  .field label{display:block;font-size:.85rem;font-weight:500;margin-bottom:5px}
-  .field input,.field select{
-    width:100%;padding:11px 13px;border:1px solid var(--line);
-    border-radius:var(--radius);background:var(--white);
-  }
-  .field input:focus,.field select:focus{border-color:var(--petrol);outline:none}
-  .field .hint{font-size:.78rem;color:var(--ink-2);margin-top:4px}
-  /* Sign-up is long enough that one flat column of inputs reads as a wall,
-     so related fields sit in a titled group. */
-  .fgroup{border:0;padding:0;margin:0 0 22px}
-  .fgroup legend{
-    padding:0;margin-bottom:10px;font-size:.72rem;font-weight:600;
-    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);
-  }
-  .field label .optional{font-weight:400;font-size:.76rem;color:var(--ink-2)}
-  .field input.bad,.field select.bad{border-color:var(--bad)}
-  .field .ferr{font-size:.78rem;color:var(--bad);margin-top:4px}
-  /* A value the learner cannot change here, shown rather than hidden. */
-  .ro{
-    display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;
-    padding:9px 0;border-bottom:1px solid var(--line);
-  }
-  .ro span{font-size:.85rem;color:var(--ink-2);min-width:110px}
-  .ro b{font-weight:500}
-  .ro .hint{flex-basis:100%;font-size:.78rem;color:var(--ink-2);margin:0}
-  .note{
-    padding:12px 14px;border-radius:var(--radius);font-size:.88rem;
-    border:1px solid var(--line);background:var(--mint);margin-bottom:16px;
-  }
-  .note.bad{background:#FBEDE9;border-color:rgba(180,70,47,.3);color:var(--bad)}
-  .note.ok{background:#E9F3EE;border-color:rgba(46,125,87,.3);color:var(--ok)}
-  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:22px}
-  .tabs button{
-    padding:9px 16px;font-size:.92rem;font-weight:500;color:var(--ink-2);
-    border-bottom:2px solid transparent;margin-bottom:-1px;
-  }
-  .tabs button.on{color:var(--petrol);border-bottom-color:var(--saffron)}
-
-  /* ---------- Lesson ---------- */
-  .toc{border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;position:sticky;top:88px;background:#fff}
-  .toc h4{padding:13px 16px;background:var(--mint);font-size:.82rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600;color:var(--petrol)}
-  [dir="rtl"] .toc h4{letter-spacing:0}
-  .toc a{
-    display:flex;gap:10px;align-items:flex-start;padding:12px 16px;
-    border-top:1px solid var(--line);font-size:.89rem;transition:background .18s var(--ease);
-  }
-  .toc a:hover{background:var(--mint)}
-  .toc a.on{background:var(--mint);font-weight:500}
-  .tick{
-    width:18px;height:18px;border-radius:50%;flex:none;margin-top:2px;
-    border:1.5px solid var(--line);display:grid;place-items:center;font-size:.6rem;
-  }
-  .tick.done{background:var(--ok);border-color:var(--ok);color:#fff}
-  .lesson-body{font-size:1.02rem;line-height:1.75;max-width:70ch}
-  .lesson-body p{margin-bottom:1.05em}
-  .lesson-nav{display:flex;justify-content:space-between;gap:12px;margin-top:34px;padding-top:22px;border-top:1px solid var(--line)}
-
-  /* ---------- Quiz ---------- */
-  .q{border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:14px}
-  .q h4{font-size:1rem;font-weight:600;margin-bottom:12px}
-  .opt{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:var(--radius);cursor:pointer;transition:background .15s var(--ease)}
-  .opt:hover{background:var(--mint)}
-  .opt input{margin-top:4px;flex:none;accent-color:var(--petrol)}
-  .opt.right{background:#E9F3EE}
-  .opt.wrong{background:#FBEDE9}
-
-  /* ---------- Certificate ---------- */
-  .cert{
-    border:1px solid var(--line);border-radius:var(--radius-lg);
-    padding:28px;background:linear-gradient(135deg,#fff,var(--mint));position:relative;overflow:hidden;
-    transition:transform .4s var(--ease-out),box-shadow .4s var(--ease-out);
-  }
-  .cert:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-  .cert::after{
-    content:"";position:absolute;inset-inline-end:-30px;top:-30px;
-    width:120px;height:120px;border-radius:50%;background:rgba(233,162,59,.18);
-  }
-  .cert .code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.05rem;font-weight:600;color:var(--petrol);letter-spacing:.04em}
-  .cert h3{font-size:1.15rem;font-weight:600;margin:6px 0 2px}
-
-  .empty{text-align:center;padding:56px 24px;border:1px dashed var(--line);border-radius:var(--radius);color:var(--ink-2)}
-  .empty h3{font-size:1.1rem;font-weight:600;color:var(--ink);margin-bottom:6px}
-  .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--petrol);border-radius:50%;animation:sp .7s linear infinite}
-  @keyframes sp{to{transform:rotate(360deg)}}
-  .loading{padding:60px;text-align:center;color:var(--ink-2)}
-
-  footer{border-top:1px solid var(--line);padding:26px 0;font-size:.85rem;color:var(--ink-2)}
-  .foot-row{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-
-  @media(max-width:900px){
-    .split{grid-template-columns:1fr}
-    .toc{position:static}
-    .g3{grid-template-columns:repeat(2,1fr)}
-  }
-  @media(max-width:680px){
-    .g3,.g2{grid-template-columns:1fr}
-    .bar nav{display:none}
-    .bar nav.open{
-      display:flex;position:absolute;top:64px;inset-inline:0;
-      flex-direction:column;background:var(--petrol);padding:14px 24px;gap:12px;
-      border-bottom:1px solid var(--line-light);
-    }
-    .menu-btn{display:block}
-    .who span{display:none}
-  }
-</style>
-</head>
-<body>
-
-<header>
-  <div class="wrap bar">
-    <a class="brand" href="index.html"><span class="dot"></span><span data-i18n="brand">Basera</span></a>
-    <nav id="nav" hidden>
-      <a href="#/dashboard" data-nav="dashboard" data-i18n="nav_dash">My learning</a>
-      <a href="#/catalogue" data-nav="catalogue" data-i18n="nav_cat">Catalogue</a>
-      <a href="#/certificates" data-nav="certificates" data-i18n="nav_certs">Certificates</a>
-      <a href="#/account" data-nav="account" data-i18n="nav_account">Account</a>
-      <a href="admin.html" id="panelLink" data-i18n="nav_panel" hidden>Control panel</a>
-    </nav>
-    <div class="tools">
-      <div class="lang">
-        <button data-lang="en" class="active">EN</button>
-        <button data-lang="ar">ع</button>
-      </div>
-      <div class="who" id="who" hidden>
-        <span class="avatar" id="avatar">—</span>
-        <button id="signOut" title="Sign out"><span data-i18n="sign_out">Sign out</span></button>
-      </div>
-      <button class="menu-btn" id="menuBtn" aria-label="Menu" hidden>☰</button>
-    </div>
-  </div>
-</header>
-
-<main class="wrap" id="view">
-  <div class="loading"><span class="spin"></span></div>
-</main>
-
-<footer>
-  <div class="wrap foot-row">
-    <span data-i18n="foot">Basera (بصيرة) — corporate training and learning platform, Saudi Arabia.</span>
-    <a href="index.html" data-i18n="back_site">Back to the main site</a>
-  </div>
-</footer>
-
-<script>
 (function(){
   "use strict";
 
@@ -356,7 +60,7 @@
       no_courses:"You are not enrolled yet",
       no_courses_p:"Browse the catalogue and enrol in your first course.",
       browse:"Browse the catalogue",
-      cat_title:"Catalogue", cat_sub:"Every published Basera course.",
+      cat_title:"Catalogue", cat_sub:"Every published Basera course.", cat_search:"Search courses by title, skill or keyword", cat_none:"No course matches that. Try another word.",
       resume:"Continue", start:"Start", enrol:"Enrol", enrolled:"Enrolled", view:"Open",
       enrolling:"Enrolling…",
       complete_label:"complete",
@@ -425,7 +129,7 @@
       no_courses:"لم تسجّل في أي دورة بعد",
       no_courses_p:"تصفح الدورات وسجّل في أول دورة لك.",
       browse:"تصفح الدورات",
-      cat_title:"الدورات", cat_sub:"جميع دورات بصيرة المنشورة.",
+      cat_title:"الدورات", cat_sub:"جميع دورات بصيرة المنشورة.", cat_search:"ابحث بالعنوان أو المهارة أو الكلمة المفتاحية", cat_none:"لا توجد دورة مطابقة. جرّب كلمة أخرى.",
       resume:"متابعة", start:"ابدأ", enrol:"سجّل", enrolled:"مسجَّل", view:"افتح",
       enrolling:"جارٍ التسجيل…",
       complete_label:"مكتمل",
@@ -897,41 +601,62 @@
     var mine = {};
     enrs.forEach(function(e){ mine[e.course_id] = e; });
 
+    function card(c){
+      var e = mine[c.id];
+      return '<article class="card">' +
+        '<div class="meta">' +
+          '<span>' + esc(t("lv_" + c.level)) + '</span>' +
+          '<span>' + esc(t("fm_" + c.format)) + '</span>' +
+          '<span>' + c.hours + " " + esc(t("hrs")) + '</span>' +
+          (c.has_certificate ? '<span>' + esc(t("cert")) + '</span>' : "") +
+        '</div>' +
+        '<h3>' + esc(L(c, "title")) + '</h3>' +
+        '<p>' + esc(L(c, "summary")) + '</p>' +
+        '<div class="foot">' +
+          (e
+            ? '<a class="btn btn-ghost btn-sm" href="#/course/' + encodeURIComponent(c.id) + '">' + esc(t("view")) + '</a>'
+            : '<button class="btn btn-primary btn-sm" data-enrol="' + esc(c.id) + '">' + esc(t("enrol")) + '</button>') +
+        '</div>' +
+      '</article>';
+    }
+    function matches(c, term){
+      if (!term) return true;
+      var hay = [c.title_en, c.title_ar, c.summary_en, c.summary_ar, c.keywords, c.domain].join(" ").toLowerCase();
+      return hay.indexOf(term) !== -1;
+    }
+    function grid(term){
+      var list = courses.filter(function(c){ return matches(c, term); });
+      return list.length
+        ? '<div class="grid g3">' + list.map(card).join("") + '</div>'
+        : '<div class="empty"><h3>' + esc(t("cat_none")) + '</h3></div>';
+    }
+
     show(
       '<div class="page-head"><h1>' + esc(t("cat_title")) + '</h1><p>' + esc(t("cat_sub")) + '</p></div>' +
-      '<div class="grid g3">' + courses.map(function(c){
-        var e = mine[c.id];
-        return '<article class="card">' +
-          '<div class="meta">' +
-            '<span>' + esc(t("lv_" + c.level)) + '</span>' +
-            '<span>' + esc(t("fm_" + c.format)) + '</span>' +
-            '<span>' + c.hours + " " + esc(t("hrs")) + '</span>' +
-            (c.has_certificate ? '<span>' + esc(t("cert")) + '</span>' : "") +
-          '</div>' +
-          '<h3>' + esc(L(c, "title")) + '</h3>' +
-          '<p>' + esc(L(c, "summary")) + '</p>' +
-          '<div class="foot">' +
-            (e
-              ? '<a class="btn btn-ghost btn-sm" href="#/course/' + encodeURIComponent(c.id) + '">' + esc(t("view")) + '</a>'
-              : '<button class="btn btn-primary btn-sm" data-enrol="' + esc(c.id) + '">' + esc(t("enrol")) + '</button>') +
-          '</div>' +
-        '</article>';
-      }).join("") + '</div>'
+      '<div class="cat-search"><input type="search" id="catSearch" placeholder="' + esc(t("cat_search")) + '" aria-label="' + esc(t("cat_search")) + '"></div>' +
+      '<div id="catGrid">' + grid("") + '</div>'
     );
 
-    view.querySelectorAll("[data-enrol]").forEach(function(btn){
-      btn.addEventListener("click", async function(){
-        btn.disabled = true;
-        btn.textContent = t("enrolling");
-        try {
-          await enrol(btn.dataset.enrol);
-          location.hash = "#/course/" + encodeURIComponent(btn.dataset.enrol);
-        } catch (err) {
-          btn.disabled = false;
-          btn.textContent = t("enrol");
-          alert(t("err_generic"));
-        }
+    function wireEnrol(){
+      view.querySelectorAll("[data-enrol]").forEach(function(btn){
+        btn.addEventListener("click", async function(){
+          btn.disabled = true;
+          btn.textContent = t("enrolling");
+          try {
+            await enrol(btn.dataset.enrol);
+            location.hash = "#/course/" + encodeURIComponent(btn.dataset.enrol);
+          } catch (err) {
+            btn.disabled = false;
+            btn.textContent = t("enrol");
+            alert(t("err_generic"));
+          }
+        });
       });
+    }
+    wireEnrol();
+    el("catSearch").addEventListener("input", function(){
+      el("catGrid").innerHTML = grid(el("catSearch").value.trim().toLowerCase());
+      wireEnrol();
     });
   }
 
@@ -1364,6 +1089,3 @@
   document.documentElement.dir = CUR === "ar" ? "rtl" : "ltr";
   setLang(CUR);
 })();
-</script>
-</body>
-</html>

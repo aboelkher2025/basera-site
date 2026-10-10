@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Basera — Control panel (mock)</title>
+<link rel="stylesheet" href="../public/css/tokens.css">
+<link rel="stylesheet" href="../public/css/admin.css">
+<link rel="stylesheet" href="../public/css/admin-nav.css">
+</head>
+<body>
+<div class="top">
+  <div class="brand"><span class="mark">&#9679;</span><span>Basera</span><small>Control panel · MOCK</small></div>
+  <nav class="pages" id="pages" aria-label="Pages"></nav>
+  <div class="spacer"></div>
+  <button class="ghost" id="langBtn">EN</button>
+  <span class="who" id="who"></span>
+  <button class="ghost" id="outBtn" hidden>Sign out</button>
+</div>
+<div id="root"></div>
+<script>
+// ---- Mock backend. Not deployed. Exercises every view with fixture data. ----
+(function(){
+  var b64 = function(o){ return btoa(JSON.stringify(o)).replace(/=+$/,"").replace(/\+/g,"-").replace(/\//g,"_"); };
+  var TOKEN = "x." + b64({ sub:"u-super", role:"authenticated" }) + ".y";
+  var ROLE = (location.search.match(/role=([a-z_]+)/) || [])[1] || "super_admin";
+  localStorage.setItem("basera_session", JSON.stringify({ access_token:TOKEN, refresh_token:"r" }));
+  var iso = function(d){ return new Date(Date.now() - d*864e5).toISOString(); };
+  var F = {
+    organizations:[
+      { id:"o-basera", name:"Basera", type:"platform", join_code:"BASERA", created_at:iso(400) },
+      { id:"o-acme", name:"Acme Logistics", type:"client", join_code:"ACME24", created_at:iso(90) },
+      { id:"o-nour", name:"Nour Retail Group", type:"client", join_code:"NOUR1", created_at:iso(30) }
+    ],
+    profiles:[
+      { id:"u-super", email:"owner@basera.sa", full_name:"Ahmed Owner", role:ROLE, org_id:"o-basera", department:null, lang:"en", created_at:iso(400) },
+      { id:"u-admin", email:"staff@basera.sa", full_name:"Sara Staff", role:"admin", org_id:"o-basera", department:"Operations", lang:"ar", created_at:iso(300) },
+      { id:"u-tr", email:"trainer@basera.sa", full_name:"Khalid Trainer", role:"trainer", org_id:"o-basera", department:"Training", lang:"en", created_at:iso(200) },
+      { id:"u-lead", email:"hr@acme.example", full_name:"Mona Lead", role:"client_admin", org_id:"o-acme", department:"HR", lang:"ar", created_at:iso(80) },
+      { id:"u-l1", email:"ali@acme.example", full_name:"Ali Learner", role:"learner", org_id:"o-acme", department:"Warehouse", lang:"ar", created_at:iso(60) },
+      { id:"u-l2", email:"huda@acme.example", full_name:"Huda Learner", role:"learner", org_id:"o-acme", department:"Finance", lang:"en", created_at:iso(20) },
+      { id:"u-l3", email:"omar@nour.example", full_name:"Omar Learner", role:"learner", org_id:"o-nour", department:null, lang:"ar", created_at:iso(5) },
+      { id:"u-l4", email:"free@example.com", full_name:"Independent Learner", role:"learner", org_id:null, department:null, lang:"en", created_at:iso(2) },
+      { id:"u-p", email:"partner@example.com", full_name:"Pat Partner", role:"partner", org_id:null, department:null, lang:"en", created_at:iso(150) }
+    ],
+    courses:[
+      { id:"hr-101", domain:"hr", level:"b", format:"live", hours:16, price_sar:1900, has_certificate:true, title_en:"HR Fundamentals for Coordinators", title_ar:"أساسيات الموارد البشرية", summary_en:"Recruitment, onboarding, records.", summary_ar:"التوظيف والتهيئة.", keywords:"hr", is_published:true, sort_order:10, created_at:iso(300), trainer_id:"u-tr" },
+      { id:"lead-201", domain:"lead", level:"i", format:"site", hours:24, price_sar:3200, has_certificate:true, title_en:"Leading Teams", title_ar:"قيادة الفرق", summary_en:"Practical team leadership.", summary_ar:"قيادة عملية.", keywords:"leadership", is_published:true, sort_order:20, created_at:iso(200), trainer_id:"u-tr" },
+      { id:"data-101", domain:"data", level:"b", format:"self", hours:8, price_sar:900, has_certificate:false, title_en:"Data Literacy", title_ar:"محو الأمية البيانية", summary_en:"Reading dashboards.", summary_ar:"قراءة اللوحات.", keywords:"data", is_published:false, sort_order:30, created_at:iso(20), trainer_id:null }
+    ],
+    lessons:[
+      { id:"l1", course_id:"hr-101", title_en:"Welcome", title_ar:"مرحبا", kind:"text", body_en:"Hello.\n\nSecond.", body_ar:"مرحبا.", media_url:null, duration_min:10, quiz:null, sort_order:10 },
+      { id:"l2", course_id:"hr-101", title_en:"Onboarding", title_ar:"التهيئة", kind:"text", body_en:"Body.", body_ar:"نص.", media_url:null, duration_min:20, quiz:null, sort_order:20 },
+      { id:"l3", course_id:"hr-101", title_en:"Final check", title_ar:"الاختبار", kind:"quiz", body_en:null, body_ar:null, media_url:null, duration_min:15, quiz:[{ q_en:"Q1?", q_ar:"س1؟", options_en:["A","B","C"], options_ar:["أ","ب","ج"], answer:0 },{ q_en:"Q2?", q_ar:"س2؟", options_en:["A","B"], options_ar:["أ","ب"], answer:1 }], sort_order:30 },
+      { id:"l4", course_id:"lead-201", title_en:"Delegation", title_ar:"التفويض", kind:"video", body_en:null, body_ar:null, media_url:"https://example.com/v", duration_min:30, quiz:null, sort_order:10 },
+      { id:"l5", course_id:"lead-201", title_en:"Quiz", title_ar:"اختبار", kind:"quiz", body_en:null, body_ar:null, media_url:null, duration_min:10, quiz:[{ q_en:"Q?", q_ar:"س؟", options_en:["A","B"], options_ar:["أ","ب"], answer:0 }], sort_order:20 }
+    ],
+    enrollments:[
+      { id:"e1", user_id:"u-l1", course_id:"hr-101", org_id:"o-acme", status:"completed", progress_pct:100, score:85, assigned_by:null, enrolled_at:iso(50), completed_at:iso(30) },
+      { id:"e2", user_id:"u-l2", course_id:"hr-101", org_id:"o-acme", status:"active", progress_pct:66, score:70, assigned_by:"u-lead", enrolled_at:iso(15), completed_at:null },
+      { id:"e3", user_id:"u-l3", course_id:"lead-201", org_id:"o-nour", status:"active", progress_pct:50, score:null, assigned_by:null, enrolled_at:iso(4), completed_at:null },
+      { id:"e4", user_id:"u-l4", course_id:"hr-101", org_id:null, status:"active", progress_pct:0, score:null, assigned_by:null, enrolled_at:iso(1), completed_at:null },
+      { id:"e5", user_id:"u-l1", course_id:"lead-201", org_id:"o-acme", status:"completed", progress_pct:100, score:60, assigned_by:null, enrolled_at:iso(40), completed_at:iso(10) }
+    ],
+    lesson_progress:[
+      { enrollment_id:"e1", lesson_id:"l1", score:null, completed_at:iso(45) }, { enrollment_id:"e1", lesson_id:"l2", score:null, completed_at:iso(40) }, { enrollment_id:"e1", lesson_id:"l3", score:85, completed_at:iso(30) },
+      { enrollment_id:"e2", lesson_id:"l1", score:null, completed_at:iso(14) }, { enrollment_id:"e2", lesson_id:"l3", score:70, completed_at:iso(12) },
+      { enrollment_id:"e3", lesson_id:"l4", score:null, completed_at:iso(3) },
+      { enrollment_id:"e5", lesson_id:"l4", score:null, completed_at:iso(20) }, { enrollment_id:"e5", lesson_id:"l5", score:60, completed_at:iso(10) }
+    ],
+    certificates:[
+      { code:"BSR-2026-00417", holder_name:"Demo Holder", course_id:"hr-101", issued_on:"2026-03-01", is_valid:true, created_at:iso(200), user_id:null, enrollment_id:null, score:null },
+      { code:"BSR-2026-00418", holder_name:"Ali Learner", course_id:"hr-101", issued_on:iso(30).slice(0,10), is_valid:true, created_at:iso(30), user_id:"u-l1", enrollment_id:"e1", score:85 },
+      { code:"BSR-2026-00419", holder_name:"Ali Learner", course_id:"lead-201", issued_on:iso(10).slice(0,10), is_valid:false, created_at:iso(10), user_id:"u-l1", enrollment_id:"e5", score:60 }
+    ],
+    leads:[
+      { id:"ld1", name:"Fahad", company:"Gulf Co", email:"f@gulf.example", interest:"Leadership programme", message:"We have 40 supervisors.", source:"site", created_at:iso(3), status:"new" },
+      { id:"ld2", name:"Layla", company:"Nour Retail Group", email:"l@nour.example", interest:"HR", message:null, source:"site", created_at:iso(20), status:"won" },
+      { id:"ld3", name:"Sam", company:null, email:"s@x.example", interest:null, message:"Pricing?", source:"linkedin", created_at:iso(40), status:"lost" }
+    ]
+  };
+  var openapi = { definitions:{} };
+  Object.keys(F).forEach(function(t){
+    var props = {}, sample = F[t][0] || {};
+    Object.keys(sample).forEach(function(k){ props[k] = { type: typeof sample[k] === "number" ? "integer" : typeof sample[k] === "boolean" ? "boolean" : Array.isArray(sample[k]) ? "array" : "string", description: (k === "id" || (t === "certificates" && k === "code") || (t === "lesson_progress" && (k === "enrollment_id" || k === "lesson_id"))) ? "Note:\nThis is a Primary Key.<pk/>" : "" }; });
+    openapi.definitions[t] = { properties: props, required: [] };
+  });
+  window.__calls = [];
+  window.fetch = async function(url, opts){
+    opts = opts || {}; var m = (opts.method || "GET").toUpperCase();
+    window.__calls.push(m + " " + url);
+    var ok = function(body, status){ return new Response(JSON.stringify(body), { status: status || 200, headers:{ "Content-Type":"application/json" } }); };
+    if (m === "OPTIONS") return new Response("ok", { status:200 });
+    if (/\/functions\/v1\/admin-users/.test(url)) { var b = JSON.parse(opts.body || "{}"); if (b.action === "create") { F.profiles.unshift({ id:"u-new" + Date.now(), email:b.email, full_name:b.full_name, role:b.role, org_id:b.org_id || null, department:b.department || null, lang:b.lang || "en", created_at:new Date().toISOString() }); return ok({ ok:true, invited:!b.password }); } if (b.action === "delete") { F.profiles = F.profiles.filter(function(p){ return p.id !== b.id; }); } return ok({ ok:true }); }
+    if (/\/rest\/v1\/rpc\/is_super/.test(url)) return ok(ROLE === "super_admin");
+    if (/\/rest\/v1\/?(\?|$)/.test(url)) return ok(openapi);
+    var mm = url.match(/\/rest\/v1\/([a-z_]+)\??(.*)$/); if (!mm) return ok({ error:"unmocked " + url }, 404);
+    var table = mm[1], qs = mm[2] || "";
+    if (!F[table]) return ok({ message:"relation " + table + " does not exist" }, 404);
+    var filters = []; qs.split("&").forEach(function(kv){ var p = kv.split("="); if (p[1] && /^eq\./.test(decodeURIComponent(p[1]))) filters.push([p[0], decodeURIComponent(p[1]).slice(3)]); });
+    var match = function(r){ return filters.every(function(f){ return String(r[f[0]]) === f[1]; }); };
+    if (m === "GET") return ok(F[table].filter(match));
+    if (m === "POST") { var row = JSON.parse(opts.body); if (!row.id && table !== "lesson_progress" && table !== "certificates") row.id = "new" + Date.now(); if (!row.created_at) row.created_at = new Date().toISOString(); F[table].unshift(row); return ok([row], 201); }
+    if (m === "PATCH") { var patch = JSON.parse(opts.body), outRows = []; F[table].forEach(function(r){ if (match(r)) { Object.assign(r, patch); outRows.push(r); } }); return ok(outRows); }
+    if (m === "DELETE") { F[table] = F[table].filter(function(r){ return !match(r); }); return new Response(null, { status:204 }); }
+    return ok({ error:"unmocked" }, 400);
+  };
+})();
+</script>
+<script src="../public/js/admin/core.js"></script>
+<script src="../public/js/admin/views.js"></script>
+<script src="../public/js/admin/access.js"></script>
+<script src="../public/js/admin/reports.js"></script>
+<script src="../public/js/admin/db.js"></script>
+<script>BA.start();</script>
+</body>
+</html>

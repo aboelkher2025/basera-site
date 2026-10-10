@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basera — Learning portal</title>
+<meta name="description" content="Basera learning portal: your courses, lessons, progress and certificates.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css?v=20261010b">
+<link rel="stylesheet" href="css/portal.css?v=20261010b">
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="index.html"><span class="dot"></span><span data-i18n="brand">Basera</span></a>
+    <nav id="nav" hidden>
+      <a href="#/dashboard" data-nav="dashboard" data-i18n="nav_dash">My learning</a>
+      <a href="#/catalogue" data-nav="catalogue" data-i18n="nav_cat">Catalogue</a>
+      <a href="#/certificates" data-nav="certificates" data-i18n="nav_certs">Certificates</a>
+      <a href="#/account" data-nav="account" data-i18n="nav_account">Account</a>
+      <a href="admin.html" id="panelLink" data-i18n="nav_panel" hidden>Control panel</a>
+    </nav>
+    <div class="tools">
+      <div class="lang">
+        <button data-lang="en" class="active">EN</button>
+        <button data-lang="ar">ع</button>
+      </div>
+      <div class="who" id="who" hidden>
+        <span class="avatar" id="avatar">—</span>
+        <button id="signOut" title="Sign out"><span data-i18n="sign_out">Sign out</span></button>
+      </div>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu" hidden>☰</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="view">
+  <div class="loading"><span class="spin"></span></div>
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <span data-i18n="foot">Basera (بصيرة) — corporate training and learning platform, Saudi Arabia.</span>
+    <a href="index.html" data-i18n="back_site">Back to the main site</a>
+  </div>
+</footer>
+
+<script src="js/portal.js?v=20261010b"></script>
+</body>
+</html>

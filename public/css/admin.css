@@ -1,16 +1,5 @@
-/* Basera control panel — shares the site's tokens. */
-:root{
-  --petrol:#10373C; --petrol-2:#0B2A2E;
-  --mint:#E4EDE8;   --mint-2:#D3E2DA;
-  --saffron:#E9A23B; --saffron-2:#C8862A;
-  --ink:#16262A;    --ink-2:#4A5E62;
-  --white:#FBFAF6;
-  --line:rgba(16,55,60,.14); --line-light:rgba(251,250,246,.18);
-  --ok:#2E7D57; --bad:#B4462F; --warn:#B06A1A;
-  --chart-1:#0C8FA3; --chart-2:#B06A1A; --chart-mute:#9AA9AC;
-  --radius:8px; --radius-lg:14px; --ease:cubic-bezier(.22,.61,.36,1); --ease-out:cubic-bezier(.16,1,.3,1);
-  --shadow:0 24px 50px -24px rgba(7,29,32,.35);
-}
+/* Page-specific overrides of css/tokens.css */
+:root{--chart-1:#0C8FA3; --chart-2:#B06A1A; --chart-mute:#9AA9AC; --radius-lg:14px;}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes glow{0%,100%{opacity:.5}50%{opacity:.9}}
 *{box-sizing:border-box}
