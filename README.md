@@ -6,7 +6,7 @@ Corporate training, OD consulting and learning platform for companies in Saudi A
 - `index.html` + `motion.js` — the marketing site (EN/AR, generated motion backgrounds, course search, certificate check, AI career coach, FAQ). No build step.
 - `learn.html` — the learning portal (sign in, enrol, lessons, quizzes, progress, certificates). No build step.
 - `admin.html` + `admin*.js` / `admin.css` — the staff control panel: every table, dashboards, reports, account management.
-- `supabase/` — the migration and Edge Function the panel depends on.
+- `supabase/` — migrations, Edge Functions and config; synced to the project by the GitHub integration.
 - `.github/workflows/deploy.yml` — publishes to GitHub Pages on every push to `main`.
 
 ## Run locally
@@ -83,19 +83,22 @@ caller's role on every call.
 **The first account ever created becomes `super_admin`.** Register the owner before
 sharing any link.
 
-### Backend pieces the panel depends on
-Both live in `supabase/` and must be applied once:
+### Backend: the `supabase/` folder is the source of truth
+The project is connected to this repository through Supabase's GitHub integration. On
+every push to `main` it runs `supabase db push` and deploys every function under
+`supabase/functions/`. So:
 
-1. `supabase/migrations/platform_owner.sql` - adds the `super_admin` and `trainer` roles,
-   the `qualified` lead stage, `courses.trainer_id`, the `is_staff()` / `is_super()`
-   helpers, the role-guard trigger, delete-aware progress recompute, and rewrites every
-   admin policy as a staff policy. Idempotent. Run it in Dashboard -> SQL editor.
-2. `supabase/functions/admin-users/index.ts` - create / delete / set-password /
-   reset-email for accounts. Deploy from Dashboard -> Edge Functions, Verify JWT on.
+- `supabase/migrations/` holds the full migration history, one file per applied version,
+  named `<version>_<name>.sql` exactly as recorded in `supabase_migrations.schema_migrations`.
+  Never rename or edit an applied file; add a new one. A file the database has not seen is
+  applied on the next push - which is how schema changes ship from now on.
+- `supabase/functions/career-coach/` and `supabase/functions/admin-users/` are deployed on
+  every push. Edit them here, not in the dashboard, or the next push overwrites the change.
+- `supabase/config.toml` carries the project id and per-function `verify_jwt` (both on).
+- Secrets are not in the repo. `OPENROUTER_API_KEY` for the coach is set in the dashboard.
 
-Until (1) is applied, roles other than admin / company lead / learner are rejected by the
-database, and the Dashboard shows a "Setup pending" note. Until (2) is deployed, the
-"New account" and account "Delete" buttons return an error; everything else works.
+Applying SQL from the dashboard editor still works, but then add the same SQL as a
+migration file so the repo and the database stay in step.
 
 For invitation and password-reset emails to land correctly, set **Authentication -> URL
 configuration -> Site URL** to the portal URL and add it to the redirect allow-list.
@@ -105,8 +108,8 @@ set-password screen.
 ## Backend (Supabase project `basera`, eu-central-1)
 - Tables: `courses` (public read), `certificates` (lookup only via `verify_certificate(code)` RPC), `leads` (public insert), `coach_logs`.
 - Learning tables: `profiles`, `organizations`, `lessons`, `enrollments`, `lesson_progress` — all RLS'd to the signed-in user, their org (`client_admin`), or `admin`.
-- Edge Function `career-coach`: holds the Anthropic key server-side, answers from the live catalogue, logs each exchange.
-- Required secret: `ANTHROPIC_API_KEY` (Dashboard → Edge Functions → Secrets). **Not set yet** — the function currently returns `500 ANTHROPIC_API_KEY not set` and the site falls back to keyword matching.
+- Edge Function `career-coach`: answers from the live catalogue through OpenRouter, free models only, and logs each exchange.
+- Required secret: `OPENROUTER_API_KEY` (Dashboard → Edge Functions → Secrets). Optional `COACH_MODELS` overrides the model chain; ids must end in `:free`. **Not set yet** — the function returns `500 OPENROUTER_API_KEY not set` and the site falls back to keyword matching.
 - The anon key in `index.html` is public by design; row-level security protects the data.
 
 ## Before going live

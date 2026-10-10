@@ -1,0 +1,13 @@
+# Supabase project settings used by the GitHub integration and the CLI.
+# The integration runs `supabase db push` and deploys every function under
+# supabase/functions/ on each push to the connected branch.
+project_id = "brlhihishoilxyslwubj"
+
+[db]
+major_version = 15
+
+[functions.career-coach]
+verify_jwt = true
+
+[functions.admin-users]
+verify_jwt = true
