@@ -55,15 +55,17 @@ window.BA = (function(){
     if (!row) return "";
     return row[base + "_" + A.CLANG] || row[base + "_en"] || row[base + "_ar"] || "";
   };
+  // Local time everywhere the panel prints a date, to match the datetime-local forms.
+  function pad2(n){ return (n < 10 ? "0" : "") + n; }
   A.date = function(s){
     if (!s) return "—";
     var d = new Date(s); if (isNaN(d.getTime())) return "—";
-    return d.toISOString().slice(0,10);
+    return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate());
   };
   A.when = function(s){
     if (!s) return "—";
     var d = new Date(s); if (isNaN(d.getTime())) return "—";
-    return d.toISOString().slice(0,16).replace("T"," ");
+    return A.date(d) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
   };
   A.month = function(s){ var d = new Date(s); return isNaN(d.getTime()) ? "" : d.toISOString().slice(0,7); };
   A.clip = function(s, n){ s = String(s == null ? "" : s); return s.length > n ? s.slice(0, n-1) + "…" : s; };
@@ -140,7 +142,12 @@ window.BA = (function(){
   };
   // Writes that should hand the row back.
   A.insert = function(table, body){ return A.rest(table, { method:"POST", headers:{ "Prefer":"return=representation" }, body: body }); };
-  A.patch  = function(table, filter, body){ return A.rest(table + "?" + filter, { method:"PATCH", headers:{ "Prefer":"return=representation" }, body: body }); };
+  // A PATCH that RLS filtered down to nothing returns [] with 200 - surface that as a refusal.
+  A.patch  = async function(table, filter, body){
+    var rows = await A.rest(table + "?" + filter, { method:"PATCH", headers:{ "Prefer":"return=representation" }, body: body });
+    if (Array.isArray(rows) && rows.length === 0) throw new Error("Nothing was changed — your account may not be allowed to edit this.");
+    return rows;
+  };
   A.remove = function(table, filter){ return A.rest(table + "?" + filter, { method:"DELETE" }); };
   A.q = encodeURIComponent;
 

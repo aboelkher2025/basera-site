@@ -1,7 +1,7 @@
 /* Page-specific overrides of css/tokens.css */
 :root{--radius-lg:10px; --shadow:0 30px 60px -24px rgba(7,29,32,.45);}
   *{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
+  html{scroll-behavior:smooth;overflow-x:clip}
   body{
     font-family:"IBM Plex Sans Arabic",system-ui,sans-serif;color:var(--ink);background:var(--white);
     line-height:1.55;font-weight:400;-webkit-font-smoothing:antialiased;overflow-x:hidden;
@@ -33,7 +33,7 @@
   .dark{color:var(--white)}
   .dark p{color:var(--mint)}
   .glass{background:rgba(7,29,32,.55);border:1px solid rgba(251,250,246,.18);border-radius:var(--radius-lg)}
-  .glass-l{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg)}
+  .card-l{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg)}
 
   /* ---------- Reveal & stagger ---------- */
   .reveal{opacity:0;transform:translateY(8px);transition:opacity .35s var(--ease-out),transform .35s var(--ease-out)}
@@ -92,13 +92,13 @@
   .hero{min-height:100vh;display:flex;align-items:center;padding:120px 0 80px;background:var(--petrol-2)}
   /* keeps the copy legible whatever the aurora is doing behind it */
   .hero::before,.contact-sec::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-    background:linear-gradient(90deg,rgba(11,42,46,.78) 0%,rgba(11,42,46,.45) 45%,rgba(11,42,46,.15) 100%)}
-  [dir="rtl"] .hero::before,[dir="rtl"] .contact-sec::before{background:linear-gradient(270deg,rgba(11,42,46,.78) 0%,rgba(11,42,46,.45) 45%,rgba(11,42,46,.15) 100%)}
+    background:linear-gradient(90deg,rgba(11,42,46,.88) 0%,rgba(11,42,46,.72) 50%,rgba(11,42,46,.35) 100%)}
+  [dir="rtl"] .hero::before,[dir="rtl"] .contact-sec::before{background:linear-gradient(270deg,rgba(11,42,46,.88) 0%,rgba(11,42,46,.72) 50%,rgba(11,42,46,.35) 100%)}
   .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:center;width:100%}
   .eyebrow{display:inline-block;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--saffron);margin-bottom:18px}
   [dir="rtl"] .eyebrow{letter-spacing:0}
   .hero h1{margin-bottom:24px;max-width:14ch}
-  .hero .lead{font-size:clamp(1.05rem,1.4vw,1.25rem);color:var(--mint);opacity:.9;margin-bottom:36px;max-width:48ch;font-weight:300}
+  .hero .lead{font-size:clamp(1.05rem,1.4vw,1.25rem);color:var(--white);opacity:.95;margin-bottom:36px;max-width:48ch;font-weight:300}
   .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
   .hero-note{margin-top:34px;font-size:.88rem;color:var(--mint);opacity:.6;max-width:50ch}
   .hero-card{padding:30px}
@@ -344,8 +344,9 @@
   }
 
   /* ---------- Skip link ---------- */
-  .skip{position:absolute;left:-9999px;top:12px;z-index:100;background:var(--saffron);color:var(--petrol-3);padding:10px 16px;border-radius:var(--radius);font-weight:600}
-  .skip:focus{left:16px}
+  /* visually hidden until focused; clipped, not off-canvas, so RTL never gains scrollable overflow */
+  .skip{position:absolute;top:12px;inset-inline-start:16px;z-index:100;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;background:var(--saffron);color:var(--petrol-3);padding:0;border-radius:var(--radius);font-weight:600}
+  .skip:focus{width:auto;height:auto;clip:auto;padding:10px 16px}
   /* ---------- Sample-data tag ---------- */
   .mock-tag{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--warn);border:1px solid rgba(176,106,26,.4);border-radius:4px;padding:2px 8px;margin-inline-start:8px}
   [dir="rtl"] .mock-tag{letter-spacing:0}

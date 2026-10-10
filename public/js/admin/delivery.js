@@ -35,7 +35,7 @@
       { k:"seats", label:"Seats", cls:"num", val:function(r){ return seats[r.id] || 0; }, cell:function(r){ return (seats[r.id] || 0) + (r.capacity ? " / " + r.capacity : ""); } },
       { k:"sessions", label:"Sessions", cls:"num", val:function(r){ return (d.sessionsPerCohort[r.id] || 0); }, cell:function(r){ return String(d.sessionsPerCohort[r.id] || 0); } },
       { k:"status", label:"Status", cell:function(r){ return statusPill(r.status); } },
-      { k:"_act", label:"", cls:"act", cell:function(r){ return A.btn("open", r.id, "Open") + (ownsCohort(r) ? A.btn("edit", r.id, "Edit") : "") + (canWrite() ? A.btn("del", r.id, "Delete", "danger") : ""); } }
+      { k:"_act", label:"", cls:"act", cell:function(r){ return A.btn("open", r.id, "Open", "light keep-rw") + (canWrite() ? A.btn("edit", r.id, "Edit") + A.btn("del", r.id, "Delete", "danger") : ""); } }
     ];
     function rows(){
       var st = A.qval("st"), list = st ? d.cohorts.filter(function(k){ return k.status === st; }) : d.cohorts;
@@ -95,13 +95,13 @@
     var att = {}; d.attendance.forEach(function(a){ att[a.session_id + "|" + a.user_id] = a; });
     var course = d.courseById[k.course_id];
     var html = A.pageHead(cohortLabel(k), (course ? A.L(course,"title") + " · " : "") + k.format + (k.location ? " · " + k.location : "") + (k.trainer_id ? " · " + A.personName(k.trainer_id) : ""),
-      '<a class="btn light" href="#/cohorts">← All cohorts</a>' + (rw ? ' <button class="btn light" id="edit">Edit</button>' : ""));
+      '<a class="btn light" href="#/cohorts">← All cohorts</a>' + (canWrite() ? ' <button class="btn light" id="edit">Edit</button>' : ""));
     html += '<div class="tiles">' + A.tile(k.status, "Status") + A.tile(members.length + (k.capacity ? " / " + k.capacity : ""), "Seats") + A.tile(sessions.length, "Sessions") + A.tile(dt(k.starts_at), "Starts") + A.tile(dt(k.ends_at), "Ends") + "</div>";
     // sessions
-    html += '<div class="panel"><h3>Sessions<span class="spacer"></span>' + (rw ? '<button class="btn sm accent" id="addSession">+ Session</button>' : "") + "</h3>";
+    html += '<div class="panel"><h3>Sessions<span class="spacer"></span>' + (rw ? '<button class="btn sm accent keep-rw" id="addSession">+ Session</button>' : "") + "</h3>";
     html += sessions.length ? '<div class="scroll"><table><thead><tr><th>#</th><th>Title</th><th>Starts</th><th>Ends</th><th class="num">Present</th><th></th></tr></thead><tbody>' + sessions.map(function(s, i){
       var present = members.filter(function(m){ var a = att[s.id + "|" + m.user_id]; return a && (a.status === "present" || a.status === "late"); }).length;
-      return '<tr><td class="num">' + (i+1) + "</td><td>" + esc(s.title || "—") + '</td><td class="muted">' + dt(s.starts_at) + '</td><td class="muted">' + dt(s.ends_at) + '</td><td class="num">' + present + " / " + members.length + '</td><td class="act">' + (rw ? A.btn("editS", s.id, "Edit") + A.btn("delS", s.id, "Delete", "danger") : "") + "</td></tr>";
+      return '<tr><td class="num">' + (i+1) + "</td><td>" + esc(s.title || "—") + '</td><td class="muted">' + dt(s.starts_at) + '</td><td class="muted">' + dt(s.ends_at) + '</td><td class="num">' + present + " / " + members.length + '</td><td class="act">' + (rw ? A.btn("editS", s.id, "Edit", "light keep-rw") + A.btn("delS", s.id, "Delete", "danger keep-rw") : "") + "</td></tr>";
     }).join("") + "</tbody></table></div>" : '<div class="empty">No sessions yet.' + (rw ? " Add the dates this cohort meets." : "") + "</div>";
     html += "</div>";
     // roster + attendance matrix
@@ -141,7 +141,7 @@
       try {
         if (!v) await A.remove("attendance", "session_id=eq." + A.q(sid) + "&user_id=eq." + A.q(uid));
         else await A.rest("attendance?on_conflict=session_id,user_id", { method:"POST", headers:{ "Prefer":"resolution=merge-duplicates,return=representation" }, body:{ session_id:sid, user_id:uid, status:v, marked_by:A.me.id } });
-        await A.loadAll(true); A.toast("Attendance saved");
+        await A.loadAll(true); A.toast("Attendance saved"); A.render(); return;
       } catch(e){ A.toast(e.message, true); }
       s.disabled = false;
     };
@@ -166,7 +166,7 @@
   async function addMember(k){
     var d = D();
     var candidates = d.enrols.filter(function(e){ return e.course_id === k.course_id && e.cohort_id !== k.id; });
-    var others = d.profiles.filter(function(p){ return !d.enrols.some(function(e){ return e.course_id === k.course_id && e.user_id === p.id; }); });
+    var others = d.profiles.filter(function(p){ return (p.role === "learner" || p.role === "client_admin") && !d.enrols.some(function(e){ return e.course_id === k.course_id && e.user_id === p.id; }); });
     await A.form({
       title:"Add a learner to this cohort", submitLabel:"Add",
       intro:"Pick someone already enrolled on the course, or enrol a new person and seat them here in one step.",
@@ -178,7 +178,7 @@
       onSubmit: async function(v){
         if (k.capacity && d.enrols.filter(function(e){ return e.cohort_id === k.id; }).length >= k.capacity) throw new Error("This cohort is full (" + k.capacity + " seats)");
         if (v.mode === "enrolled") await A.patch("enrollments", "id=eq." + A.q(v.enrol_id), { cohort_id:k.id });
-        else await A.insert("enrollments", { user_id:v.user_id, course_id:k.course_id, cohort_id:k.id, assigned_by:A.me.id });
+        else { var prof = d.profById[v.user_id] || {}; await A.insert("enrollments", { user_id:v.user_id, course_id:k.course_id, cohort_id:k.id, org_id:prof.org_id || k.org_id || null, assigned_by:A.me.id }); }
         await A.reload(); A.toast("Added to cohort");
       }
     });
@@ -235,11 +235,11 @@
       { k:"audience", label:"Audience", cell:function(r){ return r.audience === "all" ? A.pill("everyone") : r.audience === "org" ? A.pill(A.orgName(r.org_id) || "company", "warn") : A.pill(d.cohortById[r.cohort_id] ? cohortLabel(d.cohortById[r.cohort_id]) : "cohort", "ok"); } },
       { k:"expires_at", label:"Expires", cls:"num muted", cell:function(r){ return r.expires_at ? A.date(r.expires_at) : "—"; } },
       { k:"by", label:"By", cls:"muted", val:function(r){ return A.personName(r.created_by); }, cell:function(r){ return esc(A.personName(r.created_by)); } },
-      { k:"_act", label:"", cls:"act", cell:function(r){ var rw = canWrite() || (r.audience === "cohort" && d.cohortById[r.cohort_id] && d.cohortById[r.cohort_id].trainer_id === A.me.id); return rw ? A.btn("edit", r.id, "Edit") + A.btn("del", r.id, "Delete", "danger") : ""; } }
+      { k:"_act", label:"", cls:"act", cell:function(r){ var rw = canWrite() || (r.audience === "cohort" && d.cohortById[r.cohort_id] && d.cohortById[r.cohort_id].trainer_id === A.me.id); return rw ? A.btn("edit", r.id, "Edit", "light keep-rw") + A.btn("del", r.id, "Delete", "danger keep-rw") : ""; } }
     ];
     function rows(){ return A.filterRows(d.announcements, A.qval("q"), ["title_en","title_ar","body_en","body_ar","audience"]); }
     function paint(){
-      A.out.innerHTML = A.pageHead("Announcements", "Shown on the learner dashboard to everyone, one company, or one cohort.", '<button class="btn accent" id="add">+ New announcement</button>') +
+      A.out.innerHTML = A.pageHead("Announcements", "Shown on the learner dashboard to everyone, one company, or one cohort.", '<button class="btn accent keep-rw" id="add">+ New announcement</button>') +
         A.searchBar("Search announcements…", true) + '<div class="panel">' + A.table("ann", cols, rows(), "No announcements yet.") + "</div>";
       A.wireCommon(paint); A.wireSort("ann", paint); A.wireCsv("basera-announcements.csv", cols, rows);
       A.el("add").addEventListener("click", function(){ annForm(null); });

@@ -62,7 +62,7 @@
       browse:"Browse the catalogue",
       cat_title:"Catalogue", cat_sub:"Every published Basera course.",
       paths_title:"Learning paths", paths_sub:"Programmes that take you from one role to the next, one course at a time.", path_courses:"courses",
-      next_session:"Next session", sessions:"Sessions", upcoming:"Upcoming sessions", no_sessions:"No sessions scheduled", announcements:"Announcements", ungrouped:"Other lessons", venue:"Venue", join_link:"Join online", trainer:"Trainer", expires:"Valid until", expired:"Expired", cat_search:"Search courses by title, skill or keyword", cat_none:"No course matches that. Try another word.",
+      next_session:"Next session", sessions:"Sessions", upcoming:"Upcoming sessions", no_sessions:"No sessions scheduled", announcements:"Announcements", ungrouped:"Other lessons", venue:"Venue", join_link:"Join online", trainer:"Trainer", expires:"Valid until", expired:"Expired", revoked:"Revoked", sp_confirm:"Confirm password", err_pass_match:"The two passwords do not match.", cat_search:"Search courses by title, skill or keyword", cat_none:"No course matches that. Try another word.",
       resume:"Continue", start:"Start", enrol:"Enrol", enrolled:"Enrolled", view:"Open",
       enrolling:"Enrolling…",
       complete_label:"complete",
@@ -133,7 +133,7 @@
       browse:"تصفح الدورات",
       cat_title:"الدورات", cat_sub:"جميع دورات بصيرة المنشورة.",
       paths_title:"المسارات التعليمية", paths_sub:"برامج تنقلك من دور إلى الذي يليه، دورة بعد دورة.", path_courses:"دورات",
-      next_session:"الجلسة القادمة", sessions:"الجلسات", upcoming:"الجلسات القادمة", no_sessions:"لا جلسات مجدولة", announcements:"الإعلانات", ungrouped:"دروس أخرى", venue:"المكان", join_link:"انضم عبر الإنترنت", trainer:"المدرب", expires:"صالحة حتى", expired:"منتهية", cat_search:"ابحث بالعنوان أو المهارة أو الكلمة المفتاحية", cat_none:"لا توجد دورة مطابقة. جرّب كلمة أخرى.",
+      next_session:"الجلسة القادمة", sessions:"الجلسات", upcoming:"الجلسات القادمة", no_sessions:"لا جلسات مجدولة", announcements:"الإعلانات", ungrouped:"دروس أخرى", venue:"المكان", join_link:"انضم عبر الإنترنت", trainer:"المدرب", expires:"صالحة حتى", expired:"منتهية", revoked:"ملغاة", sp_confirm:"تأكيد كلمة المرور", err_pass_match:"كلمتا المرور غير متطابقتين.", cat_search:"ابحث بالعنوان أو المهارة أو الكلمة المفتاحية", cat_none:"لا توجد دورة مطابقة. جرّب كلمة أخرى.",
       resume:"متابعة", start:"ابدأ", enrol:"سجّل", enrolled:"مسجَّل", view:"افتح",
       enrolling:"جارٍ التسجيل…",
       complete_label:"مكتمل",
@@ -291,7 +291,7 @@
       .then(function(rows){ cache.courses = rows || []; return cache.courses; });
   }
   function getEnrollments(){
-    return rest("enrollments?select=id,course_id,status,progress_pct,score,enrolled_at,completed_at&order=enrolled_at.desc");
+    return rest("enrollments?select=id,course_id,cohort_id,org_id,status,progress_pct,score,enrolled_at,completed_at&order=enrolled_at.desc");
   }
   function getLessons(courseId){
     return rest("lessons?select=id,course_id,title_en,title_ar,kind,body_en,body_ar,media_url,duration_min,quiz,sort_order&course_id=eq." +
@@ -319,7 +319,7 @@
     ]);
   }
   function getCertificates(){
-    return rest("certificates?select=code,holder_name,course_id,issued_on,score,is_valid&order=issued_on.desc");
+    return rest("certificates?select=code,holder_name,course_id,issued_on,score,is_valid,valid_until&order=issued_on.desc");
   }
   function enrol(courseId){
     return rest("enrollments", {
@@ -445,6 +445,8 @@
     w.hidden = !msg;
     var input = el("f_" + id);
     if (input) input.classList.toggle("bad", !!msg);
+    var _in = el("f_" + id), _er = _in && _in.parentNode.querySelector(".ferr");
+    if (_er) { _er.setAttribute("role", "alert"); _er.id = _er.id || ("err_" + id); if (_in) _in.setAttribute("aria-describedby", _er.id); }
   }
   function clearErrors(){
     Array.prototype.forEach.call(document.querySelectorAll(".ferr"), function(w){
@@ -473,14 +475,17 @@
         '<div id="authMsg"></div>' +
         '<form id="authForm" novalidate>' +
           field("pass", t("f_pass"), "password", t("f_pass_hint"), true) +
+          field("pass2", t("sp_confirm"), "password", "", true) +
           '<button class="btn btn-primary" style="width:100%;margin-top:6px" type="submit" id="authBtn">' + esc(t("sp_btn")) + '</button>' +
         '</form>' +
       '</div>');
     el("f_pass").setAttribute("autocomplete", "new-password");
+    if (el("f_pass2")) el("f_pass2").setAttribute("autocomplete", "new-password");
     el("authForm").addEventListener("submit", async function(ev){
       ev.preventDefault();
       var pass = el("f_pass").value || "";
       if (pass.length < 8) return authMsg(t("err_pass_short"), "bad");
+      if (el("f_pass2") && el("f_pass2").value !== pass) return authMsg(t("err_pass_match"), "bad");
       var btn = el("authBtn"); btn.disabled = true;
       try {
         var r = await fetch(SB_URL + "/auth/v1/user", {
@@ -971,7 +976,9 @@
         ? '<div class="grid g2">' + certs.map(function(c){
             var course = byId[c.course_id];
             return '<div class="cert">' +
-              '<div class="kicker">' + esc(t("cert")) + '</div>' +
+              '<div class="kicker">' + esc(t("cert")) +
+                (c.is_valid === false ? ' · ' + esc(t("revoked")) : (c.valid_until ? ' · ' + (new Date(c.valid_until) < new Date() ? esc(t("expired")) : esc(t("expires")) + " " + esc(c.valid_until)) : "")) +
+              '</div>' +
               '<div class="code">' + esc(c.code) + '</div>' +
               '<h3>' + esc(course ? L(course, "title") : c.course_id) + '</h3>' +
               '<p style="font-size:.9rem;color:var(--ink-2)">' + esc(t("holder")) + ": " + esc(c.holder_name) + '</p>' +
