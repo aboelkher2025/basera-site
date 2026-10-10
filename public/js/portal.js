@@ -60,7 +60,9 @@
       no_courses:"You are not enrolled yet",
       no_courses_p:"Browse the catalogue and enrol in your first course.",
       browse:"Browse the catalogue",
-      cat_title:"Catalogue", cat_sub:"Every published Basera course.", cat_search:"Search courses by title, skill or keyword", cat_none:"No course matches that. Try another word.",
+      cat_title:"Catalogue", cat_sub:"Every published Basera course.",
+      paths_title:"Learning paths", paths_sub:"Programmes that take you from one role to the next, one course at a time.", path_courses:"courses",
+      next_session:"Next session", sessions:"Sessions", upcoming:"Upcoming sessions", no_sessions:"No sessions scheduled", announcements:"Announcements", ungrouped:"Other lessons", venue:"Venue", join_link:"Join online", trainer:"Trainer", expires:"Valid until", expired:"Expired", cat_search:"Search courses by title, skill or keyword", cat_none:"No course matches that. Try another word.",
       resume:"Continue", start:"Start", enrol:"Enrol", enrolled:"Enrolled", view:"Open",
       enrolling:"Enrolling…",
       complete_label:"complete",
@@ -129,7 +131,9 @@
       no_courses:"لم تسجّل في أي دورة بعد",
       no_courses_p:"تصفح الدورات وسجّل في أول دورة لك.",
       browse:"تصفح الدورات",
-      cat_title:"الدورات", cat_sub:"جميع دورات بصيرة المنشورة.", cat_search:"ابحث بالعنوان أو المهارة أو الكلمة المفتاحية", cat_none:"لا توجد دورة مطابقة. جرّب كلمة أخرى.",
+      cat_title:"الدورات", cat_sub:"جميع دورات بصيرة المنشورة.",
+      paths_title:"المسارات التعليمية", paths_sub:"برامج تنقلك من دور إلى الذي يليه، دورة بعد دورة.", path_courses:"دورات",
+      next_session:"الجلسة القادمة", sessions:"الجلسات", upcoming:"الجلسات القادمة", no_sessions:"لا جلسات مجدولة", announcements:"الإعلانات", ungrouped:"دروس أخرى", venue:"المكان", join_link:"انضم عبر الإنترنت", trainer:"المدرب", expires:"صالحة حتى", expired:"منتهية", cat_search:"ابحث بالعنوان أو المهارة أو الكلمة المفتاحية", cat_none:"لا توجد دورة مطابقة. جرّب كلمة أخرى.",
       resume:"متابعة", start:"ابدأ", enrol:"سجّل", enrolled:"مسجَّل", view:"افتح",
       enrolling:"جارٍ التسجيل…",
       complete_label:"مكتمل",
@@ -295,6 +299,24 @@
   }
   function getProgress(enrollmentId){
     return rest("lesson_progress?select=lesson_id,score,completed_at&enrollment_id=eq." + encodeURIComponent(enrollmentId));
+  }
+  function getModules(courseId){
+    return rest("course_modules?select=*&course_id=eq." + encodeURIComponent(courseId) + "&order=sort_order").catch(function(){ return []; });
+  }
+  function getCohorts(){
+    return rest("cohorts?select=*&order=starts_at.asc.nullslast").catch(function(){ return []; });
+  }
+  function getSessions(){
+    return rest("cohort_sessions?select=*&order=starts_at.asc").catch(function(){ return []; });
+  }
+  function getAnnouncements(){
+    return rest("announcements?select=*&order=published_at.desc&limit=10").catch(function(){ return []; });
+  }
+  function getPaths(){
+    return Promise.all([
+      rest("learning_paths?select=*&is_published=eq.true&order=sort_order").catch(function(){ return []; }),
+      rest("learning_path_courses?select=*&order=sort_order").catch(function(){ return []; })
+    ]);
   }
   function getCertificates(){
     return rest("certificates?select=code,holder_name,course_id,issued_on,score,is_valid&order=issued_on.desc");
@@ -549,8 +571,8 @@
   // ---------- Dashboard ----------
   async function viewDashboard(){
     busy();
-    var res = await Promise.all([getEnrollments(), getCourses(), getCertificates()]);
-    var enrs = res[0] || [], courses = res[1] || [], certs = res[2] || [];
+    var res = await Promise.all([getEnrollments(), getCourses(), getCertificates(), getAnnouncements(), getCohorts(), getSessions()]);
+    var enrs = res[0] || [], courses = res[1] || [], certs = res[2] || [], anns = res[3] || [], cohorts = res[4] || [], sessions = res[5] || [];
     var byId = {};
     courses.forEach(function(c){ byId[c.id] = c; });
 
@@ -585,13 +607,24 @@
       }).join("") + '</div>';
     }
 
+    var myCohorts = {}; enrs.forEach(function(e){ if (e.cohort_id) myCohorts[e.cohort_id] = e; });
+    var now = Date.now();
+    var upcoming = sessions.filter(function(s){ return myCohorts[s.cohort_id] && new Date(s.starts_at).getTime() >= now; }).slice(0, 4);
+    var side = "";
+    if (anns.length) side += '<div class="panel-list"><h4>' + esc(t("announcements")) + '</h4>' + anns.slice(0, 5).map(function(a){
+      return '<div class="ann"><b>' + esc(L(a, "title")) + '</b>' + (L(a, "body") ? '<p>' + esc(L(a, "body")) + '</p>' : "") + '<small>' + esc(fmtDate(a.published_at)) + '</small></div>';
+    }).join("") + '</div>';
+    if (upcoming.length) side += '<div class="panel-list"><h4>' + esc(t("upcoming")) + '</h4>' + upcoming.map(function(s){
+      var k = cohorts.filter(function(x){ return x.id === s.cohort_id; })[0] || {};
+      return '<div class="ann"><b>' + esc(fmtDate(s.starts_at)) + '</b><p>' + esc(L(byId[k.course_id] || {}, "title") || "") + (s.title ? " · " + esc(s.title) : "") + (k.location ? " · " + esc(k.location) : "") + '</p></div>';
+    }).join("") + '</div>';
     show(
       '<div class="page-head"><h1>' + esc(t("dash_title")) + '</h1><p>' + esc(t("dash_sub")) + '</p></div>' +
       '<div class="grid g3" style="margin-bottom:28px">' +
         stat(active.length, t("st_active")) +
         stat(done.length, t("st_done")) +
         stat(certs.length, t("st_certs")) +
-      '</div>' + body
+      '</div>' + (side ? '<div class="dash-split"><div>' + body + '</div><aside>' + side + '</aside></div>' : body)
     );
   }
   function stat(n, label){
@@ -601,10 +634,22 @@
   // ---------- Catalogue ----------
   async function viewCatalogue(){
     busy();
-    var res = await Promise.all([getCourses(), getEnrollments()]);
-    var courses = res[0] || [], enrs = res[1] || [];
+    var res = await Promise.all([getCourses(), getEnrollments(), getPaths()]);
+    var courses = res[0] || [], enrs = res[1] || [], paths = (res[2] && res[2][0]) || [], pathRows = (res[2] && res[2][1]) || [];
     var mine = {};
     enrs.forEach(function(e){ mine[e.course_id] = e; });
+    var byCourse = {}; courses.forEach(function(c){ byCourse[c.id] = c; });
+    function pathsBlock(){
+      if (!paths.length) return "";
+      return '<div class="page-head" style="margin-top:8px"><div class="kicker">' + esc(t("paths_title")) + '</div><p>' + esc(t("paths_sub")) + '</p></div>' +
+        '<div class="grid g2" style="margin-bottom:34px">' + paths.map(function(p){
+          var cs = pathRows.filter(function(r){ return r.path_id === p.id; }).map(function(r){ return byCourse[r.course_id]; }).filter(Boolean);
+          var doneN = cs.filter(function(c){ return mine[c.id] && mine[c.id].status === "completed"; }).length;
+          return '<article class="card path"><h3>' + esc(L(p, "title")) + '</h3>' + (L(p, "summary") ? '<p>' + esc(L(p, "summary")) + '</p>' : "") +
+            '<ol class="path-steps">' + cs.map(function(c){ var e = mine[c.id]; return '<li class="' + (e && e.status === "completed" ? "done" : e ? "active" : "") + '"><a href="#/course/' + encodeURIComponent(c.id) + '">' + esc(L(c, "title")) + '</a></li>'; }).join("") + '</ol>' +
+            '<div class="prog-row"><div class="prog' + (cs.length && doneN === cs.length ? " done" : "") + '"><i style="width:' + (cs.length ? Math.round(doneN * 100 / cs.length) : 0) + '%"></i></div><span>' + doneN + ' / ' + cs.length + ' ' + esc(t("path_courses")) + '</span></div></article>';
+        }).join("") + '</div>';
+    }
 
     function card(c){
       var e = mine[c.id];
@@ -638,6 +683,7 @@
 
     show(
       '<div class="page-head"><h1>' + esc(t("cat_title")) + '</h1><p>' + esc(t("cat_sub")) + '</p></div>' +
+      pathsBlock() +
       '<div class="cat-search"><input type="search" id="catSearch" placeholder="' + esc(t("cat_search")) + '" aria-label="' + esc(t("cat_search")) + '"></div>' +
       '<div id="catGrid">' + grid("") + '</div>'
     );
@@ -668,8 +714,8 @@
   // ---------- Course ----------
   async function viewCourse(courseId){
     busy();
-    var res = await Promise.all([getCourses(), getEnrollments(), getLessons(courseId)]);
-    var courses = res[0] || [], enrs = res[1] || [], lessons = res[2] || [];
+    var res = await Promise.all([getCourses(), getEnrollments(), getLessons(courseId), getModules(courseId), getCohorts(), getSessions()]);
+    var courses = res[0] || [], enrs = res[1] || [], lessons = res[2] || [], modules = res[3] || [], cohorts = res[4] || [], sessions = res[5] || [];
     var course = courses.filter(function(c){ return c.id === courseId; })[0];
     if (!course) return show('<div class="empty"><h3>' + esc(t("not_found")) + '</h3></div>');
 
@@ -697,21 +743,50 @@
         '<div class="prog' + (pct >= 100 ? " done" : "") + '"><i style="width:' + pct + '%"></i></div>' +
         '<span>' + pct + '% ' + esc(t("complete_label")) + '</span>' +
       '</div>' +
+      sessionBlock(e, cohorts, sessions) +
       '<div class="toc" style="max-width:640px;position:static">' +
         '<h4>' + esc(t("lessons")) + ' · ' + lessons.length + '</h4>' +
-        lessons.map(function(l, i){
+        outline(courseId, lessons, modules, doneSet) +
+      '</div>'
+    );
+  }
+
+  // Lessons grouped by module, in module order; ungrouped lessons last.
+  function outline(courseId, lessons, modules, doneSet){
+    var groups = modules.slice().sort(function(a,b){ return a.sort_order - b.sort_order; }).map(function(m){ return { title: L(m, "title"), items: lessons.filter(function(l){ return l.module_id === m.id; }) }; });
+    var rest_ = lessons.filter(function(l){ return !l.module_id || !modules.some(function(m){ return m.id === l.module_id; }); });
+    if (rest_.length) groups.push({ title: groups.length ? t("ungrouped") : "", items: rest_ });
+    var n = 0;
+    return groups.map(function(g){
+      var done = g.items.filter(function(l){ return doneSet[l.id]; }).length;
+      return (g.title ? '<div class="toc-group"><span>' + esc(g.title) + '</span><span>' + done + " / " + g.items.length + '</span></div>' : "") +
+        g.items.map(function(l){
+          n++;
           return '<a href="#/lesson/' + encodeURIComponent(courseId) + '/' + encodeURIComponent(l.id) + '">' +
             '<span class="tick' + (doneSet[l.id] ? " done" : "") + '">' + (doneSet[l.id] ? "✓" : "") + '</span>' +
             '<span style="flex:1">' + esc(L(l, "title")) +
-              '<span style="display:block;color:var(--ink-2);font-size:.8rem">' +
-                (i + 1) + " " + esc(t("of")) + " " + lessons.length + " · " +
-                (l.kind === "quiz" ? esc(t("q_check")) : (l.duration_min + " " + esc(t("min")))) +
-              '</span>' +
-            '</span>' +
-          '</a>';
-        }).join("") +
-      '</div>'
-    );
+              '<span style="display:block;color:var(--ink-2);font-size:.8rem">' + n + " " + esc(t("of")) + " " + lessons.length + " · " +
+                (l.kind === "quiz" ? esc(t("q_check")) : (l.duration_min + " " + esc(t("min")))) + '</span></span></a>';
+        }).join("");
+    }).join("");
+  }
+  // The cohort this enrolment sits in, with its next session.
+  function sessionBlock(e, cohorts, sessions){
+    var k = e && e.cohort_id ? cohorts.filter(function(x){ return x.id === e.cohort_id; })[0] : null;
+    if (!k) return "";
+    var now = Date.now();
+    var mine = sessions.filter(function(s){ return s.cohort_id === k.id; });
+    var next = mine.filter(function(s){ return new Date(s.starts_at).getTime() >= now; })[0];
+    return '<div class="session-card">' +
+      '<div class="kicker">' + esc(k.title || t("sessions")) + '</div>' +
+      '<div class="session-row"><b>' + esc(t("next_session")) + '</b><span>' + (next ? esc(fmtDate(next.starts_at)) + (next.title ? " · " + esc(next.title) : "") : esc(t("no_sessions"))) + '</span></div>' +
+      (k.location ? '<div class="session-row"><b>' + esc(t("venue")) + '</b><span>' + esc(k.location) + '</span></div>' : "") +
+      (k.meeting_url ? '<a class="btn btn-primary btn-sm" href="' + esc(k.meeting_url) + '" target="_blank" rel="noopener">' + esc(t("join_link")) + '</a>' : "") +
+    '</div>';
+  }
+  function fmtDate(s){
+    var d = new Date(s); if (isNaN(d.getTime())) return "";
+    try { return d.toLocaleString(CUR === "ar" ? "ar-SA" : "en-GB", { weekday:"short", day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" }); } catch(e){ return d.toISOString().slice(0,16).replace("T"," "); }
   }
 
   // ---------- Lesson ----------

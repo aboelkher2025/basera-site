@@ -22,8 +22,10 @@
 // ---- Mock backend. Not deployed. Exercises every view with fixture data. ----
 (function(){
   var b64 = function(o){ return btoa(JSON.stringify(o)).replace(/=+$/,"").replace(/\+/g,"-").replace(/\//g,"_"); };
-  var TOKEN = "x." + b64({ sub:"u-super", role:"authenticated" }) + ".y";
   var ROLE = (location.search.match(/role=([a-z_]+)/) || [])[1] || "super_admin";
+  // trainer and company lead sign in as the fixture accounts that own things; other roles reuse the owner row
+  var SUB = ROLE === "trainer" ? "u-tr" : ROLE === "client_admin" ? "u-lead" : "u-super";
+  var TOKEN = "x." + b64({ sub:SUB, role:"authenticated" }) + ".y";
   localStorage.setItem("basera_session", JSON.stringify({ access_token:TOKEN, refresh_token:"r" }));
   var iso = function(d){ return new Date(Date.now() - d*864e5).toISOString(); };
   var F = {
@@ -33,7 +35,7 @@
       { id:"o-nour", name:"Nour Retail Group", type:"client", join_code:"NOUR1", created_at:iso(30) }
     ],
     profiles:[
-      { id:"u-super", email:"owner@basera.sa", full_name:"Ahmed Owner", role:ROLE, org_id:"o-basera", department:null, lang:"en", created_at:iso(400) },
+      { id:"u-super", email:"owner@basera.sa", full_name:"Ahmed Owner", role:(SUB === "u-super" ? ROLE : "super_admin"), org_id:"o-basera", department:null, lang:"en", created_at:iso(400) },
       { id:"u-admin", email:"staff@basera.sa", full_name:"Sara Staff", role:"admin", org_id:"o-basera", department:"Operations", lang:"ar", created_at:iso(300) },
       { id:"u-tr", email:"trainer@basera.sa", full_name:"Khalid Trainer", role:"trainer", org_id:"o-basera", department:"Training", lang:"en", created_at:iso(200) },
       { id:"u-lead", email:"hr@acme.example", full_name:"Mona Lead", role:"client_admin", org_id:"o-acme", department:"HR", lang:"ar", created_at:iso(80) },
@@ -49,19 +51,39 @@
       { id:"data-101", domain:"data", level:"b", format:"self", hours:8, price_sar:900, has_certificate:false, title_en:"Data Literacy", title_ar:"محو الأمية البيانية", summary_en:"Reading dashboards.", summary_ar:"قراءة اللوحات.", keywords:"data", is_published:false, sort_order:30, created_at:iso(20), trainer_id:null }
     ],
     lessons:[
-      { id:"l1", course_id:"hr-101", title_en:"Welcome", title_ar:"مرحبا", kind:"text", body_en:"Hello.\n\nSecond.", body_ar:"مرحبا.", media_url:null, duration_min:10, quiz:null, sort_order:10 },
-      { id:"l2", course_id:"hr-101", title_en:"Onboarding", title_ar:"التهيئة", kind:"text", body_en:"Body.", body_ar:"نص.", media_url:null, duration_min:20, quiz:null, sort_order:20 },
-      { id:"l3", course_id:"hr-101", title_en:"Final check", title_ar:"الاختبار", kind:"quiz", body_en:null, body_ar:null, media_url:null, duration_min:15, quiz:[{ q_en:"Q1?", q_ar:"س1؟", options_en:["A","B","C"], options_ar:["أ","ب","ج"], answer:0 },{ q_en:"Q2?", q_ar:"س2؟", options_en:["A","B"], options_ar:["أ","ب"], answer:1 }], sort_order:30 },
+      { id:"l1", course_id:"hr-101", module_id:"m1", title_en:"Welcome", title_ar:"مرحبا", kind:"text", body_en:"Hello.\n\nSecond.", body_ar:"مرحبا.", media_url:null, duration_min:10, quiz:null, sort_order:10 },
+      { id:"l2", course_id:"hr-101", module_id:"m1", title_en:"Onboarding", title_ar:"التهيئة", kind:"text", body_en:"Body.", body_ar:"نص.", media_url:null, duration_min:20, quiz:null, sort_order:20 },
+      { id:"l3", course_id:"hr-101", module_id:"m2", title_en:"Final check", title_ar:"الاختبار", kind:"quiz", body_en:null, body_ar:null, media_url:null, duration_min:15, quiz:[{ q_en:"Q1?", q_ar:"س1؟", options_en:["A","B","C"], options_ar:["أ","ب","ج"], answer:0 },{ q_en:"Q2?", q_ar:"س2؟", options_en:["A","B"], options_ar:["أ","ب"], answer:1 }], sort_order:30 },
       { id:"l4", course_id:"lead-201", title_en:"Delegation", title_ar:"التفويض", kind:"video", body_en:null, body_ar:null, media_url:"https://example.com/v", duration_min:30, quiz:null, sort_order:10 },
       { id:"l5", course_id:"lead-201", title_en:"Quiz", title_ar:"اختبار", kind:"quiz", body_en:null, body_ar:null, media_url:null, duration_min:10, quiz:[{ q_en:"Q?", q_ar:"س؟", options_en:["A","B"], options_ar:["أ","ب"], answer:0 }], sort_order:20 }
     ],
     enrollments:[
-      { id:"e1", user_id:"u-l1", course_id:"hr-101", org_id:"o-acme", status:"completed", progress_pct:100, score:85, assigned_by:null, enrolled_at:iso(50), completed_at:iso(30) },
+      { id:"e1", user_id:"u-l1", course_id:"hr-101", cohort_id:"k1", org_id:"o-acme", status:"completed", progress_pct:100, score:85, assigned_by:null, enrolled_at:iso(50), completed_at:iso(30) },
       { id:"e2", user_id:"u-l2", course_id:"hr-101", org_id:"o-acme", status:"active", progress_pct:66, score:70, assigned_by:"u-lead", enrolled_at:iso(15), completed_at:null },
       { id:"e3", user_id:"u-l3", course_id:"lead-201", org_id:"o-nour", status:"active", progress_pct:50, score:null, assigned_by:null, enrolled_at:iso(4), completed_at:null },
       { id:"e4", user_id:"u-l4", course_id:"hr-101", org_id:null, status:"active", progress_pct:0, score:null, assigned_by:null, enrolled_at:iso(1), completed_at:null },
       { id:"e5", user_id:"u-l1", course_id:"lead-201", org_id:"o-acme", status:"completed", progress_pct:100, score:60, assigned_by:null, enrolled_at:iso(40), completed_at:iso(10) }
     ],
+    course_modules:[
+      { id:"m1", course_id:"hr-101", title_en:"Foundations", title_ar:"الأساسيات", sort_order:10 },
+      { id:"m2", course_id:"hr-101", title_en:"Assessment", title_ar:"التقييم", sort_order:20 }
+    ],
+    cohorts:[
+      { id:"k1", course_id:"hr-101", title:"March intake", format:"site", starts_at:iso(-20), ends_at:iso(-22), location:"Riyadh, Olaya", meeting_url:null, trainer_id:"u-tr", org_id:"o-acme", capacity:12, status:"scheduled", notes:null, created_at:iso(5) },
+      { id:"k2", course_id:"lead-201", title:null, format:"live", starts_at:iso(10), ends_at:iso(8), location:null, meeting_url:"https://meet.example/x", trainer_id:"u-tr", org_id:null, capacity:null, status:"running", notes:null, created_at:iso(30) }
+    ],
+    cohort_sessions:[
+      { id:"s1", cohort_id:"k1", title:"Day 1", starts_at:iso(-20), ends_at:iso(-20), sort_order:10 },
+      { id:"s2", cohort_id:"k1", title:"Day 2", starts_at:iso(-21), ends_at:iso(-21), sort_order:20 },
+      { id:"s3", cohort_id:"k2", title:"Session 1", starts_at:iso(10), ends_at:iso(10), sort_order:10 }
+    ],
+    attendance:[ { session_id:"s3", user_id:"u-l3", status:"present", marked_by:"u-tr", marked_at:iso(9) } ],
+    announcements:[
+      { id:"a1", title_en:"Welcome to the new portal", title_ar:"مرحباً بكم في البوابة الجديدة", body_en:"Courses now have modules and scheduled cohorts.", body_ar:"أصبح للدورات وحدات ومجموعات مجدولة.", audience:"all", org_id:null, cohort_id:null, published_at:iso(2), expires_at:null, created_by:"u-super" },
+      { id:"a2", title_en:"Bring your laptop", title_ar:"أحضر حاسوبك", body_en:"Day 1 is hands-on.", body_ar:"اليوم الأول عملي.", audience:"cohort", org_id:null, cohort_id:"k1", published_at:iso(1), expires_at:null, created_by:"u-tr" }
+    ],
+    learning_paths:[ { id:"p1", slug:"hr-foundations", title_en:"HR foundations", title_ar:"أساسيات الموارد البشرية", summary_en:"From coordinator to analyst.", summary_ar:"من منسق إلى محلل.", is_published:true, sort_order:10, created_at:iso(40) } ],
+    learning_path_courses:[ { path_id:"p1", course_id:"hr-101", sort_order:10 }, { path_id:"p1", course_id:"data-101", sort_order:30 } ],
     lesson_progress:[
       { enrollment_id:"e1", lesson_id:"l1", score:null, completed_at:iso(45) }, { enrollment_id:"e1", lesson_id:"l2", score:null, completed_at:iso(40) }, { enrollment_id:"e1", lesson_id:"l3", score:85, completed_at:iso(30) },
       { enrollment_id:"e2", lesson_id:"l1", score:null, completed_at:iso(14) }, { enrollment_id:"e2", lesson_id:"l3", score:70, completed_at:iso(12) },
@@ -95,6 +117,7 @@
     if (/\/rest\/v1\/rpc\/is_super/.test(url)) return ok(ROLE === "super_admin");
     if (/\/rest\/v1\/?(\?|$)/.test(url)) return ok(openapi);
     var mm = url.match(/\/rest\/v1\/([a-z_]+)\??(.*)$/); if (!mm) return ok({ error:"unmocked " + url }, 404);
+    if (m === "POST" && /on_conflict=/.test(url)) { var up = JSON.parse(opts.body); var tbl = mm[1]; var keys = (url.match(/on_conflict=([^&]+)/)[1]).split(","); F[tbl] = (F[tbl]||[]).filter(function(r){ return !keys.every(function(k){ return r[k] === up[k]; }); }); F[tbl].push(up); return ok([up], 201); }
     var table = mm[1], qs = mm[2] || "";
     if (!F[table]) return ok({ message:"relation " + table + " does not exist" }, 404);
     var filters = []; qs.split("&").forEach(function(kv){ var p = kv.split("="); if (p[1] && /^eq\./.test(decodeURIComponent(p[1]))) filters.push([p[0], decodeURIComponent(p[1]).slice(3)]); });
@@ -108,6 +131,7 @@
 })();
 </script>
 <script src="../public/js/admin/core.js"></script>
+<script src="../public/js/admin/delivery.js"></script>
 <script src="../public/js/admin/views.js"></script>
 <script src="../public/js/admin/access.js"></script>
 <script src="../public/js/admin/reports.js"></script>

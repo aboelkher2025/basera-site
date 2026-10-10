@@ -189,10 +189,19 @@ window.BA = (function(){
       A.rest("enrollments?select=*&order=enrolled_at.desc"),
       A.rest("certificates?select=*&order=created_at.desc"),
       A.rest("leads?select=*&order=created_at.desc"),
-      A.rest("lesson_progress?select=*&order=completed_at.desc")
+      A.rest("lesson_progress?select=*&order=completed_at.desc"),
+      A.rest("course_modules?select=*&order=course_id.asc,sort_order.asc"),
+      A.rest("cohorts?select=*&order=starts_at.desc.nullslast"),
+      A.rest("cohort_sessions?select=*&order=starts_at.asc"),
+      A.rest("attendance?select=*"),
+      A.rest("announcements?select=*&order=published_at.desc"),
+      A.rest("learning_paths?select=*&order=sort_order.asc"),
+      A.rest("learning_path_courses?select=*&order=sort_order.asc")
     ]);
     D.profiles = r[0] || []; D.orgs = r[1] || []; D.courses = r[2] || []; D.lessons = r[3] || [];
     D.enrols = r[4] || []; D.certs = r[5] || []; D.leads = r[6] || []; D.progress = r[7] || [];
+    D.modules = r[8] || []; D.cohorts = r[9] || []; D.sessions = r[10] || []; D.attendance = r[11] || [];
+    D.announcements = r[12] || []; D.paths = r[13] || []; D.pathCourseRows = r[14] || [];
     A.reindex();
     D.loaded = true;
   };
@@ -207,6 +216,10 @@ window.BA = (function(){
     D.membersPerOrg = countBy(D.profiles, "org_id");
     D.progressPerEnrol = countBy(D.progress, "enrollment_id");
     D.roleCounts = countBy(D.profiles, "role");
+    D.moduleById = index(D.modules, "id"); D.cohortById = index(D.cohorts, "id"); D.sessionById = index(D.sessions, "id");
+    D.annById = index(D.announcements, "id"); D.pathById = index(D.paths, "id");
+    D.sessionsPerCohort = countBy(D.sessions, "cohort_id");
+    D.pathCourses = {}; D.pathCourseRows.forEach(function(pc){ (D.pathCourses[pc.path_id] = D.pathCourses[pc.path_id] || []).push(pc); });
   };
   function index(rows, key){ var m = {}; (rows||[]).forEach(function(r){ m[r[key]] = r; }); return m; }
   function countBy(rows, key){ var m = {}; (rows||[]).forEach(function(r){ var k = r[key]; if (k == null) return; m[k] = (m[k]||0)+1; }); return m; }
@@ -537,6 +550,10 @@ window.BA = (function(){
     { id:"enrolments",   label:"Enrolments",    group:"Learning",  roles:["super_admin","admin","trainer","client_admin"], count:function(D){ return D.enrols.length; } },
     { id:"progress",     label:"Progress",      group:"Learning",  roles:["super_admin","admin","trainer","client_admin"], count:function(D){ return D.progress.length; } },
     { id:"certificates", label:"Certificates",  group:"Learning",  roles:["super_admin","admin","client_admin"], count:function(D){ return D.certs.length; } },
+    { id:"cohorts",      label:"Cohorts",       group:"Delivery",  roles:["super_admin","admin","trainer","client_admin"], count:function(D){ return D.cohorts.length; } },
+    { id:"modules",      label:"Modules",       group:"Catalogue", roles:["super_admin","admin","trainer"], count:function(D){ return D.modules.length; } },
+    { id:"paths",        label:"Learning paths",group:"Catalogue", roles:["super_admin","admin"], count:function(D){ return D.paths.length; } },
+    { id:"announcements",label:"Announcements", group:"Delivery",  roles:["super_admin","admin","trainer"], count:function(D){ return D.announcements.length; } },
     { id:"leads",        label:"Leads",         group:"Marketing", roles:STAFF_ONLY, count:function(D){ return D.leads.length; } },
     { id:"database",     label:"Database",      group:"System",    roles:STAFF_ONLY }
   ];

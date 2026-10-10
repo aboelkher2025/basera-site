@@ -394,6 +394,7 @@
         { k:"price_sar", label:"Price (SAR)", type:"number", required:true, half:true }, { k:"sort_order", label:"Sort order", type:"number", half:true },
         { k:"trainer_id", label:"Trainer", type:"select", options:[{ v:"", l:"— Unassigned" }].concat(trainers.map(function(p){ return { v:p.id, l:(p.full_name || p.email) }; })), hint: trainers.length ? "" : "Create an account with type Trainer to assign one." },
         { k:"keywords", label:"Keywords", hint:"Space-separated, used by the course search." },
+        { k:"valid_for_months", label:"Certificate valid for (months)", type:"number", hint:"Leave empty if the certificate never expires. Sets valid_until on every certificate issued for this course." },
         { k:"has_certificate", label:"Issues a certificate on completion", type:"checkbox" },
         { k:"is_published", label:"Visible on the public site", type:"checkbox" }
       ].filter(Boolean);
@@ -402,7 +403,7 @@
         values: c ? Object.assign({}, c, { trainer_id:c.trainer_id || "" }) : { domain:"hr", level:"b", format:"live", hours:8, price_sar:0, sort_order:(d.courses.length + 1) * 10, has_certificate:true, is_published:false, keywords:"" },
         onSubmit: async function(v){
           var body = { title_en:v.title_en, title_ar:v.title_ar, summary_en:v.summary_en, summary_ar:v.summary_ar, domain:v.domain, level:v.level, format:v.format,
-                       hours:v.hours, price_sar:v.price_sar, sort_order:v.sort_order == null ? 0 : v.sort_order, keywords:v.keywords || "", has_certificate:!!v.has_certificate, is_published:!!v.is_published };
+                       hours:v.hours, price_sar:v.price_sar, sort_order:v.sort_order == null ? 0 : v.sort_order, keywords:v.keywords || "", has_certificate:!!v.has_certificate, is_published:!!v.is_published, valid_for_months:v.valid_for_months == null ? null : v.valid_for_months };
           if ("trainer_id" in v) body.trainer_id = v.trainer_id || null;
           try {
             if (c) await A.patch("courses", "id=eq." + A.q(c.id), body); else { body.id = v.id; await A.insert("courses", body); }
@@ -430,6 +431,7 @@
     var cols = [
       { k:"sort_order", label:"#", cls:"num" },
       { k:"title", label:"Lesson", val:function(r){ return A.L(r,"title"); }, cell:function(r){ return esc(A.L(r,"title")); } },
+      { k:"module", label:"Module", cls:"muted", val:function(r){ var m = d.moduleById[r.module_id]; return m ? A.L(m,"title") : ""; }, cell:function(r){ var m = d.moduleById[r.module_id]; return m ? esc(A.L(m,"title")) : '<span class="muted">\u2014</span>'; } },
       { k:"kind", label:"Kind", cell:function(r){ return A.pill(r.kind, r.kind === "quiz" ? "warn" : ""); } },
       { k:"duration_min", label:"Min", cls:"num" },
       { k:"q", label:"Questions", cls:"num", val:function(r){ return Array.isArray(r.quiz) ? r.quiz.length : 0; }, cell:function(r){ return Array.isArray(r.quiz) ? String(r.quiz.length) : '<span class="muted">—</span>'; } },
@@ -440,7 +442,7 @@
     function paint(){
       var sel = '<select id="course">' + A.selectOptions(d.courses, courseId, function(c){ return A.L(c,"title") + " [" + c.id + "]"; }) + "</select>";
       var c = d.courseById[courseId];
-      A.out.innerHTML = A.pageHead("Lessons", c ? A.L(c,"title") + " — " + (d.lessonsPerCourse[courseId] || 0) + " lessons in order." : "Pick a course.", '<button class="btn accent" id="add"' + (c ? "" : " disabled") + ">+ New lesson</button>") +
+      A.out.innerHTML = A.pageHead("Lessons", c ? A.L(c,"title") + " — " + (d.lessonsPerCourse[courseId] || 0) + " lessons in order." : "Pick a course.", '<a class="btn light" href="#/modules?course=' + esc(courseId) + '">Modules</a> <button class="btn accent" id="add"' + (c ? "" : " disabled") + ">+ New lesson</button>") +
         A.searchBar("Search lessons…", true, sel) + '<div class="panel">' + A.table("lessons", cols, rows(), "This course has no lessons yet.") + "</div>";
       A.wireCommon(paint); A.wireSort("lessons", paint); A.wireCsv("basera-lessons-" + courseId + ".csv", cols, rows);
       A.el("course").addEventListener("change", function(){ A.go("lessons", { course:A.el("course").value }); });
@@ -455,6 +457,7 @@
         title: l ? "Edit lesson" : "New lesson", submitLabel: l ? "Save" : "Create lesson", wide:true,
         fields:[
           { k:"title_en", label:"Title (EN)", required:true, half:true }, { k:"title_ar", label:"Title (AR)", required:true, half:true },
+          { k:"module_id", label:"Module", type:"select", options:[{ v:"", l:"\u2014 No module" }].concat(d.modules.filter(function(m){ return m.course_id === courseId; }).map(function(m){ return { v:m.id, l:A.L(m,"title") }; })), half:true },
           { k:"kind", label:"Kind", type:"select", options:KINDS, half:true }, { k:"sort_order", label:"Order", type:"number", half:true },
           { k:"duration_min", label:"Duration (minutes)", type:"number", required:true, half:true },
           { k:"media_url", label:"Media URL", showIf:function(v){ return v.kind === "video" || v.kind === "pdf"; }, hint:"Video embed link or PDF URL.", half:true },
@@ -462,9 +465,9 @@
           { k:"body_ar", label:"Body (AR)", type:"textarea", rows:6, showIf:function(v){ return v.kind !== "quiz"; } },
           { k:"quiz", label:"Quiz (JSON)", type:"json", rows:12, showIf:function(v){ return v.kind === "quiz"; }, hint:'Array of { q_en, q_ar, options_en[], options_ar[], answer } where answer is the 0-based index of the correct option. Pass mark is 70%.', validate:function(v, all){ return all.kind === "quiz" ? validateQuiz(v) : null; } }
         ],
-        values: l ? Object.assign({}, l) : { kind:"text", sort_order:nextSort, duration_min:15, quiz:QUIZ_TEMPLATE },
+        values: l ? Object.assign({}, l, { module_id:l.module_id || "" }) : { kind:"text", module_id:"", sort_order:nextSort, duration_min:15, quiz:QUIZ_TEMPLATE },
         onSubmit: async function(v){
-          var body = { course_id:courseId, title_en:v.title_en, title_ar:v.title_ar, kind:v.kind, sort_order:v.sort_order == null ? nextSort : v.sort_order, duration_min:v.duration_min,
+          var body = { course_id:courseId, module_id:v.module_id || null, title_en:v.title_en, title_ar:v.title_ar, kind:v.kind, sort_order:v.sort_order == null ? nextSort : v.sort_order, duration_min:v.duration_min,
                        media_url:v.media_url || null, body_en:v.kind === "quiz" ? null : (v.body_en || null), body_ar:v.kind === "quiz" ? null : (v.body_ar || null), quiz:v.kind === "quiz" ? v.quiz : null };
           if (l) await A.patch("lessons", "id=eq." + A.q(l.id), body); else await A.insert("lessons", body);
           await A.reload(); A.toast(l ? "Saved" : "Lesson created");
@@ -596,6 +599,7 @@
       { k:"course", label:"Course", val:function(r){ return A.courseTitle(r.course_id); }, cell:function(r){ return esc(A.courseTitle(r.course_id)); } },
       { k:"score", label:"Score", cls:"num", val:function(r){ return r.score == null ? -1 : r.score; }, cell:function(r){ return r.score == null ? '<span class="muted">—</span>' : r.score + "%"; } },
       { k:"issued_on", label:"Issued", cls:"num muted", cell:function(r){ return A.date(r.issued_on); } },
+      { k:"valid_until", label:"Expires", cls:"num muted", cell:function(r){ if (!r.valid_until) return "\u2014"; var past = new Date(r.valid_until) < new Date(); return past ? A.pill(A.date(r.valid_until), "bad") : A.date(r.valid_until); } },
       { k:"is_valid", label:"Status", val:function(r){ return r.is_valid ? 1 : 0; }, cell:function(r){ return miniSelect("valid", r.code, [{ v:"1", l:"valid" },{ v:"0", l:"revoked" }], r.is_valid ? "1" : "0"); } },
       { k:"_act", label:"", cls:"act", cell:function(r){ return A.btn("verify", r.code, "Verify link") + A.btn("del", r.code, "Delete", "danger"); } }
     ];

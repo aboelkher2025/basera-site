@@ -26,6 +26,7 @@ public/                 everything that is deployed (GitHub Pages serves this fo
   js/portal.js          learner portal: auth, catalogue, lessons, quizzes, certificates, account
   js/admin/core.js      panel: session, REST, routing, role gating, tables, forms
   js/admin/views.js     panel: dashboard, accounts, companies, courses, lessons, enrolments, progress, certificates, leads
+  js/admin/delivery.js  panel: cohorts (sessions, roster, attendance), modules, announcements, learning paths
   js/admin/access.js    panel: Users & access (super admin only)
   js/admin/reports.js   panel: ten reports with CSV export
   js/admin/db.js        panel: generic browser over every table the API exposes
@@ -35,6 +36,7 @@ supabase/               the backend, synced to the project by Supabase's GitHub 
   functions/admin-users account create / delete / password, service role held server-side
 tests/panel-harness.html  the panel on a mock backend, for QA without credentials
 docs/qa-report.md       the latest QA pass
+docs/lms-research.md    what an LMS is made of, the gap analysis, and the roadmap this build follows
 .github/workflows/      deploys public/ to GitHub Pages on push and on manual dispatch
 ```
 
@@ -57,7 +59,7 @@ the Actions tab - which has always started immediately.
 **Cache stamps.** GitHub Pages caches every file for ten minutes. Every `<link>` and `<script>`
 tag in the pages carries `?v=<stamp>` so a page and its assets always change together. When you
 change any CSS or JS, bump the stamp in the pages that use it (one value, currently
-`20261010c`, used everywhere).
+`20261010d`, used everywhere).
 
 **Backend.** The project is connected to this repository through Supabase's GitHub integration,
 which runs `supabase db push` and deploys `supabase/functions/` on each push to `main`.
@@ -66,6 +68,23 @@ which runs `supabase db push` and deploys `supabase/functions/` on each push to 
 edit or rename an applied file; add a new one. Applying SQL from the dashboard still works, but
 add the same SQL as a migration file afterwards so the two stay in step. Secrets are never in
 the repo.
+
+## What the platform models
+
+Following the structure every LMS shares (see `docs/lms-research.md`):
+
+- **Learning path** → **Course** → **Module** → **Lesson** (text, video, PDF or quiz). Modules
+  group lessons; the learner's course page shows the outline with progress per module.
+- **Cohort** — a scheduled run of a course: dates, venue or meeting link, trainer, company,
+  capacity, status, with **sessions** and **attendance** per session. A learner's enrolment
+  can be seated in a cohort; the portal shows the next session and a join link.
+- **Announcements** — to everyone, one company, or one cohort; shown on the learner dashboard.
+- **Certificates** carry an optional `valid_until`, set from the course's
+  `valid_for_months`, so recertification is a report away.
+
+Staff add, edit and delete all of it from the panel; trainers run their own cohorts
+(sessions, attendance, cohort announcements); company leads see their company's cohorts
+and attendance. The Database page still gives staff raw access to every table.
 
 ## Account types
 

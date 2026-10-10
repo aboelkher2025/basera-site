@@ -68,3 +68,6 @@ select.rolepick{font-size:12px;padding:4px 6px}
 body.readonly .btn.accent,
 body.readonly td .btn,
 body.readonly select.rolepick{display:none}
+
+/* Trainers are read-only in shared views; controls for their own cohorts opt back in. */
+body.readonly .keep-rw{display:inline-block!important;pointer-events:auto!important;opacity:1!important}
